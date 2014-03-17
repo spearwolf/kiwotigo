@@ -137,6 +137,11 @@ func (region *Region) SingleRandomShapeHexagon() *Hexagon {
 			return hex
 		}
 	}
+	//for _, hex := range region.hexagons {
+	//if region.isMarginal(hex.NeighborNorth) || region.isMarginal(hex.NeighborNorthEast) || region.isMarginal(hex.NeighborSouthEast) || region.isMarginal(hex.NeighborSouth) || region.isMarginal(hex.NeighborSouthWest) || region.isMarginal(hex.NeighborNorthWest) {
+	//return hex
+	//}
+	//}
 	return nil
 }
 
