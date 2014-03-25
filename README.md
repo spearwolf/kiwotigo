@@ -1,4 +1,6 @@
-kiwotigo
-========
+# kiwotigo
 
-go-lang kiwoticum server
+go-lang game-server for [kiwoticum](https://github.com/spearwolf/kiwoticum).
+
+the kiwotigo code is licensed under the GPLv3. see [LICENSE](./LICENSE.txt) for details.
+
