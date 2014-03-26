@@ -399,37 +399,35 @@ func TestNextHexagonShapeEdgeRegionA(t *testing.T) {
 
 	hexagon := model.Hexagon(1, 1)
 
-	region.beginShape()
-	nextHexagon, nextEdge := region.nextShapeHexagonEdge(hexagon, -1)
+	shape := NewRegionShape(region)
+	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 
 	if nextHexagon != nil || nextEdge != -1 {
 		t.Error("nextHexagon should be nil, is", nextHexagon)
 	}
 
-	if region.visitedEdges[hexagon][0] == false {
+	if shape.visitedEdges[hexagon][0] == false {
 		t.Error("hexagon->visitedEdges[0] should be true, is false")
 	}
-	if region.visitedEdges[hexagon][1] == false {
+	if shape.visitedEdges[hexagon][1] == false {
 		t.Error("hexagon->visitedEdges[1] should be true, is false")
 	}
-	if region.visitedEdges[hexagon][2] == false {
+	if shape.visitedEdges[hexagon][2] == false {
 		t.Error("hexagon->visitedEdges[2] should be true, is false")
 	}
-	if region.visitedEdges[hexagon][3] == false {
+	if shape.visitedEdges[hexagon][3] == false {
 		t.Error("hexagon->visitedEdges[3] should be true, is false")
 	}
-	if region.visitedEdges[hexagon][4] == false {
+	if shape.visitedEdges[hexagon][4] == false {
 		t.Error("hexagon->visitedEdges[4] should be true, is false")
 	}
-	if region.visitedEdges[hexagon][5] == false {
+	if shape.visitedEdges[hexagon][5] == false {
 		t.Error("hexagon->visitedEdges[5] should be true, is false")
 	}
 
-	if len(region.shapePath) != 6 {
-		t.Error("region.shapePath should have len==6, is", len(region.shapePath))
+	if len(shape.shapePath) != 6 {
+		t.Error("region.shapePath should have len==6, is", len(shape.shapePath))
 	}
-
-	region.endShape()
 }
 
 func assertNextHexagonEdge(t *testing.T, next *Hexagon, edge int, hexCoordX, hexCoordY uint, shouldEdge int, name string) {
@@ -457,20 +455,18 @@ func TestNextHexagonShapeEdgeRegionB(t *testing.T) {
 
 	hexagon := model.Hexagon(3, 1)
 
-	region.beginShape()
+	shape := NewRegionShape(region)
 
-	nextHexagon, nextEdge := region.nextShapeHexagonEdge(hexagon, -1)
+	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 2, 3, "B1")
 
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 3, 1, 0, "B0")
 
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	if nextHexagon != nil {
 		t.Error("nextHexagon should be nil, is", nextHexagon, "(after B0)")
 	}
-
-	region.endShape()
 }
 
 func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
@@ -496,52 +492,50 @@ func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
 
 	hexagon := model.Hexagon(3, 4)
 
-	region.beginShape()
+	shape := NewRegionShape(region)
 
-	nextHexagon, nextEdge := region.nextShapeHexagonEdge(hexagon, -1)
+	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 2, 4, 0, "D1")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 1, 4, 1, "D2")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 0, 5, 1, "D3")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 0, 6, 2, "D4")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 0, 7, 2, "D5")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 1, 6, 4, "D6")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 2, 6, 4, "D7")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 3, 6, 3, "D8")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 6, 4, "D9")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 5, 5, "D10")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 4, 5, "D11")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 3, 4, 1, "D12")
 
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	if nextHexagon != nil {
 		t.Error("nextHexagon should be nil, is", nextHexagon, "(after D12)")
 	}
 
-	_, exists := region.visitedEdges[model.Hexagon(2, 5)]
+	_, exists := shape.visitedEdges[model.Hexagon(2, 5)]
 	if exists {
 		t.Error("Hexagon(2,5) should not be included in visitedEdges, but is")
 	}
-	_, exists = region.visitedEdges[model.Hexagon(1, 5)]
+	_, exists = shape.visitedEdges[model.Hexagon(1, 5)]
 	if exists {
 		t.Error("Hexagon(1,5) should not be included in visitedEdges, but is")
 	}
-	_, exists = region.visitedEdges[model.Hexagon(3, 5)]
+	_, exists = shape.visitedEdges[model.Hexagon(3, 5)]
 	if exists {
 		t.Error("Hexagon(3,5) should not be included in visitedEdges, but is")
 	}
-
-	region.endShape()
 }
 
 func TestNextHexagonShapeEdgeRegionE(t *testing.T) {
@@ -558,35 +552,33 @@ func TestNextHexagonShapeEdgeRegionE(t *testing.T) {
 
 	hexagon := model.Hexagon(5, 5)
 
-	region.beginShape()
+	shape := NewRegionShape(region)
 
-	nextHexagon, nextEdge := region.nextShapeHexagonEdge(hexagon, -1)
+	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 4, 5, "E1")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 5, 2, "E2")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 6, 2, "E1")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 7, 1, "E3")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 6, 4, "E4")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 6, 7, 3, "E3")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 7, 6, 4, "E5")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 6, 7, 1, "E6")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 6, 0, "E5")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 5, 5, "E3")
 
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	if nextHexagon != nil {
 		t.Error("nextHexagon should be nil, is", nextHexagon, "(after E3)")
 	}
-
-	region.endShape()
 }
 
 func TestNextHexagonShapeEdgeRegionF(t *testing.T) {
@@ -602,12 +594,10 @@ func TestNextHexagonShapeEdgeRegionF(t *testing.T) {
 
 	hexagon := model.Hexagon(1, 3)
 
-	region.beginShape()
+	shape := NewRegionShape(region)
 
-	nextHexagon, nextEdge := region.nextShapeHexagonEdge(hexagon, -1)
+	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 2, 3, 4, "F1")
-	nextHexagon, nextEdge = region.nextShapeHexagonEdge(nextHexagon, nextEdge)
+	nextHexagon, nextEdge = shape.nextHexagonEdge(nextHexagon, nextEdge)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 1, 2, 0, "F2")
-
-	region.endShape()
 }

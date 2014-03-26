@@ -45,7 +45,7 @@ func (continent *Continent) Json() string {
 func (continent *Continent) CreateAllShapes() {
 	continent.Shapes = make([]*[]*Vertex, 0, len(continent.regions))
 	for _, region := range continent.regions {
-		shape := region.CreateShapePath()
+		shape := CreateShapePath(region)
 		continent.Shapes = append(continent.Shapes, shape)
 	}
 }
