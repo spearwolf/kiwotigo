@@ -35,7 +35,9 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	ccs.ContinentConfig = cfg
 	ccs.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
 	ccs.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-	ccs.Continent = NewContinent(cfg.GridWidth*cfg.GridHexWidth, cfg.GridHeight*cfg.GridHexHeight, cfg.GridOuterPaddingX, cfg.GridOuterPaddingY, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
+	cols := cfg.GridOuterPaddingX*2 + cfg.GridWidth*cfg.GridHexWidth + cfg.GridInnerPaddingX*(cfg.GridWidth-1)
+	rows := cfg.GridOuterPaddingY*2 + cfg.GridHeight*cfg.GridHexHeight + cfg.GridInnerPaddingY*(cfg.GridHeight-1)
+	ccs.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
 	ccs.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
 	ccs.probabilityCreateRegionAt = 0.5
 	return
@@ -97,8 +99,8 @@ func (ccs *ContinentCreationStrategy) CreateRegions() {
 //
 func (ccs *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint) {
 	var x, y uint
-	x = ccs.GridOuterPaddingX + ccs.GridHexWidth*gridX + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
-	y = ccs.GridOuterPaddingY + ccs.GridHexHeight*gridY + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
+	x = ccs.GridOuterPaddingX + (ccs.GridHexWidth+ccs.GridInnerPaddingX)*gridX + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
+	y = ccs.GridOuterPaddingY + (ccs.GridHexHeight+ccs.GridInnerPaddingY)*gridY + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
 
 	region := new(Region)
 	hexagon := ccs.Continent.model.Hexagon(x, y)

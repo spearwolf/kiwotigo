@@ -52,9 +52,13 @@ func CreateShapePath(region *Region) *[]*Vertex {
 	return NewRegionShape(region).CreatePath()
 }
 
-func (_ *RegionShape) neighborHasOtherRegion(hexagon *Hexagon, neighborIndex int) bool {
+func (_ *RegionShape) isOtherRegion(a, b *Region) bool {
+	return a == nil || b == nil || a != b
+}
+
+func (shape *RegionShape) neighborHasOtherRegion(hexagon *Hexagon, neighborIndex int) bool {
 	hex := hexagon.Neighbor(neighborIndex)
-	return hex == nil || hex.Region != hexagon.Region
+	return hex == nil || shape.isOtherRegion(hex.Region, hexagon.Region)
 }
 
 func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*Hexagon, int) {
@@ -71,7 +75,7 @@ func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*H
 	if startAtEdge < 0 {
 		for i = 0; i < 6; i++ {
 			hex := hexagon.Neighbor(i)
-			if hex == nil || hex.Region != hexagon.Region {
+			if hex == nil || shape.isOtherRegion(hex.Region, hexagon.Region) {
 				break
 			}
 		}

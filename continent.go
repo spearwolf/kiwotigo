@@ -29,9 +29,9 @@ type Continent struct {
 	regions []*Region
 }
 
-func NewContinent(cols, rows, colPadding, rowPadding, hexWidth, hexHeight, paddingX, paddingY uint) (continent *Continent) {
+func NewContinent(cols, rows, hexWidth, hexHeight, paddingX, paddingY uint) (continent *Continent) {
 	continent = new(Continent)
-	continent.model = NewHexagonModel(colPadding*2+cols, rowPadding*2+rows, hexWidth, hexHeight, paddingX, paddingY)
+	continent.model = NewHexagonModel(cols, rows, hexWidth, hexHeight, paddingX, paddingY)
 	continent.Width = continent.model.CanvasWidth()
 	continent.Height = continent.model.CanvasHeight()
 	return
