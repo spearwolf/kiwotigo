@@ -17,13 +17,24 @@
 
 package kiwotigo
 
-type ContinentConfig struct {
-	GridWidth, GridHeight                uint
-	GridOuterPaddingX, GridOuterPaddingY uint
-	GridInnerPaddingX, GridInnerPaddingY uint
-	GridHexWidth, GridHexHeight          uint
-	HexWidth, HexHeight                  uint
-	HexPaddingX, HexPaddingY             uint
-	MinimalGrowIterations                uint
-	FastGrowIterations                   uint
+type Position struct {
+	X, Y uint
+}
+
+func (pos *Position) Row() uint {
+	return pos.Y
+}
+
+func (pos *Position) SetRow(row uint) uint {
+	pos.Y = row
+	return pos.Y
+}
+
+func (pos *Position) Col() uint {
+	return pos.X
+}
+
+func (pos *Position) SetCol(col uint) uint {
+	pos.X = col
+	return pos.X
 }

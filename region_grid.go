@@ -45,6 +45,10 @@ func (grid *RegionGrid) regionsIndex(x, y uint) uint {
 	return y*grid.width + x
 }
 
+func (grid *RegionGrid) IsInsideGrid(x, y uint) bool {
+	return x >= 0 && x < grid.width && y >= 0 && y < grid.height
+}
+
 func (grid *RegionGrid) Region(x, y uint) *Region {
 	return grid.regions[grid.regionsIndex(x, y)]
 }

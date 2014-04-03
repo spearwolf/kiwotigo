@@ -22,11 +22,12 @@ import (
 )
 
 type Continent struct {
-	Width   uint         `json:"width"`
-	Height  uint         `json:"height"`
-	Shapes  []*[]*Vertex `json:"shapes"`
-	model   *HexagonModel
-	regions []*Region
+	Width        uint                    `json:"width"`
+	Height       uint                    `json:"height"`
+	Shapes       []map[string]*[]*Vertex `json:"regions"`
+	CenterPoints []Vertex                `json:"centerPoints"`
+	model        *HexagonModel
+	regions      []*Region
 }
 
 func NewContinent(cols, rows, hexWidth, hexHeight, paddingX, paddingY uint) (continent *Continent) {
@@ -42,11 +43,25 @@ func (continent *Continent) Json() string {
 	return string(json)
 }
 
-func (continent *Continent) CreateAllShapes() {
-	continent.Shapes = make([]*[]*Vertex, 0, len(continent.regions))
-	for _, region := range continent.regions {
+func (continent *Continent) CreateShapes(shapeName string) {
+	if continent.Shapes == nil {
+		continent.Shapes = make([]map[string]*[]*Vertex, len(continent.regions))
+		for i, _ := range continent.regions {
+			continent.Shapes[i] = make(map[string]*[]*Vertex)
+		}
+	}
+	for i, region := range continent.regions {
 		shape := CreateShapePath(region)
-		continent.Shapes = append(continent.Shapes, shape)
+		continent.Shapes[i][shapeName] = shape
+	}
+}
+
+func (continent *Continent) UpdateCenterPoints() {
+	if continent.CenterPoints == nil {
+		continent.CenterPoints = make([]Vertex, len(continent.regions))
+	}
+	for i, region := range continent.regions {
+		continent.CenterPoints[i] = region.hexagons[0].CenterPoint
 	}
 }
 

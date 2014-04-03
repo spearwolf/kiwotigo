@@ -27,6 +27,7 @@ type Hexagon struct {
 	Row, Col          uint
 	Left, Top         float64
 	coords            []Vertex
+	CenterPoint       Vertex
 	Region            *Region
 	NeighborNorth     *Hexagon
 	NeighborNorthEast *Hexagon
@@ -74,6 +75,8 @@ func (hex *Hexagon) MakeCoords(width, height uint) {
 		r := (float64(i)*(360/6) + startAtAngle) * (math.Pi / 180)
 		hex.coords[i] = Vertex{math.Floor(0.5 + (math.Sin(r)*lx + mx + hex.Left)), math.Floor(0.5 + (math.Cos(r)*ly + my + hex.Top))}
 	}
+
+	hex.CenterPoint = Vertex{mx + hex.Left, my + hex.Top}
 }
 
 func (hex *Hexagon) VertexCoord(i int) *Vertex {
