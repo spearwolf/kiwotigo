@@ -65,6 +65,29 @@ func (hex *Hexagon) Neighbor(index int) *Hexagon {
 	return nil
 }
 
+func (hex *Hexagon) NeighborsWithRegionCount() uint {
+	var count uint
+	if hex.NeighborNorthEast != nil && hex.NeighborNorthEast.Region != nil {
+		count++
+	}
+	if hex.NeighborNorth != nil && hex.NeighborNorth.Region != nil {
+		count++
+	}
+	if hex.NeighborNorthWest != nil && hex.NeighborNorthWest.Region != nil {
+		count++
+	}
+	if hex.NeighborSouthEast != nil && hex.NeighborSouthEast.Region != nil {
+		count++
+	}
+	if hex.NeighborSouth != nil && hex.NeighborSouth.Region != nil {
+		count++
+	}
+	if hex.NeighborSouthWest != nil && hex.NeighborSouthWest.Region != nil {
+		count++
+	}
+	return count
+}
+
 func (hex *Hexagon) MakeCoords(width, height uint) {
 	hex.coords = make([]Vertex, 6)
 

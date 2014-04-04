@@ -26,6 +26,7 @@ type Continent struct {
 	Height       uint                    `json:"height"`
 	Shapes       []map[string]*[]*Vertex `json:"regions"`
 	CenterPoints []Vertex                `json:"centerPoints"`
+	Neighbors    []*[]int                `json:"neighbors"`
 	model        *HexagonModel
 	regions      []*Region
 }
@@ -62,6 +63,28 @@ func (continent *Continent) UpdateCenterPoints() {
 	}
 	for i, region := range continent.regions {
 		continent.CenterPoints[i] = region.hexagons[0].CenterPoint
+	}
+}
+
+func (continent *Continent) calcRegionId(region *Region) int {
+	for i, reg := range continent.regions {
+		if reg == region {
+			return i
+		}
+	}
+	return -1
+}
+
+func (continent *Continent) MakeNeighbors() {
+	if continent.Neighbors == nil {
+		continent.Neighbors = make([]*[]int, len(continent.regions))
+	}
+	for i, region := range continent.regions {
+		neighbors := make([]int, len(region.neighbors))
+		for j, neighbor := range region.neighbors {
+			neighbors[j] = continent.calcRegionId(neighbor)
+		}
+		continent.Neighbors[i] = &neighbors
 	}
 }
 

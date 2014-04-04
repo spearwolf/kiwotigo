@@ -80,7 +80,39 @@ func (ccs *ContinentCreationStrategy) CreateRegions() {
 	ccs.Continent.CreateShapes("basePath")
 	ccs.fastGrowAllRegions()
 	ccs.growAllRegions()
+	ccs.closeHolesInAllRegions()
 	ccs.Continent.CreateShapes("fullPath")
+}
+
+func filterHexagonsWithNeighborCount(hexagons []*Hexagon, neighborMinCount uint) []*Hexagon {
+	res := make([]*Hexagon, 0, len(hexagons))
+	for _, hex := range hexagons {
+		count := hex.NeighborsWithRegionCount()
+		if count >= neighborMinCount {
+			res = append(res, hex)
+		}
+	}
+	return res
+}
+
+func (ccs *ContinentCreationStrategy) regionLessWithNeighborWithRegionCount(region *Region, minNeighborWithRegionCount uint) []*Hexagon {
+	return filterHexagonsWithNeighborCount(region.RegionLessNeighborHexagons(), minNeighborWithRegionCount)
+}
+
+func (ccs *ContinentCreationStrategy) closeHolesInAllRegions() {
+	var i uint
+	for i = 0; i < ccs.FastGrowIterations; i++ {
+		for _, region := range ccs.Continent.regions {
+			for {
+				regionLess := ccs.regionLessWithNeighborWithRegionCount(region, 5)
+				if len(regionLess) > 0 {
+					region.AssignHexagons(regionLess)
+				} else {
+					break
+				}
+			}
+		}
+	}
 }
 
 func (ccs *ContinentCreationStrategy) fastGrowAllRegions() {
@@ -109,12 +141,18 @@ func (ccs *ContinentCreationStrategy) fastGrowRegion(region *Region) {
 func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
 	isGrowable, exists := ccs.growableRegion[region]
 	if isGrowable || !exists {
-		regionLess := region.RegionLessNeighborHexagons()
-		count := len(regionLess)
-		if count > 0 {
-			region.AssignHexagon(regionLess[ccs.rand.Intn(count)])
+
+		hexagons := ccs.regionLessWithNeighborWithRegionCount(region, 5)
+		if len(hexagons) > 0 {
+			region.AssignHexagons(hexagons)
 		}
-		ccs.growableRegion[region] = count > 0
+
+		hexagons = ccs.regionLessWithNeighborWithRegionCount(region, 2)
+		if len(hexagons) > 0 {
+			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
+		}
+
+		ccs.growableRegion[region] = len(region.RegionLessNeighborHexagons()) > 0
 	}
 }
 

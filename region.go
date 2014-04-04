@@ -79,7 +79,7 @@ func (region *Region) IsNeighbor(other *Region) bool {
 }
 
 func (region *Region) addNeighbor(neighbor *Region) *Region {
-	if neighbor != nil && !region.IsNeighbor(neighbor) {
+	if neighbor != nil && region != neighbor && !region.IsNeighbor(neighbor) {
 		region.neighbors = append(region.neighbors, neighbor)
 		neighbor.neighbors = append(neighbor.neighbors, region)
 	}
