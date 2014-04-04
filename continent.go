@@ -92,6 +92,16 @@ func (continent *Continent) UpdateCenterPoints() {
 		p1 := region.hexagons[0].NeighborNorth.NeighborNorth.CenterPoint
 		distance := math.Floor(0.5 + math.Hypot(p1.X-p0.X, p1.Y-p0.Y))
 		continent.CenterPoints[i].InnerRadius = distance
+
+		var maxOuterDistance float64
+		for _, hex := range region.ShapeHexagons() {
+			p1 = hex.CenterPoint
+			distance = math.Floor(0.5 + math.Hypot(p1.X-p0.X, p1.Y-p0.Y))
+			if distance > maxOuterDistance {
+				maxOuterDistance = distance
+			}
+		}
+		continent.CenterPoints[i].OuterRadius = maxOuterDistance
 	}
 }
 

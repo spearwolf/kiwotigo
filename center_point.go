@@ -19,5 +19,6 @@ package kiwotigo
 
 type CenterPoint struct {
 	Vertex
-	InnerRadius float64 `json:"innerRadius"`
+	InnerRadius float64 `json:"iR"`
+	OuterRadius float64 `json:"oR"`
 }
