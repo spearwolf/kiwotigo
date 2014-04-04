@@ -18,6 +18,7 @@
 package kiwotigo
 
 import (
+	"math"
 	"math/rand"
 	"time"
 )
@@ -29,6 +30,7 @@ type ContinentCreationStrategy struct {
 	Continent                 *Continent
 	probabilityCreateRegionAt float64
 	growableRegion            map[*Region]bool
+	MaxRegionSize             int
 }
 
 func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationStrategy) {
@@ -80,6 +82,7 @@ func (ccs *ContinentCreationStrategy) CreateRegions() {
 	ccs.Continent.CreateShapes("basePath")
 	ccs.fastGrowAllRegions()
 	ccs.growAllRegions()
+	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
 	ccs.closeHolesInAllRegions()
 	ccs.Continent.CreateShapes("fullPath")
 }
@@ -133,6 +136,33 @@ func (ccs *ContinentCreationStrategy) growAllRegions() {
 	}
 }
 
+func (ccs *ContinentCreationStrategy) filterOutFatRegions(regions []*Region) []*Region {
+	slimRegions := make([]*Region, 0, len(regions))
+	for _, slim := range regions {
+		if slim.RegionSize() < ccs.MaxRegionSize {
+			slimRegions = append(slimRegions, slim)
+		}
+	}
+	return slimRegions
+}
+
+func (ccs *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHaveNeighbors() {
+	if ccs.MaxRegionSizeFactor > 0 {
+		ccs.MaxRegionSize = int(math.Floor(ccs.MaxRegionSizeFactor * float64(ccs.Continent.MinRegionSize())))
+	} else {
+		return
+	}
+	for {
+		lonely := ccs.filterOutFatRegions(ccs.Continent.NeighborLessRegions())
+		if len(lonely) == 0 {
+			break
+		}
+		for _, region := range lonely {
+			ccs.growRegion(region)
+		}
+	}
+}
+
 func (ccs *ContinentCreationStrategy) fastGrowRegion(region *Region) {
 	regionLess := region.RegionLessNeighborHexagons()
 	region.AssignHexagons(regionLess)
@@ -152,7 +182,11 @@ func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
 			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
 		}
 
-		ccs.growableRegion[region] = len(region.RegionLessNeighborHexagons()) > 0
+		growable := len(region.RegionLessNeighborHexagons()) > 0
+		if ccs.MaxRegionSize > 0 && growable && region.RegionSize() >= ccs.MaxRegionSize {
+			growable = false
+		}
+		ccs.growableRegion[region] = growable
 	}
 }
 

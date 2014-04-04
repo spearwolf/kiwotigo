@@ -19,13 +19,14 @@ package kiwotigo
 
 import (
 	"encoding/json"
+	"math"
 )
 
 type Continent struct {
 	Width        uint                    `json:"width"`
 	Height       uint                    `json:"height"`
 	Shapes       []map[string]*[]*Vertex `json:"regions"`
-	CenterPoints []Vertex                `json:"centerPoints"`
+	CenterPoints []CenterPoint           `json:"centerPoints"`
 	Neighbors    []*[]int                `json:"neighbors"`
 	model        *HexagonModel
 	regions      []*Region
@@ -57,12 +58,40 @@ func (continent *Continent) CreateShapes(shapeName string) {
 	}
 }
 
+func (continent *Continent) MinRegionSize() int {
+	min := -1
+	for _, region := range continent.regions {
+		count := region.RegionSize()
+		if min == -1 {
+			min = count
+		} else if count < min {
+			min = count
+		}
+	}
+	return min
+}
+
+func (continent *Continent) NeighborLessRegions() []*Region {
+	neighborLessRegions := make([]*Region, 0, len(continent.regions))
+	for _, region := range continent.regions {
+		if len(region.neighbors) == 0 {
+			neighborLessRegions = append(neighborLessRegions, region)
+		}
+	}
+	return neighborLessRegions
+}
+
 func (continent *Continent) UpdateCenterPoints() {
 	if continent.CenterPoints == nil {
-		continent.CenterPoints = make([]Vertex, len(continent.regions))
+		continent.CenterPoints = make([]CenterPoint, len(continent.regions))
 	}
 	for i, region := range continent.regions {
-		continent.CenterPoints[i] = region.hexagons[0].CenterPoint
+		p0 := region.hexagons[0].CenterPoint
+		continent.CenterPoints[i].X = p0.X
+		continent.CenterPoints[i].Y = p0.Y
+		p1 := region.hexagons[0].NeighborNorth.NeighborNorth.CenterPoint
+		distance := math.Floor(0.5 + math.Hypot(p1.X-p0.X, p1.Y-p0.Y))
+		continent.CenterPoints[i].InnerRadius = distance
 	}
 }
 

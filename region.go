@@ -35,6 +35,10 @@ func NewRegion() (region *Region) {
 	return
 }
 
+func (region *Region) RegionSize() int {
+	return len(region.hexagons)
+}
+
 func (region *Region) AssignHexagon(hex *Hexagon) *Region {
 	if hex.Region != nil {
 		panic("Hexagon already has a Region, cannot reassign")

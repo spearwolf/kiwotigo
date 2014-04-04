@@ -26,4 +26,5 @@ type ContinentConfig struct {
 	HexPaddingX, HexPaddingY             uint
 	MinimalGrowIterations                uint
 	FastGrowIterations                   uint
+	MaxRegionSizeFactor                  float64
 }
