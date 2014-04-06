@@ -49,6 +49,44 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	return
 }
 
+func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
+
+	ccs.fillGridWithRegions()
+	ccs.ensureAtLeastOneRegionExistsInsideContiguity()
+
+	ccs.Continent.CreateShapes("basePath")
+
+	ccs.fastGrowAllRegions()
+	ccs.growAllRegions()
+	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
+	ccs.closeHolesInAllRegions()
+
+	ccs.Continent.CreateShapes("fullPath")
+
+	// TODO
+	// -  strategy
+	//    -  innerShapePath
+	//    -  fast grow regions until all have a neighbor and region-groups connected
+	//    -  extended neighbor connections
+	// -  toJson
+	//    -  export config
+	//    -  export region size
+	//    -  export region groups (before all connections done)
+	//    -  seed
+	// -  server
+	//    -  read config from form values
+	//       -  seed
+	//       -  basePath export flag
+	//       -  inlineShape export flag
+	// -  js-client
+	//    -  show extended neighbor connections
+
+	ccs.Continent.UpdateCenterPoints()
+	ccs.Continent.MakeNeighbors()
+
+	return ccs.Continent
+}
+
 func (ccs *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
 	if ccs.hasRegion(x, y) {
 		return false
@@ -74,17 +112,6 @@ func (ccs *ContinentCreationStrategy) fillGridWithRegions() {
 			ccs.initializeRegionAt(x, y)
 		}
 	})
-}
-
-func (ccs *ContinentCreationStrategy) CreateRegions() {
-	ccs.fillGridWithRegions()
-	ccs.ensureAtLeastOneRegionExistsInsideContiguity()
-	ccs.Continent.CreateShapes("basePath")
-	ccs.fastGrowAllRegions()
-	ccs.growAllRegions()
-	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
-	ccs.closeHolesInAllRegions()
-	ccs.Continent.CreateShapes("fullPath")
 }
 
 func filterHexagonsWithNeighborCount(hexagons []*Hexagon, neighborMinCount uint) []*Hexagon {
