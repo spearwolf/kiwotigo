@@ -31,6 +31,7 @@ type ContinentCreationStrategy struct {
 	probabilityCreateRegionAt float64
 	growableRegion            map[*Region]bool
 	MaxRegionSize             int
+	groups                    []*RegionGroup
 }
 
 func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationStrategy) {
@@ -44,7 +45,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	ccs.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
 	ccs.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
 
-	ccs.probabilityCreateRegionAt = 0.5
+	ccs.probabilityCreateRegionAt = 0.6
 	ccs.growableRegion = make(map[*Region]bool)
 	return
 }
@@ -64,27 +65,49 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 	ccs.Continent.CreateShapes("fullPath")
 
 	// TODO
-	// -  strategy
-	//    -  innerShapePath
-	//    -  fast grow regions until all have a neighbor and region-groups connected
-	//    -  extended neighbor connections
-	// -  toJson
-	//    -  export config
-	//    -  export region size
-	//    -  export region groups (before all connections done)
-	//    -  seed
-	// -  server
-	//    -  read config from form values
-	//       -  seed
-	//       -  basePath export flag
-	//       -  inlineShape export flag
-	// -  js-client
-	//    -  show extended neighbor connections
+	// - [ ]  strategy
+	//    - [ ]  innerShapePath
+	//    - [ ]  fast grow regions until all have a neighbor and region-groups connected
+	//    - [ ]  extended neighbor connections
+	// - [ ]  toJson
+	//    - [ ]  export config
+	//    - [ ]  export region size
+	//    - [ ]  export region groups (before all connections done)
+	//    - [ ]  seed
+	//    - [ ]  swap-xy
+	// - [ ]  server
+	//    - [ ]  read config from form values
+	//       - [ ]  seed
+	//       - [ ]  basePath export flag
+	//       - [ ]  inlineShape export flag
+	// - [ ]  js-client
+	//    - [ ]  show extended neighbor connections
 
 	ccs.Continent.UpdateCenterPoints()
 	ccs.Continent.MakeNeighbors()
 
+	ccs.createOrUpdateRegionGroups()
+
 	return ccs.Continent
+}
+
+func (strategy *ContinentCreationStrategy) createOrUpdateRegionGroups() {
+	if strategy.groups == nil {
+		strategy.groups = make([]*RegionGroup, 0, len(strategy.Continent.regions))
+	}
+	for _, region := range strategy.Continent.regions {
+		if len(strategy.groups) == 0 || len(region.neighbors) == 0 {
+			strategy.addNewRegionGroup(region)
+			//} else {
+			//strategy.addNewRegionGroup(region)
+		}
+	}
+}
+
+func (strategy *ContinentCreationStrategy) addNewRegionGroup(region *Region) {
+	group := NewRegionGroup(len(strategy.Continent.regions))
+	group.Append(region)
+	strategy.groups = append(strategy.groups, group)
 }
 
 func (ccs *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
