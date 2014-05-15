@@ -45,7 +45,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	ccs.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
 	ccs.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
 
-	ccs.probabilityCreateRegionAt = 0.8
+	ccs.probabilityCreateRegionAt = 0.6
 	ccs.growableRegion = make(map[*Region]bool)
 	return
 }
