@@ -54,10 +54,10 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 
 	ccs.fillGridWithRegions()
 	ccs.ensureAtLeastOneRegionExistsInsideContiguity()
+	ccs.fastGrowAllRegions()
 
 	ccs.Continent.CreateShapes("basePath")
 
-	ccs.fastGrowAllRegions()
 	ccs.growAllRegions()
 	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
 	ccs.closeHolesInAllRegions()
@@ -83,7 +83,7 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 	// - [ ]  js-client
 	//    - [ ]  show extended neighbor connections
 
-	ccs.Continent.UpdateCenterPoints()
+	ccs.Continent.UpdateCenterPoints(ccs.FastGrowIterations)
 	ccs.Continent.MakeNeighbors()
 
 	ccs.createOrUpdateRegionGroups()

@@ -81,7 +81,7 @@ func (continent *Continent) NeighborLessRegions() []*Region {
 	return neighborLessRegions
 }
 
-func (continent *Continent) UpdateCenterPoints() {
+func (continent *Continent) UpdateCenterPoints(fastGrowCount uint) {
 	if continent.CenterPoints == nil {
 		continent.CenterPoints = make([]CenterPoint, len(continent.regions))
 	}
@@ -89,7 +89,14 @@ func (continent *Continent) UpdateCenterPoints() {
 		p0 := region.hexagons[0].CenterPoint
 		continent.CenterPoints[i].X = p0.X
 		continent.CenterPoints[i].Y = p0.Y
-		p1 := region.hexagons[0].NeighborNorth.NeighborNorth.CenterPoint
+
+		//p1 := region.hexagons[0].NeighborNorth.NeighborNorth.CenterPoint
+		r := region.hexagons[0].NeighborNorth.NeighborNorth
+		for j := 0; j < int(fastGrowCount); j++ {
+			r = r.NeighborNorthWest
+		}
+		p1 := r.CenterPoint
+
 		distance := math.Floor(0.5 + math.Hypot(p1.X-p0.X, p1.Y-p0.Y))
 		continent.CenterPoints[i].InnerRadius = distance
 
