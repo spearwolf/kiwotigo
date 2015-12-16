@@ -18,13 +18,19 @@
 package kiwotigo
 
 type ContinentConfig struct {
-	GridWidth, GridHeight                uint
-	GridOuterPaddingX, GridOuterPaddingY uint
-	GridInnerPaddingX, GridInnerPaddingY uint
-	GridHexWidth, GridHexHeight          uint
-	HexWidth, HexHeight                  uint
-	HexPaddingX, HexPaddingY             uint
-	MinimalGrowIterations                uint
-	FastGrowIterations                   uint
-	MaxRegionSizeFactor                  float64
+	GridWidth             uint    `json:"gridWidth"`
+	GridHeight            uint    `json:"gridHeight"`
+	GridOuterPaddingX     uint    `json:"gridOuterPaddingX"`
+	GridOuterPaddingY     uint    `json:"gridOuterPaddingY"`
+	GridInnerPaddingX     uint    `json:"gridInnerPaddingX"`
+	GridInnerPaddingY     uint    `json:"gridInnerPaddingY"`
+	GridHexWidth          uint    `json:"gridHexWidth"`
+	GridHexHeight         uint    `json:"gridHexHeight"`
+	HexWidth              uint    `json:"hexWidth"`
+	HexHeight             uint    `json:"hexHeight"`
+	HexPaddingX           uint    `json:"hexPaddingX"`
+	HexPaddingY           uint    `json:"hexPaddingY"`
+	MinimalGrowIterations uint    `json:"minimalGrowIterations"`
+	FastGrowIterations    uint    `json:"fastGrowIterations"`
+	MaxRegionSizeFactor   float64 `json:"maxRegionSizeFactor"`
 }

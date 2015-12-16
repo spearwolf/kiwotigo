@@ -70,7 +70,7 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 	//    - [ ]  fast grow regions until all have a neighbor and region-groups connected
 	//    - [ ]  extended neighbor connections
 	// - [ ]  toJson
-	//    - [ ]  export config
+	//    - [x]  export config
 	//    - [ ]  export region size
 	//    - [ ]  export region groups (before all connections done)
 	//    - [ ]  seed
@@ -219,6 +219,7 @@ func (ccs *ContinentCreationStrategy) fastGrowRegion(region *Region) {
 }
 
 func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
+
 	isGrowable, exists := ccs.growableRegion[region]
 	if isGrowable || !exists {
 
@@ -233,11 +234,15 @@ func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
 		}
 
 		growable := len(region.RegionLessNeighborHexagons()) > 0
+
 		if ccs.MaxRegionSize > 0 && growable && region.RegionSize() >= ccs.MaxRegionSize {
 			growable = false
 		}
+
 		ccs.growableRegion[region] = growable
+
 	}
+
 }
 
 func (ccs *ContinentCreationStrategy) ensureAtLeastOneRegionExistsInsideContiguity() {
