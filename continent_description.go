@@ -37,3 +37,8 @@ func (cd *ContinentDescription) Json() string {
 	json, _ := json.Marshal(cd)
 	return string(json)
 }
+
+func (cd *ContinentDescription) PrettyJson() string {
+	json, _ := json.MarshalIndent(cd, "", "    ")
+	return string(json)
+}
