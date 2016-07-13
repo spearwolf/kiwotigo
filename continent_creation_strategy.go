@@ -45,7 +45,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	ccs.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
 	ccs.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
 
-	ccs.probabilityCreateRegionAt = 0.6
+	ccs.probabilityCreateRegionAt = cfg.ProbabilityCreateRegionAt
 	ccs.growableRegion = make(map[*Region]bool)
 	return
 }
@@ -98,8 +98,6 @@ func (strategy *ContinentCreationStrategy) createOrUpdateRegionGroups() {
 	for _, region := range strategy.Continent.regions {
 		if len(strategy.groups) == 0 || len(region.neighbors) == 0 {
 			strategy.addNewRegionGroup(region)
-			//} else {
-			//strategy.addNewRegionGroup(region)
 		}
 	}
 }

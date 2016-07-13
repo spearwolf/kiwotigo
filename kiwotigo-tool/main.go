@@ -37,6 +37,7 @@ func main() {
 	var fastGrowIterations uint
 	var minimalGrowIterations uint
 	var maxRegionSizeFactor float64
+	var probabilityCreateRegionAt float64
 	var prettyPrint bool
 
 	flag.UintVar(&gridWidth, "gridWidth", 10, "grid with, uint, defaults to 10")
@@ -54,26 +55,28 @@ func main() {
 	flag.UintVar(&fastGrowIterations, "fastGrowIterations", 8, "fast grow iterations, uint, defaults to 8")
 	flag.UintVar(&minimalGrowIterations, "minimalGrowIterations", 120, "minimal grow iterations, uint, defaults to 120")
 	flag.Float64Var(&maxRegionSizeFactor, "maxRegionSizeFactor", 3, "max region size factor, float, defaults to 3.0")
+	flag.Float64Var(&probabilityCreateRegionAt, "probabilityCreateRegionAt", 0.6, "probability to create a region, float, defaults to 0.6")
 	flag.BoolVar(&prettyPrint, "prettyPrint", false, "pretty print json output, float, defaults to false")
 
 	flag.Parse()
 
 	config := kiwotigo.ContinentConfig{
-		GridWidth:             gridWidth,
-		GridHeight:            gridHeight,
-		GridOuterPaddingX:     gridOuterPaddingX,     //25,
-		GridOuterPaddingY:     gridOuterPaddingY,     //25,
-		GridInnerPaddingX:     gridInnerPaddingX,     //6,
-		GridInnerPaddingY:     gridInnerPaddingY,     //3,
-		GridHexWidth:          gridHexWidth,          //16,
-		GridHexHeight:         gridHexHeight,         //14,
-		HexWidth:              hexWidth,              //12,  //24,
-		HexHeight:             hexHeight,             //12
-		HexPaddingX:           hexPaddingX,           //0,   //5,  //3,
-		HexPaddingY:           hexPaddingY,           //0,   //5,  //3,
-		FastGrowIterations:    fastGrowIterations,    //8,   //10,
-		MinimalGrowIterations: minimalGrowIterations, //120, //48,
-		MaxRegionSizeFactor:   maxRegionSizeFactor}   //3}
+		GridWidth:                 gridWidth,
+		GridHeight:                gridHeight,
+		GridOuterPaddingX:         gridOuterPaddingX,     //25,
+		GridOuterPaddingY:         gridOuterPaddingY,     //25,
+		GridInnerPaddingX:         gridInnerPaddingX,     //6,
+		GridInnerPaddingY:         gridInnerPaddingY,     //3,
+		GridHexWidth:              gridHexWidth,          //16,
+		GridHexHeight:             gridHexHeight,         //14,
+		HexWidth:                  hexWidth,              //12,  //24,
+		HexHeight:                 hexHeight,             //12
+		HexPaddingX:               hexPaddingX,           //0,   //5,  //3,
+		HexPaddingY:               hexPaddingY,           //0,   //5,  //3,
+		FastGrowIterations:        fastGrowIterations,    //8,   //10,
+		MinimalGrowIterations:     minimalGrowIterations, //120, //48,
+		MaxRegionSizeFactor:       maxRegionSizeFactor,   //3}
+		ProbabilityCreateRegionAt: probabilityCreateRegionAt}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
 	continent := strategy.BuildContinent()
