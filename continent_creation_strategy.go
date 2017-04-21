@@ -64,12 +64,13 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 	// TODO
 	// - [ ]  strategy
 	//    - [ ]  define target region count constraint: even/odd/number/dividable-by-number...
+	//    - [ ]  allow pre-defined fast-grow shapes
 	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
 	// - [ ]  toJson
 	//    - [x]  export config
-	//    - [ ]  export region size
+	//    - [ ]  export region size (hexagon count)
 	//    - [ ]  seed
-	//    - [ ]  swap-xy
+	//    - [ ]  swap-xy ?
 
 	ccs.Continent.UpdateCenterPoints(ccs.FastGrowIterations)
 
