@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -60,33 +60,40 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 
 	ccs.growAllRegions()
 	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
-	ccs.closeHolesInAllRegions()
-
-	ccs.Continent.CreateShapes("fullPath")
 
 	// TODO
 	// - [ ]  strategy
-	//    - [ ]  innerShapePath
-	//    - [ ]  fast grow regions until all have a neighbor and region-groups connected
-	//    - [ ]  extended neighbor connections
+	//    - [ ]  define target region count constraint: even/odd/number/dividable-by-number...
+	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
 	// - [ ]  toJson
 	//    - [x]  export config
 	//    - [ ]  export region size
-	//    - [ ]  export region groups (before all connections done)
 	//    - [ ]  seed
 	//    - [ ]  swap-xy
-	// - [ ]  server
-	//    - [ ]  read config from form values
-	//       - [ ]  seed
-	//       - [ ]  basePath export flag
-	//       - [ ]  inlineShape export flag
-	// - [ ]  js-client
-	//    - [ ]  show extended neighbor connections
 
 	ccs.Continent.UpdateCenterPoints(ccs.FastGrowIterations)
-	ccs.Continent.MakeNeighbors()
 
-	ccs.createOrUpdateRegionGroups()
+	for {
+		ccs.closeHolesInAllRegions()
+		ccs.createOrUpdateRegionGroups()
+
+		if len(ccs.groups) == 1 {
+			break
+		}
+
+		growableRegions := ccs.filterGrowableRegions()
+		if len(growableRegions) == 0 {
+			break
+		}
+
+		ccs.updateMaxRegionSize()
+		for _, region := range growableRegions {
+			ccs.growRegion(region)
+		}
+	}
+
+	ccs.Continent.CreateShapes("fullPath")
+	ccs.Continent.MakeNeighbors()
 
 	return ccs.Continent
 }
@@ -95,11 +102,39 @@ func (strategy *ContinentCreationStrategy) createOrUpdateRegionGroups() {
 	if strategy.groups == nil {
 		strategy.groups = make([]*RegionGroup, 0, len(strategy.Continent.regions))
 	}
+
 	for _, region := range strategy.Continent.regions {
-		if len(strategy.groups) == 0 || len(region.neighbors) == 0 {
+		if len(strategy.groups) == 0 || len(region.neighbors) == 0 || !strategy.hasGroup(region) {
 			strategy.addNewRegionGroup(region)
 		}
 	}
+
+	mergedGroups := make([]*RegionGroup, 0, len(strategy.groups))
+
+strategyGroups:
+	for _, group := range strategy.groups {
+		if len(mergedGroups) == 0 {
+			mergedGroups = append(mergedGroups, group)
+		} else {
+			for _, merged := range mergedGroups {
+				if merged.IsOverlapping(group) {
+					merged.Merge(group)
+					continue strategyGroups
+				}
+			}
+			mergedGroups = append(mergedGroups, group)
+		}
+	}
+	strategy.groups = mergedGroups
+}
+
+func (strategy *ContinentCreationStrategy) hasGroup(region *Region) bool {
+	for _, group := range strategy.groups {
+		if group.IsInside(region) {
+			return true
+		}
+	}
+	return false
 }
 
 func (strategy *ContinentCreationStrategy) addNewRegionGroup(region *Region) {
@@ -200,6 +235,7 @@ func (ccs *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHaveNeig
 	} else {
 		return
 	}
+	//ccs.updateMaxRegionSize()
 	for {
 		lonely := ccs.filterOutFatRegions(ccs.Continent.NeighborLessRegions())
 		if len(lonely) == 0 {
@@ -209,6 +245,22 @@ func (ccs *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHaveNeig
 			ccs.growRegion(region)
 		}
 	}
+}
+
+func (ccs *ContinentCreationStrategy) updateMaxRegionSize() {
+	if ccs.MaxRegionSizeFactor > 0 {
+		ccs.MaxRegionSize = int(math.Floor(ccs.MaxRegionSizeFactor * float64(ccs.Continent.MinRegionSize())))
+	}
+}
+
+func (ccs *ContinentCreationStrategy) filterGrowableRegions() []*Region {
+	growables := make([]*Region, 0, len(ccs.Continent.regions))
+	for region, isGrowable := range ccs.growableRegion {
+		if isGrowable {
+			growables = append(growables, region)
+		}
+	}
+	return growables
 }
 
 func (ccs *ContinentCreationStrategy) fastGrowRegion(region *Region) {
@@ -227,6 +279,11 @@ func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
 		}
 
 		hexagons = ccs.regionLessWithNeighborWithRegionCount(region, 2)
+		if len(hexagons) > 0 {
+			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
+		}
+
+		hexagons = ccs.regionLessWithNeighborWithRegionCount(region, 1)
 		if len(hexagons) > 0 {
 			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
 		}

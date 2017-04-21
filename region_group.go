@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -36,6 +36,33 @@ func (group *RegionGroup) IsInside(region *Region) bool {
 	return false
 }
 
+func (group *RegionGroup) IsOverlapping(other *RegionGroup) bool {
+	for _, region := range other.Regions {
+		if group.IsInside(region) {
+			return true
+		} else {
+			for _, neighbor := range region.neighbors {
+				if group.IsInside(neighbor) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (group *RegionGroup) Merge(other *RegionGroup) {
+	for _, region := range other.Regions {
+		group.Append(region)
+	}
+}
+
 func (group *RegionGroup) Append(region *Region) {
+	if group.IsInside(region) {
+		return
+	}
 	group.Regions = append(group.Regions, region)
+	for _, neighbor := range region.neighbors {
+		group.Append(neighbor)
+	}
 }
