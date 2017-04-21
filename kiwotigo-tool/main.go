@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014-2016 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ func main() {
 	var minimalGrowIterations uint
 	var maxRegionSizeFactor float64
 	var probabilityCreateRegionAt float64
+	var divisibilityBy uint
 	var prettyPrint bool
 
 	flag.UintVar(&gridWidth, "gridWidth", 10, "grid with, uint, defaults to 10")
@@ -56,6 +57,7 @@ func main() {
 	flag.UintVar(&minimalGrowIterations, "minimalGrowIterations", 120, "minimal grow iterations, uint, defaults to 120")
 	flag.Float64Var(&maxRegionSizeFactor, "maxRegionSizeFactor", 3, "max region size factor, float, defaults to 3.0")
 	flag.Float64Var(&probabilityCreateRegionAt, "probabilityCreateRegionAt", 0.6, "probability to create a region, float, defaults to 0.6")
+	flag.UintVar(&divisibilityBy, "divisibilityBy", 1, "region count divisibility by number, uint, defaults to 1")
 	flag.BoolVar(&prettyPrint, "prettyPrint", false, "pretty print json output, float, defaults to false")
 
 	flag.Parse()
@@ -76,6 +78,7 @@ func main() {
 		FastGrowIterations:        fastGrowIterations,    //8,   //10,
 		MinimalGrowIterations:     minimalGrowIterations, //120, //48,
 		MaxRegionSizeFactor:       maxRegionSizeFactor,   //3}
+		DivisibilityBy:            divisibilityBy,        //1}
 		ProbabilityCreateRegionAt: probabilityCreateRegionAt}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)

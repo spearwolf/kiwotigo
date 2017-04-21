@@ -25,6 +25,7 @@ import (
 
 type ContinentCreationStrategy struct {
 	RegionGrid
+	CreateRegionHintsGrid
 	ContinentConfig
 	rand                      *rand.Rand
 	Continent                 *Continent
@@ -39,6 +40,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 	ccs.ContinentConfig = cfg
 	ccs.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	ccs.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
+	ccs.CreateRegionHintsGrid = *NewCreateRegionHintsGrid(ccs.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
 
 	cols := cfg.GridOuterPaddingX*2 + cfg.GridWidth*cfg.GridHexWidth + cfg.GridInnerPaddingX*(cfg.GridWidth-1)
 	rows := cfg.GridOuterPaddingY*2 + cfg.GridHeight*cfg.GridHexHeight + cfg.GridInnerPaddingY*(cfg.GridHeight-1)
@@ -53,7 +55,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationSt
 func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 
 	ccs.fillGridWithRegions()
-	ccs.ensureAtLeastOneRegionExistsInsideContiguity()
+	//ccs.ensureAtLeastOneRegionExistsInsideContiguity()
 	ccs.fastGrowAllRegions()
 
 	ccs.Continent.CreateShapes("basePath")
@@ -63,7 +65,7 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 
 	// TODO
 	// - [ ]  strategy
-	//    - [ ]  define target region count constraint: even/odd/number/dividable-by-number...
+	//    - [x]  define target region count constraint: even/odd/number/dividable-by-number...
 	//    - [ ]  allow pre-defined fast-grow shapes
 	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
 	// - [ ]  toJson
@@ -75,7 +77,6 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 	ccs.Continent.UpdateCenterPoints(ccs.FastGrowIterations)
 
 	for {
-		ccs.closeHolesInAllRegions()
 		ccs.createOrUpdateRegionGroups()
 
 		if len(ccs.groups) == 1 {
@@ -91,6 +92,8 @@ func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
 		for _, region := range growableRegions {
 			ccs.growRegion(region)
 		}
+
+		ccs.closeHolesInAllRegions()
 	}
 
 	ccs.Continent.CreateShapes("fullPath")
@@ -145,10 +148,7 @@ func (strategy *ContinentCreationStrategy) addNewRegionGroup(region *Region) {
 }
 
 func (ccs *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
-	if ccs.hasRegion(x, y) {
-		return false
-	}
-	return ccs.rand.Float64() < ccs.probabilityCreateRegionAt
+	return ccs.CreateRegionHintsGrid.ShouldCreateRegion(x, y)
 }
 
 type gridRegionFn func(x, y uint, region *Region)

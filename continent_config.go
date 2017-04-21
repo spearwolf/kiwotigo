@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -34,4 +34,5 @@ type ContinentConfig struct {
 	FastGrowIterations        uint    `json:"fastGrowIterations"`
 	MaxRegionSizeFactor       float64 `json:"maxRegionSizeFactor"`
 	ProbabilityCreateRegionAt float64 `json:"probabilityCreateRegionAt"`
+	DivisibilityBy            uint    `json:"divisibilityBy"`
 }
