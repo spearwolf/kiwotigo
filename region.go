@@ -17,12 +17,6 @@
 
 package kiwotigo
 
-const (
-	regionHexagonCap       uint = 512
-	regionNeighborsCap     uint = 512
-	regionLessNeighborsCap uint = 512
-)
-
 type Region struct {
 	hexagons  []*Hexagon
 	neighbors []*Region
@@ -30,8 +24,8 @@ type Region struct {
 
 func NewRegion() (region *Region) {
 	region = new(Region)
-	region.hexagons = make([]*Hexagon, 0, regionHexagonCap)
-	region.neighbors = make([]*Region, 0, regionNeighborsCap)
+	region.hexagons = make([]*Hexagon, 0)
+	region.neighbors = make([]*Region, 0)
 	return
 }
 
@@ -107,7 +101,7 @@ func appendIfNotInside(hexagons []*Hexagon, hex *Hexagon) []*Hexagon {
 }
 
 func (region *Region) RegionLessNeighborHexagons() (regionLess []*Hexagon) {
-	regionLess = make([]*Hexagon, 0, regionLessNeighborsCap)
+	regionLess = make([]*Hexagon, 0)
 	for _, hex := range region.hexagons {
 		if hex.NeighborNorth != nil && hex.NeighborNorth.Region == nil {
 			regionLess = appendIfNotInside(regionLess, hex.NeighborNorth)
@@ -136,7 +130,7 @@ func (region *Region) isMarginal(hex *Hexagon) bool {
 }
 
 func (region *Region) ShapeHexagons() (shape []*Hexagon) {
-	shape = make([]*Hexagon, 0, regionShapeHexagonsCap)
+	shape = make([]*Hexagon, 0)
 	for _, hex := range region.hexagons {
 		if region.isMarginal(hex.NeighborNorth) || region.isMarginal(hex.NeighborNorthEast) || region.isMarginal(hex.NeighborSouthEast) || region.isMarginal(hex.NeighborSouth) || region.isMarginal(hex.NeighborSouthWest) || region.isMarginal(hex.NeighborNorthWest) {
 			shape = append(shape, hex)

@@ -17,11 +17,6 @@
 
 package kiwotigo
 
-const (
-	regionShapeHexagonsCap uint = 512
-	regionShapeVertexCap   uint = 512
-)
-
 type RegionShape struct {
 	region       *Region
 	visitedEdges map[*Hexagon]*[6]bool
@@ -34,7 +29,7 @@ func NewRegionShape(region *Region) (shape *RegionShape) {
 	shape = new(RegionShape)
 	shape.region = region
 	shape.visitedEdges = make(map[*Hexagon]*[6]bool)
-	shape.shapePath = make([]*Vertex, 0, regionShapeVertexCap)
+	shape.shapePath = make([]*Vertex, 0)
 	return
 }
 
@@ -120,8 +115,6 @@ func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*H
 			break
 		}
 	}
-
-	//fmt.Println("visitedEdges", visitedEdges, "edge", edge)
 
 	if edge == startAtEdge || visitedEdges[edge] {
 		return nil, -1
