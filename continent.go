@@ -27,6 +27,7 @@ type Continent struct {
 	Height       uint                    `json:"height"`
 	Shapes       []map[string]*[]*Vertex `json:"regions"`
 	CenterPoints []CenterPoint           `json:"centerPoints"`
+	RegionSizes  []float64               `json:"regionSizes"`
 	Neighbors    []*[]int                `json:"neighbors"`
 	model        *HexagonModel
 	regions      []*Region
@@ -90,7 +91,6 @@ func (continent *Continent) UpdateCenterPoints(fastGrowCount uint) {
 		continent.CenterPoints[i].X = p0.X
 		continent.CenterPoints[i].Y = p0.Y
 
-		//p1 := region.hexagons[0].NeighborNorth.NeighborNorth.CenterPoint
 		r := region.hexagons[0].NeighborNorth.NeighborNorth
 		for j := 0; j < int(fastGrowCount); j++ {
 			r = r.NeighborNorthWest
@@ -109,6 +109,24 @@ func (continent *Continent) UpdateCenterPoints(fastGrowCount uint) {
 			}
 		}
 		continent.CenterPoints[i].OuterRadius = maxOuterDistance
+	}
+}
+
+func (continent *Continent) averageRegionSize() float64 {
+	var average float64
+	for _, region := range continent.regions {
+		average += float64(region.RegionSize())
+	}
+	return average / float64(len(continent.regions))
+}
+
+func (continent *Continent) UpdateRegionSizes() {
+	if continent.RegionSizes == nil {
+		continent.RegionSizes = make([]float64, len(continent.regions))
+	}
+	sizeFactor := continent.averageRegionSize()
+	for i, region := range continent.regions {
+		continent.RegionSizes[i] = float64(region.RegionSize()) / sizeFactor
 	}
 }
 

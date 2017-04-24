@@ -36,7 +36,7 @@ func NewCreateRegionHintsGrid(rand *rand.Rand, width, height, divisibilityBy uin
 }
 
 func (grid *CreateRegionHintsGrid) generateHints(rand *rand.Rand, divisibilityBy uint, probabilityCreateRegionAt float64) {
-	hints := make([]bool, 0, len(grid.hints))
+	hints := make([]bool, 0)
 	for i := len(grid.hints) - 1; i > 0; i-- {
 		if rand.Float64() < probabilityCreateRegionAt {
 			hints = append(hints, true)
@@ -53,14 +53,10 @@ func (grid *CreateRegionHintsGrid) generateHints(rand *rand.Rand, divisibilityBy
 		if isForward {
 			if i < maxLen {
 				hints = append(hints, true)
-			} else {
-				panic("Congratulations! you encountered the very unexpected should-create-region-hint-forward failure :-/")
 			}
 		} else {
 			if i < 2 {
 				hints = hints[:i-1]
-			} else {
-				panic("Congratulations! you encountered the very unexpected should-create-region-hint-zero failure :-/")
 			}
 		}
 	}
@@ -76,9 +72,6 @@ func (grid *CreateRegionHintsGrid) generateHints(rand *rand.Rand, divisibilityBy
 }
 
 func (grid *CreateRegionHintsGrid) hintIndex(x, y uint) uint {
-	if !(x < grid.width && y < grid.height) {
-		panic("CreateRegionHintsGrid.hintIndex(x, y) out of range!")
-	}
 	return y*grid.width + x
 }
 

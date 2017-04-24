@@ -35,71 +35,75 @@ type ContinentCreationStrategy struct {
 	groups                    []*RegionGroup
 }
 
-func NewContinentCreationStrategy(cfg ContinentConfig) (ccs *ContinentCreationStrategy) {
-	ccs = new(ContinentCreationStrategy)
-	ccs.ContinentConfig = cfg
-	ccs.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-	ccs.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
-	ccs.CreateRegionHintsGrid = *NewCreateRegionHintsGrid(ccs.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
+func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreationStrategy) {
+	strategy = new(ContinentCreationStrategy)
+	strategy.ContinentConfig = cfg
+	strategy.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	strategy.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
+	strategy.CreateRegionHintsGrid = *NewCreateRegionHintsGrid(strategy.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
 
 	cols := cfg.GridOuterPaddingX*2 + cfg.GridWidth*cfg.GridHexWidth + cfg.GridInnerPaddingX*(cfg.GridWidth-1)
 	rows := cfg.GridOuterPaddingY*2 + cfg.GridHeight*cfg.GridHexHeight + cfg.GridInnerPaddingY*(cfg.GridHeight-1)
-	ccs.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
-	ccs.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
+	strategy.Continent = NewContinent(cols, rows, cfg.HexWidth, cfg.HexHeight, cfg.HexPaddingX, cfg.HexPaddingY)
+	strategy.Continent.regions = make([]*Region, 0, cfg.GridWidth*cfg.GridHeight)
 
-	ccs.probabilityCreateRegionAt = cfg.ProbabilityCreateRegionAt
-	ccs.growableRegion = make(map[*Region]bool)
+	strategy.probabilityCreateRegionAt = cfg.ProbabilityCreateRegionAt
+	strategy.growableRegion = make(map[*Region]bool)
 	return
 }
 
-func (ccs *ContinentCreationStrategy) BuildContinent() *Continent {
+func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
 
-	ccs.fillGridWithRegions()
-	//ccs.ensureAtLeastOneRegionExistsInsideContiguity()
-	ccs.fastGrowAllRegions()
+	strategy.fillGridWithRegions()
+	strategy.fastGrowAllRegions()
 
-	ccs.Continent.CreateShapes("basePath")
+	//strategy.Continent.CreateShapes("basePath")
 
-	ccs.growAllRegions()
-	ccs.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
+	strategy.growAllRegions()
+
+	strategy.closeHolesInAllRegions()
+	strategy.Continent.CreateShapes("basePath")
+
+	strategy.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
 
 	// TODO
 	// - [ ]  strategy
 	//    - [x]  define target region count constraint: even/odd/number/dividable-by-number...
-	//    - [ ]  allow pre-defined fast-grow shapes
 	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
-	// - [ ]  toJson
+	//    - [ ]  allow pre-defined region grid masks (or a region grid coords blacklist)
+	//    - [ ]  fix Region.SingleRandomShapeHexagon()
+	// - [x]  toJson
 	//    - [x]  export config
-	//    - [ ]  export region size (hexagon count)
-	//    - [ ]  seed
-	//    - [ ]  swap-xy ?
+	//    - [x]  export region size (hexagon count)
 
-	ccs.Continent.UpdateCenterPoints(ccs.FastGrowIterations)
+	strategy.Continent.UpdateCenterPoints(strategy.FastGrowIterations)
 
 	for {
-		ccs.createOrUpdateRegionGroups()
+		strategy.createOrUpdateRegionGroups()
 
-		if len(ccs.groups) == 1 {
+		if len(strategy.groups) == 1 {
 			break
 		}
 
-		growableRegions := ccs.filterGrowableRegions()
+		growableRegions := strategy.filterGrowableRegions()
 		if len(growableRegions) == 0 {
 			break
 		}
 
-		ccs.updateMaxRegionSize()
+		strategy.updateMaxRegionSize()
 		for _, region := range growableRegions {
-			ccs.growRegion(region)
+			strategy.growRegion(region)
 		}
 
-		ccs.closeHolesInAllRegions()
+		strategy.closeHolesInAllRegions()
 	}
 
-	ccs.Continent.CreateShapes("fullPath")
-	ccs.Continent.MakeNeighbors()
+	strategy.Continent.CreateShapes("fullPath")
 
-	return ccs.Continent
+	strategy.Continent.MakeNeighbors()
+	strategy.Continent.UpdateRegionSizes()
+
+	return strategy.Continent
 }
 
 func (strategy *ContinentCreationStrategy) createOrUpdateRegionGroups() {
@@ -147,26 +151,26 @@ func (strategy *ContinentCreationStrategy) addNewRegionGroup(region *Region) {
 	strategy.groups = append(strategy.groups, group)
 }
 
-func (ccs *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
-	return ccs.CreateRegionHintsGrid.ShouldCreateRegion(x, y)
+func (strategy *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
+	return strategy.CreateRegionHintsGrid.ShouldCreateRegion(x, y)
 }
 
 type gridRegionFn func(x, y uint, region *Region)
 
-func (ccs *ContinentCreationStrategy) ForEachGridRegion(fn gridRegionFn) {
+func (strategy *ContinentCreationStrategy) ForEachGridRegion(fn gridRegionFn) {
 	var x, y uint
-	gridWidth, gridHeight := ccs.Width(), ccs.Height()
+	gridWidth, gridHeight := strategy.Width(), strategy.Height()
 	for y = 0; y < gridHeight; y++ {
 		for x = 0; x < gridWidth; x++ {
-			fn(x, y, ccs.Region(x, y))
+			fn(x, y, strategy.Region(x, y))
 		}
 	}
 }
 
-func (ccs *ContinentCreationStrategy) fillGridWithRegions() {
-	ccs.ForEachGridRegion(func(x, y uint, _ *Region) {
-		if ccs.shouldCreateRegionAt(x, y) {
-			ccs.initializeRegionAt(x, y)
+func (strategy *ContinentCreationStrategy) fillGridWithRegions() {
+	strategy.ForEachGridRegion(func(x, y uint, _ *Region) {
+		if strategy.shouldCreateRegionAt(x, y) {
+			strategy.initializeRegionAt(x, y)
 		}
 	})
 }
@@ -182,16 +186,16 @@ func filterHexagonsWithNeighborCount(hexagons []*Hexagon, neighborMinCount uint)
 	return res
 }
 
-func (ccs *ContinentCreationStrategy) regionLessWithNeighborWithRegionCount(region *Region, minNeighborWithRegionCount uint) []*Hexagon {
+func (strategy *ContinentCreationStrategy) regionLessWithNeighborWithRegionCount(region *Region, minNeighborWithRegionCount uint) []*Hexagon {
 	return filterHexagonsWithNeighborCount(region.RegionLessNeighborHexagons(), minNeighborWithRegionCount)
 }
 
-func (ccs *ContinentCreationStrategy) closeHolesInAllRegions() {
+func (strategy *ContinentCreationStrategy) closeHolesInAllRegions() {
 	var i uint
-	for i = 0; i < ccs.FastGrowIterations; i++ {
-		for _, region := range ccs.Continent.regions {
+	for i = 0; i < strategy.FastGrowIterations; i++ {
+		for _, region := range strategy.Continent.regions {
 			for {
-				regionLess := ccs.regionLessWithNeighborWithRegionCount(region, 5)
+				regionLess := strategy.regionLessWithNeighborWithRegionCount(region, 5)
 				if len(regionLess) > 0 {
 					region.AssignHexagons(regionLess)
 				} else {
@@ -202,61 +206,60 @@ func (ccs *ContinentCreationStrategy) closeHolesInAllRegions() {
 	}
 }
 
-func (ccs *ContinentCreationStrategy) fastGrowAllRegions() {
+func (strategy *ContinentCreationStrategy) fastGrowAllRegions() {
 	var i uint
-	for i = 0; i < ccs.FastGrowIterations; i++ {
-		for _, region := range ccs.Continent.regions {
-			ccs.fastGrowRegion(region)
+	for i = 0; i < strategy.FastGrowIterations; i++ {
+		for _, region := range strategy.Continent.regions {
+			strategy.fastGrowRegion(region)
 		}
 	}
 }
 
-func (ccs *ContinentCreationStrategy) growAllRegions() {
+func (strategy *ContinentCreationStrategy) growAllRegions() {
 	var i uint
-	for i = 0; i < ccs.MinimalGrowIterations; i++ {
-		for _, region := range ccs.Continent.regions {
-			ccs.growRegion(region)
+	for i = 0; i < strategy.MinimalGrowIterations; i++ {
+		for _, region := range strategy.Continent.regions {
+			strategy.growRegion(region)
 		}
 	}
 }
 
-func (ccs *ContinentCreationStrategy) filterOutFatRegions(regions []*Region) []*Region {
+func (strategy *ContinentCreationStrategy) filterOutFatRegions(regions []*Region) []*Region {
 	slimRegions := make([]*Region, 0, len(regions))
 	for _, slim := range regions {
-		if slim.RegionSize() < ccs.MaxRegionSize {
+		if slim.RegionSize() < strategy.MaxRegionSize {
 			slimRegions = append(slimRegions, slim)
 		}
 	}
 	return slimRegions
 }
 
-func (ccs *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHaveNeighbors() {
-	if ccs.MaxRegionSizeFactor > 0 {
-		ccs.MaxRegionSize = int(math.Floor(ccs.MaxRegionSizeFactor * float64(ccs.Continent.MinRegionSize())))
+func (strategy *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHaveNeighbors() {
+	if strategy.MaxRegionSizeFactor > 0 {
+		strategy.updateMaxRegionSize()
 	} else {
 		return
 	}
-	//ccs.updateMaxRegionSize()
 	for {
-		lonely := ccs.filterOutFatRegions(ccs.Continent.NeighborLessRegions())
+		lonely := strategy.filterOutFatRegions(strategy.Continent.NeighborLessRegions())
 		if len(lonely) == 0 {
 			break
 		}
 		for _, region := range lonely {
-			ccs.growRegion(region)
+			strategy.growRegion(region)
 		}
 	}
 }
 
-func (ccs *ContinentCreationStrategy) updateMaxRegionSize() {
-	if ccs.MaxRegionSizeFactor > 0 {
-		ccs.MaxRegionSize = int(math.Floor(ccs.MaxRegionSizeFactor * float64(ccs.Continent.MinRegionSize())))
+func (strategy *ContinentCreationStrategy) updateMaxRegionSize() {
+	if strategy.MaxRegionSizeFactor > 0 {
+		strategy.MaxRegionSize = int(math.Floor(strategy.MaxRegionSizeFactor * float64(strategy.Continent.MinRegionSize())))
 	}
 }
 
-func (ccs *ContinentCreationStrategy) filterGrowableRegions() []*Region {
-	growables := make([]*Region, 0, len(ccs.Continent.regions))
-	for region, isGrowable := range ccs.growableRegion {
+func (strategy *ContinentCreationStrategy) filterGrowableRegions() []*Region {
+	growables := make([]*Region, 0, len(strategy.Continent.regions))
+	for region, isGrowable := range strategy.growableRegion {
 		if isGrowable {
 			growables = append(growables, region)
 		}
@@ -264,79 +267,41 @@ func (ccs *ContinentCreationStrategy) filterGrowableRegions() []*Region {
 	return growables
 }
 
-func (ccs *ContinentCreationStrategy) fastGrowRegion(region *Region) {
+func (strategy *ContinentCreationStrategy) fastGrowRegion(region *Region) {
 	regionLess := region.RegionLessNeighborHexagons()
 	region.AssignHexagons(regionLess)
 }
 
-func (ccs *ContinentCreationStrategy) growRegion(region *Region) {
+func (strategy *ContinentCreationStrategy) growRegion(region *Region) {
 
-	isGrowable, exists := ccs.growableRegion[region]
+	isGrowable, exists := strategy.growableRegion[region]
 	if isGrowable || !exists {
 
-		hexagons := ccs.regionLessWithNeighborWithRegionCount(region, 5)
+		hexagons := strategy.regionLessWithNeighborWithRegionCount(region, 5)
 		if len(hexagons) > 0 {
 			region.AssignHexagons(hexagons)
 		}
 
-		hexagons = ccs.regionLessWithNeighborWithRegionCount(region, 2)
+		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 2)
 		if len(hexagons) > 0 {
-			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
+			region.AssignHexagon(hexagons[strategy.rand.Intn(len(hexagons))])
 		}
 
-		hexagons = ccs.regionLessWithNeighborWithRegionCount(region, 1)
+		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 1)
 		if len(hexagons) > 0 {
-			region.AssignHexagon(hexagons[ccs.rand.Intn(len(hexagons))])
+			region.AssignHexagon(hexagons[strategy.rand.Intn(len(hexagons))])
 		}
 
 		growable := len(region.RegionLessNeighborHexagons()) > 0
 
-		if ccs.MaxRegionSize > 0 && growable && region.RegionSize() >= ccs.MaxRegionSize {
+		if strategy.MaxRegionSize > 0 && growable && region.RegionSize() >= strategy.MaxRegionSize {
 			growable = false
 		}
 
-		ccs.growableRegion[region] = growable
+		strategy.growableRegion[region] = growable
 
 	}
 
-}
-
-func (ccs *ContinentCreationStrategy) ensureAtLeastOneRegionExistsInsideContiguity() {
-	ccs.ForEachGridRegion(func(x, y uint, region *Region) {
-		if region != nil {
-			neighborPositions := [...]Position{
-				Position{X: x - 1, Y: y - 1},
-				Position{X: x, Y: y - 1},
-				Position{X: x + 1, Y: y - 1},
-				Position{X: x + 1, Y: y},
-				Position{X: x + 1, Y: y + 1},
-				Position{X: x, Y: y + 1},
-				Position{X: x - 1, Y: y + 1},
-				Position{X: x - 1, Y: y}}
-			//neighborPositions := [...]Position{
-			//Position{X: x, Y: y - 1},
-			//Position{X: x, Y: y + 1}}
-			freeNeighbors := make([]Position, 0, len(neighborPositions))
-			regionCount := 0
-			for _, pos := range neighborPositions {
-				if ccs.IsInsideGrid(pos.X, pos.Y) {
-					if ccs.Region(pos.X, pos.Y) != nil {
-						regionCount++
-					} else {
-						freeNeighbors = append(freeNeighbors, pos)
-					}
-				}
-			}
-			if regionCount == 0 {
-				if len(freeNeighbors) > 0 {
-					pos := freeNeighbors[ccs.rand.Intn(len(freeNeighbors))]
-					ccs.initializeRegionAt(pos.X, pos.Y)
-				} else {
-					panic("No Region inside contiguity but no free neighbors available?")
-				}
-			}
-		}
-	})
 }
 
 //     __    __    __    __    __
@@ -362,13 +327,13 @@ func (ccs *ContinentCreationStrategy) ensureAtLeastOneRegionExistsInsideContigui
 //    \__/  \__/  \__/  \__/  \__/  \
 //       \__/  \__/  \__/  \__/  \__/
 //
-func (ccs *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint) {
+func (strategy *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint) {
 	var x, y uint
-	x = ccs.GridOuterPaddingX + (ccs.GridHexWidth+ccs.GridInnerPaddingX)*gridX + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
-	y = ccs.GridOuterPaddingY + (ccs.GridHexHeight+ccs.GridInnerPaddingY)*gridY + uint(ccs.rand.Intn(int(ccs.GridHexWidth)-4)+2)
+	x = strategy.GridOuterPaddingX + (strategy.GridHexWidth+strategy.GridInnerPaddingX)*gridX + uint(strategy.rand.Intn(int(strategy.GridHexWidth)-4)+2)
+	y = strategy.GridOuterPaddingY + (strategy.GridHexHeight+strategy.GridInnerPaddingY)*gridY + uint(strategy.rand.Intn(int(strategy.GridHexWidth)-4)+2)
 
 	region := new(Region)
-	hexagon := ccs.Continent.model.Hexagon(x, y)
+	hexagon := strategy.Continent.model.Hexagon(x, y)
 
 	region.AssignHexagon(hexagon)
 	region.AssignHexagon(hexagon.NeighborNorthWest)
@@ -391,6 +356,6 @@ func (ccs *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint) {
 	region.AssignHexagon(hexagon.NeighborNorthEast.NeighborSouthEast)
 	region.AssignHexagon(hexagon.NeighborSouthEast.NeighborSouthEast)
 
-	ccs.Continent.regions = append(ccs.Continent.regions, region)
-	ccs.SetRegion(gridX, gridY, region)
+	strategy.Continent.regions = append(strategy.Continent.regions, region)
+	strategy.SetRegion(gridX, gridY, region)
 }
