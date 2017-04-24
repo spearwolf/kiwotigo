@@ -145,6 +145,7 @@ func (region *Region) ShapeHexagons() (shape []*Hexagon) {
 	return
 }
 
+// FIXME find hexagon from *outter* shape (not inner)
 func (region *Region) SingleRandomShapeHexagon() *Hexagon {
 	for i := len(region.hexagons) - 1; i >= 0; i-- {
 		hex := region.hexagons[i]
