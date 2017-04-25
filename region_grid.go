@@ -39,9 +39,6 @@ func (grid *RegionGrid) Height() uint {
 }
 
 func (grid *RegionGrid) regionsIndex(x, y uint) uint {
-	if !(x < grid.width && y < grid.height) {
-		panic("RegionGrid.regionsIndex(x, y) out of range!")
-	}
 	return y*grid.width + x
 }
 

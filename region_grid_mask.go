@@ -21,13 +21,13 @@ import (
 	"math/rand"
 )
 
-type CreateRegionHintsGrid struct {
+type RegionGridMask struct {
 	width, height uint
 	hints         []bool
 }
 
-func NewCreateRegionHintsGrid(rand *rand.Rand, width, height, divisibilityBy uint, probabilityCreateRegionAt float64) *CreateRegionHintsGrid {
-	grid := new(CreateRegionHintsGrid)
+func NewRegionGridMask(rand *rand.Rand, width, height, divisibilityBy uint, probabilityCreateRegionAt float64) *RegionGridMask {
+	grid := new(RegionGridMask)
 	grid.width = width
 	grid.height = height
 	grid.hints = make([]bool, width*height)
@@ -35,7 +35,7 @@ func NewCreateRegionHintsGrid(rand *rand.Rand, width, height, divisibilityBy uin
 	return grid
 }
 
-func (grid *CreateRegionHintsGrid) generateHints(rand *rand.Rand, divisibilityBy uint, probabilityCreateRegionAt float64) {
+func (grid *RegionGridMask) generateHints(rand *rand.Rand, divisibilityBy uint, probabilityCreateRegionAt float64) {
 	hints := make([]bool, 0)
 	for i := len(grid.hints) - 1; i > 0; i-- {
 		if rand.Float64() < probabilityCreateRegionAt {
@@ -71,10 +71,10 @@ func (grid *CreateRegionHintsGrid) generateHints(rand *rand.Rand, divisibilityBy
 	grid.hints = hints
 }
 
-func (grid *CreateRegionHintsGrid) hintIndex(x, y uint) uint {
+func (grid *RegionGridMask) hintIndex(x, y uint) uint {
 	return y*grid.width + x
 }
 
-func (grid *CreateRegionHintsGrid) ShouldCreateRegion(x, y uint) bool {
+func (grid *RegionGridMask) ShouldCreateRegionAt(x, y uint) bool {
 	return grid.hints[grid.hintIndex(x, y)]
 }

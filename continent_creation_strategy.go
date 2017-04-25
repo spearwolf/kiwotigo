@@ -25,7 +25,7 @@ import (
 
 type ContinentCreationStrategy struct {
 	RegionGrid
-	CreateRegionHintsGrid
+	RegionGridMask
 	ContinentConfig
 	rand                      *rand.Rand
 	Continent                 *Continent
@@ -40,7 +40,7 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreat
 	strategy.ContinentConfig = cfg
 	strategy.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	strategy.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
-	strategy.CreateRegionHintsGrid = *NewCreateRegionHintsGrid(strategy.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
+	strategy.RegionGridMask = *NewRegionGridMask(strategy.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
 
 	cols := cfg.GridOuterPaddingX*2 + cfg.GridWidth*cfg.GridHexWidth + cfg.GridInnerPaddingX*(cfg.GridWidth-1)
 	rows := cfg.GridOuterPaddingY*2 + cfg.GridHeight*cfg.GridHexHeight + cfg.GridInnerPaddingY*(cfg.GridHeight-1)
@@ -152,7 +152,7 @@ func (strategy *ContinentCreationStrategy) addNewRegionGroup(region *Region) {
 }
 
 func (strategy *ContinentCreationStrategy) shouldCreateRegionAt(x, y uint) bool {
-	return strategy.CreateRegionHintsGrid.ShouldCreateRegion(x, y)
+	return strategy.RegionGridMask.ShouldCreateRegionAt(x, y)
 }
 
 type gridRegionFn func(x, y uint, region *Region)
