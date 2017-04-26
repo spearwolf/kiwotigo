@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,19 +18,33 @@
 package kiwotigo
 
 type RegionShape struct {
-	region       *Region
-	visitedEdges map[*Hexagon]*[6]bool
-	shapePath    []*Vertex
+	region         *Region
+	visitedEdges   map[*Hexagon]*[6]bool
+	shapePath      []*Vertex
+	startEdgeOrder []int
 }
 
 var nextEdgeMap [6]int = [...]int{4, 5, 0, 1, 2, 3}
+var defaultEdgeOrder []int = []int{0, 1, 2, 3, 4, 5}
 
-func NewRegionShape(region *Region) (shape *RegionShape) {
+func NewRegionShape(region *Region, shapeEdgeOrder *[]int) (shape *RegionShape) {
 	shape = new(RegionShape)
 	shape.region = region
 	shape.visitedEdges = make(map[*Hexagon]*[6]bool)
 	shape.shapePath = make([]*Vertex, 0)
+
+	edgeOrder := shapeEdgeOrder
+	if shapeEdgeOrder == nil {
+		edgeOrder = &defaultEdgeOrder
+	}
+	shape.startEdgeOrder = make([]int, len(*edgeOrder))
+	copy(shape.startEdgeOrder, *edgeOrder)
+
 	return
+}
+
+func CreateShapePath(region *Region, shapeEdgeOrder *[]int) *[]*Vertex {
+	return NewRegionShape(region, shapeEdgeOrder).CreatePath()
 }
 
 func (shape *RegionShape) CreatePath() *[]*Vertex {
@@ -41,10 +55,6 @@ func (shape *RegionShape) CreatePath() *[]*Vertex {
 		hexagon, edge = shape.nextHexagonEdge(hexagon, edge)
 	}
 	return &shape.shapePath
-}
-
-func CreateShapePath(region *Region) *[]*Vertex {
-	return NewRegionShape(region).CreatePath()
 }
 
 func (_ *RegionShape) isOtherRegion(a, b *Region) bool {
@@ -68,14 +78,16 @@ func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*H
 
 	// find startAtEdge
 	if startAtEdge < 0 {
-		for i = 0; i < 6; i++ {
-			hex := hexagon.Neighbor(i)
+		var i, edgeIndex int
+		for i, edgeIndex = range shape.startEdgeOrder {
+			//for i = 0; i < 6; i++ {
+			hex := hexagon.Neighbor(edgeIndex)
 			if hex == nil || shape.isOtherRegion(hex.Region, hexagon.Region) {
 				break
 			}
 		}
-		if i < 6 {
-			startAtEdge = i
+		if i < len(shape.startEdgeOrder) {
+			startAtEdge = edgeIndex
 		} else {
 			return nil, -1
 		}

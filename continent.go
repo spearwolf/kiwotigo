@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ import (
 	"encoding/json"
 	"math"
 )
+
+var shapeEdgeOrder []int = []int{3, 2, 1, 0, 5, 4}
 
 type Continent struct {
 	Width        uint                    `json:"width"`
@@ -54,7 +56,7 @@ func (continent *Continent) CreateShapes(shapeName string) {
 		}
 	}
 	for i, region := range continent.regions {
-		shape := CreateShapePath(region)
+		shape := CreateShapePath(region, &shapeEdgeOrder)
 		continent.Shapes[i][shapeName] = shape
 	}
 }

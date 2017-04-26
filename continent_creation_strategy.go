@@ -71,7 +71,7 @@ func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
 	//    - [x]  define target region count constraint: even/odd/number/dividable-by-number...
 	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
 	//    - [ ]  allow pre-defined region grid masks (or a region grid coords blacklist)
-	//    - [ ]  fix Region.SingleRandomShapeHexagon()
+	//    - [x]  fix Region.SingleRandomShapeHexagon()
 	// - [x]  toJson
 	//    - [x]  export config
 	//    - [x]  export region size (hexagon count)

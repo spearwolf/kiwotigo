@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -399,7 +399,7 @@ func TestNextHexagonShapeEdgeRegionA(t *testing.T) {
 
 	hexagon := model.Hexagon(1, 1)
 
-	shape := NewRegionShape(region)
+	shape := NewRegionShape(region, nil)
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 
 	if nextHexagon != nil || nextEdge != -1 {
@@ -455,7 +455,7 @@ func TestNextHexagonShapeEdgeRegionB(t *testing.T) {
 
 	hexagon := model.Hexagon(3, 1)
 
-	shape := NewRegionShape(region)
+	shape := NewRegionShape(region, nil)
 
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 4, 2, 3, "B1")
@@ -492,7 +492,7 @@ func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
 
 	hexagon := model.Hexagon(3, 4)
 
-	shape := NewRegionShape(region)
+	shape := NewRegionShape(region, nil)
 
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 2, 4, 0, "D1")
@@ -552,7 +552,7 @@ func TestNextHexagonShapeEdgeRegionE(t *testing.T) {
 
 	hexagon := model.Hexagon(5, 5)
 
-	shape := NewRegionShape(region)
+	shape := NewRegionShape(region, nil)
 
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 5, 4, 5, "E1")
@@ -594,7 +594,7 @@ func TestNextHexagonShapeEdgeRegionF(t *testing.T) {
 
 	hexagon := model.Hexagon(1, 3)
 
-	shape := NewRegionShape(region)
+	shape := NewRegionShape(region, nil)
 
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
 	assertNextHexagonEdge(t, nextHexagon, nextEdge, 2, 3, 4, "F1")
