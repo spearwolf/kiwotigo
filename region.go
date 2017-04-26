@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -125,27 +125,36 @@ func (region *Region) RegionLessNeighborHexagons() (regionLess []*Hexagon) {
 	return
 }
 
-func (region *Region) isMarginal(hex *Hexagon) bool {
+func (region *Region) isAtEdge(hex *Hexagon) bool {
 	return hex == nil || hex.Region == nil || hex.Region != region
 }
 
 func (region *Region) ShapeHexagons() (shape []*Hexagon) {
 	shape = make([]*Hexagon, 0)
 	for _, hex := range region.hexagons {
-		if region.isMarginal(hex.NeighborNorth) || region.isMarginal(hex.NeighborNorthEast) || region.isMarginal(hex.NeighborSouthEast) || region.isMarginal(hex.NeighborSouth) || region.isMarginal(hex.NeighborSouthWest) || region.isMarginal(hex.NeighborNorthWest) {
+		if region.isAtEdge(hex.NeighborNorth) || region.isAtEdge(hex.NeighborNorthEast) || region.isAtEdge(hex.NeighborSouthEast) || region.isAtEdge(hex.NeighborSouth) || region.isAtEdge(hex.NeighborSouthWest) || region.isAtEdge(hex.NeighborNorthWest) {
 			shape = append(shape, hex)
 		}
 	}
 	return
 }
 
-// FIXME find hexagon from *outter* shape (not inner)
 func (region *Region) SingleRandomShapeHexagon() *Hexagon {
-	for i := len(region.hexagons) - 1; i >= 0; i-- {
-		hex := region.hexagons[i]
-		if region.isMarginal(hex.NeighborNorth) || region.isMarginal(hex.NeighborNorthEast) || region.isMarginal(hex.NeighborSouthEast) || region.isMarginal(hex.NeighborSouth) || region.isMarginal(hex.NeighborSouthWest) || region.isMarginal(hex.NeighborNorthWest) {
+	// take a hexagon from region
+	hex := region.hexagons[0]
+	// find the furthest left hexagon
+	for {
+		left := hex.NeighborLeft
+		if left == nil {
+			break
+		}
+		hex = left
+	}
+	// then go right until a hexagon is from our region
+	for {
+		if hex.Region == region {
 			return hex
 		}
+		hex = hex.NeighborRight
 	}
-	return nil
 }

@@ -104,6 +104,10 @@ func (model *HexagonModel) connectNeighbors() {
 				if _row > 0 {
 					hex.NeighborNorthWest = model.Hexagon(col-1, _row-1)
 				}
+
+				neighborLeft := model.Hexagon(col-1, row)
+				hex.NeighborLeft = neighborLeft
+				neighborLeft.NeighborRight = hex
 			}
 
 			if row > 0 {

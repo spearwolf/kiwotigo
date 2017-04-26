@@ -24,17 +24,24 @@ import (
 const startAtAngle float64 = 90
 
 type Hexagon struct {
-	Row, Col          uint
-	Left, Top         float64
-	coords            []Vertex
-	CenterPoint       Vertex
-	Region            *Region
+	Row, Col    uint
+	Left, Top   float64
+	coords      []Vertex
+	CenterPoint Vertex
+
+	Region *Region
+
 	NeighborNorth     *Hexagon
 	NeighborNorthEast *Hexagon
 	NeighborSouthEast *Hexagon
 	NeighborSouth     *Hexagon
 	NeighborSouthWest *Hexagon
 	NeighborNorthWest *Hexagon
+
+	//NeighborTop    *Hexagon
+	//NeighborBottom *Hexagon
+	NeighborRight *Hexagon
+	NeighborLeft  *Hexagon
 }
 
 // Return neighbor hexagon by index.
