@@ -51,7 +51,7 @@ func (continent *Continent) Json() string {
 func (continent *Continent) CreateShapes(shapeName string) {
 	if continent.Shapes == nil {
 		continent.Shapes = make([]map[string]*[]*Vertex, len(continent.regions))
-		for i, _ := range continent.regions {
+		for i := range continent.regions {
 			continent.Shapes[i] = make(map[string]*[]*Vertex)
 		}
 	}
