@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -23,6 +23,8 @@ import (
 
 const startAtAngle float64 = 90
 
+// The Hexagon represents a hexagon.
+//
 type Hexagon struct {
 	Row, Col    uint
 	Left, Top   float64
@@ -38,13 +40,11 @@ type Hexagon struct {
 	NeighborSouthWest *Hexagon
 	NeighborNorthWest *Hexagon
 
-	//NeighborTop    *Hexagon
-	//NeighborBottom *Hexagon
 	NeighborRight *Hexagon
 	NeighborLeft  *Hexagon
 }
 
-// Return neighbor hexagon by index.
+// Neighbor returns the neighbor hexagon by index.
 //
 // 	  _1_
 // 	2/   \0
@@ -72,6 +72,9 @@ func (hex *Hexagon) Neighbor(index int) *Hexagon {
 	return nil
 }
 
+// NeighborsWithRegionCount returns the number of neighbor hexagons
+// which are assigned to a region.
+//
 func (hex *Hexagon) NeighborsWithRegionCount() uint {
 	var count uint
 	if hex.NeighborNorthEast != nil && hex.NeighborNorthEast.Region != nil {
@@ -95,7 +98,7 @@ func (hex *Hexagon) NeighborsWithRegionCount() uint {
 	return count
 }
 
-func (hex *Hexagon) MakeCoords(width, height uint) {
+func (hex *Hexagon) makeCoords(width, height uint) {
 	hex.coords = make([]Vertex, 6)
 
 	mx, my := float64(width)/2, float64(height)/2
@@ -109,14 +112,21 @@ func (hex *Hexagon) MakeCoords(width, height uint) {
 	hex.CenterPoint = Vertex{mx + hex.Left, my + hex.Top}
 }
 
+// VertexCoord returns the Vertex by index.
+//
 func (hex *Hexagon) VertexCoord(i int) *Vertex {
 	return &hex.coords[i]
 }
 
+// NewHexagon creates a new Hexagon.
+//
+// Normally this is done by the HexagonModel
+// and you do not need to create hexagons by yourself.
+//
 func NewHexagon(col, row, width, height uint, left, top float64) (hex *Hexagon) {
 	hex = new(Hexagon)
 	hex.Col, hex.Row = col, row
 	hex.Left, hex.Top = left, top
-	hex.MakeCoords(width, height)
+	hex.makeCoords(width, height)
 	return
 }
