@@ -333,7 +333,7 @@ func (strategy *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint)
 	y = strategy.GridOuterPaddingY + (strategy.GridHexHeight+strategy.GridInnerPaddingY)*gridY + uint(strategy.rand.Intn(int(strategy.GridHexWidth)-4)+2)
 
 	region := new(Region)
-	hexagon := strategy.Continent.model.Hexagon(x, y)
+	hexagon := strategy.Continent.grid.Hexagon(x, y)
 
 	region.AssignHexagon(hexagon)
 	region.AssignHexagon(hexagon.NeighborNorthWest)

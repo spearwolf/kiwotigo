@@ -22,12 +22,12 @@ import (
 	"testing"
 )
 
-func makeHexagonModel() *HexagonModel {
-	return NewHexagonModel(10, 10, 20, 20, 0, 0)
+func makeHexagonGrid() *HexagonGrid {
+	return NewHexagonGrid(10, 10, 20, 20, 0, 0)
 }
 
-func testHexagonRowCol(t *testing.T, model *HexagonModel, col, row uint) {
-	hex := model.Hexagon(col, row)
+func testHexagonRowCol(t *testing.T, grid *HexagonGrid, col, row uint) {
+	hex := grid.Hexagon(col, row)
 	if hex == nil {
 		t.Error("Hexagon at [", col, ",", row, "] should exists")
 	}
@@ -39,16 +39,16 @@ func testHexagonRowCol(t *testing.T, model *HexagonModel, col, row uint) {
 	}
 }
 
-func TestHexagonModelGetHexagon(t *testing.T) {
+func TestHexagonGridGetHexagon(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 
-	testHexagonRowCol(t, model, 0, 0)
-	testHexagonRowCol(t, model, 0, 9)
-	testHexagonRowCol(t, model, 9, 0)
-	testHexagonRowCol(t, model, 9, 9)
+	testHexagonRowCol(t, grid, 0, 0)
+	testHexagonRowCol(t, grid, 0, 9)
+	testHexagonRowCol(t, grid, 9, 0)
+	testHexagonRowCol(t, grid, 9, 9)
 
-	hex := model.Hexagon(10, 10)
+	hex := grid.Hexagon(10, 10)
 	if hex != nil {
 		t.Error("Hexagon at [10, 10] expected nil, got", hex)
 	}
@@ -77,11 +77,11 @@ func TestHexagonModelGetHexagon(t *testing.T) {
 //    \_9/1 \__/  \__/  \__/  \_9/9 \
 //       \_9/  \__/  \__/  \__/  \_9/
 //
-func TestHexagonModelNeighbors(t *testing.T) {
+func TestHexagonGridNeighbors(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 
-	hex := model.Hexagon(0, 0)
+	hex := grid.Hexagon(0, 0)
 	shouldNotExist(t, hex.NeighborNorthEast, "NeighborNorthEast")
 	shouldNotExist(t, hex.NeighborNorth, "NeighborNorth")
 	shouldNotExist(t, hex.NeighborNorthWest, "NeighborNorthWest")
@@ -91,7 +91,7 @@ func TestHexagonModelNeighbors(t *testing.T) {
 	testNeighbor(t, hex.NeighborSouth, 0, 1, "NeighborSouth")
 	testNeighbor(t, hex.NeighborSouthEast, 1, 0, "NeighborSouthEast")
 
-	hex = model.Hexagon(0, 9)
+	hex = grid.Hexagon(0, 9)
 	shouldExist(t, hex.NeighborNorthEast, "NeighborNorthEast")
 	shouldExist(t, hex.NeighborNorth, "NeighborNorth")
 	shouldNotExist(t, hex.NeighborNorthWest, "NeighborNorthWest")
@@ -102,7 +102,7 @@ func TestHexagonModelNeighbors(t *testing.T) {
 	testNeighbor(t, hex.NeighborNorthEast, 1, 8, "NeighborNorthEast")
 	testNeighbor(t, hex.NeighborSouthEast, 1, 9, "NeighborSouthEast")
 
-	hex = model.Hexagon(1, 9)
+	hex = grid.Hexagon(1, 9)
 	shouldExist(t, hex.NeighborNorthEast, "NeighborNorthEast")
 	shouldExist(t, hex.NeighborNorth, "NeighborNorth")
 	shouldExist(t, hex.NeighborNorthWest, "NeighborNorthWest")
@@ -110,7 +110,7 @@ func TestHexagonModelNeighbors(t *testing.T) {
 	shouldNotExist(t, hex.NeighborSouth, "NeighborSouth")
 	shouldNotExist(t, hex.NeighborSouthEast, "NeighborSouthEast")
 
-	hex = model.Hexagon(1, 8)
+	hex = grid.Hexagon(1, 8)
 	shouldExist(t, hex.NeighborNorthEast, "NeighborNorthEast")
 	shouldExist(t, hex.NeighborNorth, "NeighborNorth")
 	shouldExist(t, hex.NeighborNorthWest, "NeighborNorthWest")
@@ -118,7 +118,7 @@ func TestHexagonModelNeighbors(t *testing.T) {
 	shouldExist(t, hex.NeighborSouth, "NeighborSouth")
 	shouldExist(t, hex.NeighborSouthEast, "NeighborSouthEast")
 
-	hex = model.Hexagon(9, 9)
+	hex = grid.Hexagon(9, 9)
 	shouldNotExist(t, hex.NeighborNorthEast, "NeighborNorthEast")
 	shouldExist(t, hex.NeighborNorth, "NeighborNorth")
 	shouldExist(t, hex.NeighborNorthWest, "NeighborNorthWest")
@@ -178,13 +178,13 @@ func shouldExist(t *testing.T, neighbor *Hexagon, message string) {
 //
 func TestRegionRegionLessNeighborHexagons(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 
 	regionA, regionB, regionC := new(Region), new(Region), new(Region)
 
-	regionA.AssignHexagon(model.Hexagon(1, 1))
-	regionB.AssignHexagon(model.Hexagon(3, 1)).AssignHexagon(model.Hexagon(4, 2))
-	regionC.AssignHexagon(model.Hexagon(9, 0))
+	regionA.AssignHexagon(grid.Hexagon(1, 1))
+	regionB.AssignHexagon(grid.Hexagon(3, 1)).AssignHexagon(grid.Hexagon(4, 2))
+	regionC.AssignHexagon(grid.Hexagon(9, 0))
 
 	// regionA
 	// =======================================================
@@ -287,12 +287,12 @@ func testIncludeHexagonAt(t *testing.T, hexagons []*Hexagon, col, row uint) {
 //
 func TestRegionShapeHexagons(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 
 	// regionA
 	// =======================================================
 	region := new(Region)
-	region.AssignHexagon(model.Hexagon(1, 1))
+	region.AssignHexagon(grid.Hexagon(1, 1))
 
 	shape := region.ShapeHexagons()
 	testShapeCount(t, shape, 1, "regionA")
@@ -302,8 +302,8 @@ func TestRegionShapeHexagons(t *testing.T) {
 	// regionB
 	// =======================================================
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(3, 1))
-	region.AssignHexagon(model.Hexagon(4, 2))
+	region.AssignHexagon(grid.Hexagon(3, 1))
+	region.AssignHexagon(grid.Hexagon(4, 2))
 
 	shape = region.ShapeHexagons()
 	testShapeCount(t, shape, 2, "regionB")
@@ -314,7 +314,7 @@ func TestRegionShapeHexagons(t *testing.T) {
 	// regionC
 	// =======================================================
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(9, 0))
+	region.AssignHexagon(grid.Hexagon(9, 0))
 
 	shape = region.ShapeHexagons()
 	testShapeCount(t, shape, 1, "regionC")
@@ -324,21 +324,21 @@ func TestRegionShapeHexagons(t *testing.T) {
 	// regionD
 	// =======================================================
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(0, 5))
-	region.AssignHexagon(model.Hexagon(1, 4))
-	region.AssignHexagon(model.Hexagon(2, 4))
-	region.AssignHexagon(model.Hexagon(0, 6))
-	region.AssignHexagon(model.Hexagon(1, 5))
-	region.AssignHexagon(model.Hexagon(2, 5))
-	region.AssignHexagon(model.Hexagon(3, 4))
-	region.AssignHexagon(model.Hexagon(4, 4))
-	region.AssignHexagon(model.Hexagon(0, 7))
-	region.AssignHexagon(model.Hexagon(1, 6))
-	region.AssignHexagon(model.Hexagon(2, 6))
-	region.AssignHexagon(model.Hexagon(3, 5))
-	region.AssignHexagon(model.Hexagon(4, 5))
-	region.AssignHexagon(model.Hexagon(3, 6))
-	region.AssignHexagon(model.Hexagon(4, 6))
+	region.AssignHexagon(grid.Hexagon(0, 5))
+	region.AssignHexagon(grid.Hexagon(1, 4))
+	region.AssignHexagon(grid.Hexagon(2, 4))
+	region.AssignHexagon(grid.Hexagon(0, 6))
+	region.AssignHexagon(grid.Hexagon(1, 5))
+	region.AssignHexagon(grid.Hexagon(2, 5))
+	region.AssignHexagon(grid.Hexagon(3, 4))
+	region.AssignHexagon(grid.Hexagon(4, 4))
+	region.AssignHexagon(grid.Hexagon(0, 7))
+	region.AssignHexagon(grid.Hexagon(1, 6))
+	region.AssignHexagon(grid.Hexagon(2, 6))
+	region.AssignHexagon(grid.Hexagon(3, 5))
+	region.AssignHexagon(grid.Hexagon(4, 5))
+	region.AssignHexagon(grid.Hexagon(3, 6))
+	region.AssignHexagon(grid.Hexagon(4, 6))
 
 	shape = region.ShapeHexagons()
 	testShapeCount(t, shape, 12, "regionD")
@@ -392,12 +392,12 @@ func testShapeCount(t *testing.T, shape []*Hexagon, expectedLength int, regionNa
 //
 func TestNextHexagonShapeEdgeRegionA(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 	region := new(Region)
 
-	region.AssignHexagon(model.Hexagon(1, 1))
+	region.AssignHexagon(grid.Hexagon(1, 1))
 
-	hexagon := model.Hexagon(1, 1)
+	hexagon := grid.Hexagon(1, 1)
 
 	shape := NewRegionShape(region, nil)
 	nextHexagon, nextEdge := shape.nextHexagonEdge(hexagon, -1)
@@ -447,13 +447,13 @@ func assertNextHexagonEdge(t *testing.T, next *Hexagon, edge int, hexCoordX, hex
 
 func TestNextHexagonShapeEdgeRegionB(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 	region := new(Region)
 
-	region.AssignHexagon(model.Hexagon(3, 1))
-	region.AssignHexagon(model.Hexagon(4, 2))
+	region.AssignHexagon(grid.Hexagon(3, 1))
+	region.AssignHexagon(grid.Hexagon(4, 2))
 
-	hexagon := model.Hexagon(3, 1)
+	hexagon := grid.Hexagon(3, 1)
 
 	shape := NewRegionShape(region, nil)
 
@@ -471,26 +471,26 @@ func TestNextHexagonShapeEdgeRegionB(t *testing.T) {
 
 func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 	region := new(Region)
 
-	region.AssignHexagon(model.Hexagon(3, 6))
-	region.AssignHexagon(model.Hexagon(2, 4))
-	region.AssignHexagon(model.Hexagon(2, 6))
-	region.AssignHexagon(model.Hexagon(0, 6))
-	region.AssignHexagon(model.Hexagon(3, 4))
-	region.AssignHexagon(model.Hexagon(4, 4))
-	region.AssignHexagon(model.Hexagon(0, 7))
-	region.AssignHexagon(model.Hexagon(1, 6))
-	region.AssignHexagon(model.Hexagon(1, 4))
-	region.AssignHexagon(model.Hexagon(1, 5))
-	region.AssignHexagon(model.Hexagon(3, 5))
-	region.AssignHexagon(model.Hexagon(4, 5))
-	region.AssignHexagon(model.Hexagon(0, 5))
-	region.AssignHexagon(model.Hexagon(2, 5))
-	region.AssignHexagon(model.Hexagon(4, 6))
+	region.AssignHexagon(grid.Hexagon(3, 6))
+	region.AssignHexagon(grid.Hexagon(2, 4))
+	region.AssignHexagon(grid.Hexagon(2, 6))
+	region.AssignHexagon(grid.Hexagon(0, 6))
+	region.AssignHexagon(grid.Hexagon(3, 4))
+	region.AssignHexagon(grid.Hexagon(4, 4))
+	region.AssignHexagon(grid.Hexagon(0, 7))
+	region.AssignHexagon(grid.Hexagon(1, 6))
+	region.AssignHexagon(grid.Hexagon(1, 4))
+	region.AssignHexagon(grid.Hexagon(1, 5))
+	region.AssignHexagon(grid.Hexagon(3, 5))
+	region.AssignHexagon(grid.Hexagon(4, 5))
+	region.AssignHexagon(grid.Hexagon(0, 5))
+	region.AssignHexagon(grid.Hexagon(2, 5))
+	region.AssignHexagon(grid.Hexagon(4, 6))
 
-	hexagon := model.Hexagon(3, 4)
+	hexagon := grid.Hexagon(3, 4)
 
 	shape := NewRegionShape(region, nil)
 
@@ -524,15 +524,15 @@ func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
 		t.Error("nextHexagon should be nil, is", nextHexagon, "(after D12)")
 	}
 
-	_, exists := shape.visitedEdges[model.Hexagon(2, 5)]
+	_, exists := shape.visitedEdges[grid.Hexagon(2, 5)]
 	if exists {
 		t.Error("Hexagon(2,5) should not be included in visitedEdges, but is")
 	}
-	_, exists = shape.visitedEdges[model.Hexagon(1, 5)]
+	_, exists = shape.visitedEdges[grid.Hexagon(1, 5)]
 	if exists {
 		t.Error("Hexagon(1,5) should not be included in visitedEdges, but is")
 	}
-	_, exists = shape.visitedEdges[model.Hexagon(3, 5)]
+	_, exists = shape.visitedEdges[grid.Hexagon(3, 5)]
 	if exists {
 		t.Error("Hexagon(3,5) should not be included in visitedEdges, but is")
 	}
@@ -540,17 +540,17 @@ func TestNextHexagonShapeEdgeRegionD(t *testing.T) {
 
 func TestNextHexagonShapeEdgeRegionE(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 	region := new(Region)
 
-	region.AssignHexagon(model.Hexagon(5, 4))
-	region.AssignHexagon(model.Hexagon(5, 5))
-	region.AssignHexagon(model.Hexagon(5, 6))
-	region.AssignHexagon(model.Hexagon(4, 7))
-	region.AssignHexagon(model.Hexagon(6, 7))
-	region.AssignHexagon(model.Hexagon(7, 6))
+	region.AssignHexagon(grid.Hexagon(5, 4))
+	region.AssignHexagon(grid.Hexagon(5, 5))
+	region.AssignHexagon(grid.Hexagon(5, 6))
+	region.AssignHexagon(grid.Hexagon(4, 7))
+	region.AssignHexagon(grid.Hexagon(6, 7))
+	region.AssignHexagon(grid.Hexagon(7, 6))
 
-	hexagon := model.Hexagon(5, 5)
+	hexagon := grid.Hexagon(5, 5)
 
 	shape := NewRegionShape(region, nil)
 
@@ -583,16 +583,16 @@ func TestNextHexagonShapeEdgeRegionE(t *testing.T) {
 
 func TestNextHexagonShapeEdgeRegionF(t *testing.T) {
 
-	model := makeHexagonModel()
+	grid := makeHexagonGrid()
 	region := new(Region)
 
-	region.AssignHexagon(model.Hexagon(0, 3))
-	region.AssignHexagon(model.Hexagon(1, 2))
-	region.AssignHexagon(model.Hexagon(2, 3))
-	region.AssignHexagon(model.Hexagon(0, 4))
-	region.AssignHexagon(model.Hexagon(1, 3))
+	region.AssignHexagon(grid.Hexagon(0, 3))
+	region.AssignHexagon(grid.Hexagon(1, 2))
+	region.AssignHexagon(grid.Hexagon(2, 3))
+	region.AssignHexagon(grid.Hexagon(0, 4))
+	region.AssignHexagon(grid.Hexagon(1, 3))
 
-	hexagon := model.Hexagon(1, 3)
+	hexagon := grid.Hexagon(1, 3)
 
 	shape := NewRegionShape(region, nil)
 

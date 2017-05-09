@@ -120,7 +120,7 @@ func (hex *Hexagon) VertexCoord(i int) *Vertex {
 
 // NewHexagon creates a new Hexagon.
 //
-// Normally this is done by the HexagonModel
+// Normally this is done by the HexagonGrid
 // and you do not need to create hexagons by yourself.
 //
 func NewHexagon(col, row, width, height uint, left, top float64) (hex *Hexagon) {

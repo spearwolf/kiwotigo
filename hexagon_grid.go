@@ -21,49 +21,49 @@ import (
 	"math"
 )
 
-type HexagonModel struct {
+type HexagonGrid struct {
 	Width, Height             uint
 	canvasWidth, canvasHeight uint
 	hexagons                  []*Hexagon
 }
 
-func (model *HexagonModel) CanvasWidth() uint {
-	return model.canvasWidth
+func (grid *HexagonGrid) CanvasWidth() uint {
+	return grid.canvasWidth
 }
 
-func (model *HexagonModel) CanvasHeight() uint {
-	return model.canvasHeight
+func (grid *HexagonGrid) CanvasHeight() uint {
+	return grid.canvasHeight
 }
 
-func (model *HexagonModel) Hexagon(x, y uint) *Hexagon {
-	if x < model.Width && y < model.Height {
-		return model.hexagons[y*model.Width+x]
+func (grid *HexagonGrid) Hexagon(x, y uint) *Hexagon {
+	if x < grid.Width && y < grid.Height {
+		return grid.hexagons[y*grid.Width+x]
 	}
 	return nil
 }
 
-func (model *HexagonModel) setHexagon(x, y uint, hex *Hexagon) *Hexagon {
-	if x < model.Width && y < model.Height {
-		model.hexagons[y*model.Width+x] = hex
+func (grid *HexagonGrid) setHexagon(x, y uint, hex *Hexagon) *Hexagon {
+	if x < grid.Width && y < grid.Height {
+		grid.hexagons[y*grid.Width+x] = hex
 	} else {
-		panic("HexagonModel position is out of range!")
+		panic("HexagonGrid position is out of range!")
 	}
 	return hex
 }
 
-func NewHexagonModel(width, height, hexWidth, hexHeight, paddingX, paddingY uint) (model *HexagonModel) {
+func NewHexagonGrid(width, height, hexWidth, hexHeight, paddingX, paddingY uint) (grid *HexagonGrid) {
 
-	model = new(HexagonModel)
-	model.Width, model.Height = width, height
-	model.hexagons = make([]*Hexagon, width*height)
+	grid = new(HexagonGrid)
+	grid.Width, grid.Height = width, height
+	grid.hexagons = make([]*Hexagon, width*height)
 
 	baseHex := NewHexagon(0, 0, hexWidth, hexHeight, 0, 0)
 	stepX := baseHex.VertexCoord(5).X - baseHex.VertexCoord(3).X
 	stepY := baseHex.VertexCoord(5).Y - baseHex.VertexCoord(1).Y
 	stepY1 := baseHex.VertexCoord(0).Y - baseHex.VertexCoord(1).Y
 
-	model.canvasWidth = uint(float64(width-1)*stepX) + (width-1)*paddingX + hexWidth
-	model.canvasHeight = uint(float64(height-1)*stepY) + (height-1)*paddingY + hexHeight + uint(stepY1)
+	grid.canvasWidth = uint(float64(width-1)*stepX) + (width-1)*paddingX + hexWidth
+	grid.canvasHeight = uint(float64(height-1)*stepY) + (height-1)*paddingY + hexHeight + uint(stepY1)
 
 	var row, col uint
 	for ; row < height; row++ {
@@ -77,52 +77,52 @@ func NewHexagonModel(width, height, hexWidth, hexHeight, paddingX, paddingY uint
 			top = math.Floor(0.5 + top)
 
 			if row == 0 && col == 0 {
-				model.hexagons[0] = baseHex
+				grid.hexagons[0] = baseHex
 			} else {
 				hex := NewHexagon(col, row, hexWidth, hexHeight, left, top)
-				model.setHexagon(col, row, hex)
+				grid.setHexagon(col, row, hex)
 			}
 		}
 	}
 
-	model.connectNeighbors()
+	grid.connectNeighbors()
 	return
 }
 
-func (model *HexagonModel) connectNeighbors() {
+func (grid *HexagonGrid) connectNeighbors() {
 	var row, col uint
-	for ; row < model.Height; row++ {
-		for col = 0; col < model.Width; col++ {
+	for ; row < grid.Height; row++ {
+		for col = 0; col < grid.Width; col++ {
 
 			_row := row + (col % 2)
-			hex := model.Hexagon(col, row)
+			hex := grid.Hexagon(col, row)
 
 			if col > 0 {
-				if _row < model.Height {
-					hex.NeighborSouthWest = model.Hexagon(col-1, _row)
+				if _row < grid.Height {
+					hex.NeighborSouthWest = grid.Hexagon(col-1, _row)
 				}
 				if _row > 0 {
-					hex.NeighborNorthWest = model.Hexagon(col-1, _row-1)
+					hex.NeighborNorthWest = grid.Hexagon(col-1, _row-1)
 				}
 
-				neighborLeft := model.Hexagon(col-1, row)
+				neighborLeft := grid.Hexagon(col-1, row)
 				hex.NeighborLeft = neighborLeft
 				neighborLeft.NeighborRight = hex
 			}
 
 			if row > 0 {
-				hex.NeighborNorth = model.Hexagon(col, row-1)
+				hex.NeighborNorth = grid.Hexagon(col, row-1)
 			}
-			if row < model.Height-1 {
-				hex.NeighborSouth = model.Hexagon(col, row+1)
+			if row < grid.Height-1 {
+				hex.NeighborSouth = grid.Hexagon(col, row+1)
 			}
 
-			if col < model.Width-1 {
+			if col < grid.Width-1 {
 				if _row > 0 {
-					hex.NeighborNorthEast = model.Hexagon(col+1, _row-1)
+					hex.NeighborNorthEast = grid.Hexagon(col+1, _row-1)
 				}
-				if _row < model.Height {
-					hex.NeighborSouthEast = model.Hexagon(col+1, _row)
+				if _row < grid.Height {
+					hex.NeighborSouthEast = grid.Hexagon(col+1, _row)
 				}
 			}
 		}

@@ -31,15 +31,15 @@ type Continent struct {
 	CenterPoints []CenterPoint           `json:"centerPoints"`
 	RegionSizes  []float64               `json:"regionSizes"`
 	Neighbors    []*[]int                `json:"neighbors"`
-	model        *HexagonModel
+	grid         *HexagonGrid
 	regions      []*Region
 }
 
 func NewContinent(cols, rows, hexWidth, hexHeight, paddingX, paddingY uint) (continent *Continent) {
 	continent = new(Continent)
-	continent.model = NewHexagonModel(cols, rows, hexWidth, hexHeight, paddingX, paddingY)
-	continent.Width = continent.model.CanvasWidth()
-	continent.Height = continent.model.CanvasHeight()
+	continent.grid = NewHexagonGrid(cols, rows, hexWidth, hexHeight, paddingX, paddingY)
+	continent.Width = continent.grid.CanvasWidth()
+	continent.Height = continent.grid.CanvasHeight()
 	return
 }
 
@@ -156,41 +156,41 @@ func (continent *Continent) MakeNeighbors() {
 
 func (continent *Continent) CreateSomeRegions() {
 	continent.regions = make([]*Region, 0, 4)
-	model := continent.model
+	grid := continent.grid
 
 	region := new(Region)
-	region.AssignHexagon(model.Hexagon(1, 1))
+	region.AssignHexagon(grid.Hexagon(1, 1))
 	continent.regions = append(continent.regions, region)
 
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(3, 1))
-	region.AssignHexagon(model.Hexagon(4, 2))
+	region.AssignHexagon(grid.Hexagon(3, 1))
+	region.AssignHexagon(grid.Hexagon(4, 2))
 	continent.regions = append(continent.regions, region)
 
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(3, 6))
-	region.AssignHexagon(model.Hexagon(2, 4))
-	region.AssignHexagon(model.Hexagon(2, 6))
-	region.AssignHexagon(model.Hexagon(0, 6))
-	region.AssignHexagon(model.Hexagon(3, 4))
-	region.AssignHexagon(model.Hexagon(4, 4))
-	region.AssignHexagon(model.Hexagon(0, 7))
-	region.AssignHexagon(model.Hexagon(1, 6))
-	region.AssignHexagon(model.Hexagon(1, 4))
-	region.AssignHexagon(model.Hexagon(1, 5))
-	region.AssignHexagon(model.Hexagon(3, 5))
-	region.AssignHexagon(model.Hexagon(4, 5))
-	region.AssignHexagon(model.Hexagon(0, 5))
-	region.AssignHexagon(model.Hexagon(2, 5))
-	region.AssignHexagon(model.Hexagon(4, 6))
+	region.AssignHexagon(grid.Hexagon(3, 6))
+	region.AssignHexagon(grid.Hexagon(2, 4))
+	region.AssignHexagon(grid.Hexagon(2, 6))
+	region.AssignHexagon(grid.Hexagon(0, 6))
+	region.AssignHexagon(grid.Hexagon(3, 4))
+	region.AssignHexagon(grid.Hexagon(4, 4))
+	region.AssignHexagon(grid.Hexagon(0, 7))
+	region.AssignHexagon(grid.Hexagon(1, 6))
+	region.AssignHexagon(grid.Hexagon(1, 4))
+	region.AssignHexagon(grid.Hexagon(1, 5))
+	region.AssignHexagon(grid.Hexagon(3, 5))
+	region.AssignHexagon(grid.Hexagon(4, 5))
+	region.AssignHexagon(grid.Hexagon(0, 5))
+	region.AssignHexagon(grid.Hexagon(2, 5))
+	region.AssignHexagon(grid.Hexagon(4, 6))
 	continent.regions = append(continent.regions, region)
 
 	region = new(Region)
-	region.AssignHexagon(model.Hexagon(5, 4))
-	region.AssignHexagon(model.Hexagon(5, 5))
-	region.AssignHexagon(model.Hexagon(5, 6))
-	region.AssignHexagon(model.Hexagon(4, 7))
-	region.AssignHexagon(model.Hexagon(6, 7))
-	region.AssignHexagon(model.Hexagon(7, 6))
+	region.AssignHexagon(grid.Hexagon(5, 4))
+	region.AssignHexagon(grid.Hexagon(5, 5))
+	region.AssignHexagon(grid.Hexagon(5, 6))
+	region.AssignHexagon(grid.Hexagon(4, 7))
+	region.AssignHexagon(grid.Hexagon(6, 7))
+	region.AssignHexagon(grid.Hexagon(7, 6))
 	continent.regions = append(continent.regions, region)
 }
