@@ -35,6 +35,7 @@ type ContinentCreationStrategy struct {
 	groups                    []*RegionGroup
 }
 
+// NewContinentCreationStrategy creates a new instacnce of ContinentCreationStrategy
 func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreationStrategy) {
 	strategy = new(ContinentCreationStrategy)
 	strategy.ContinentConfig = cfg
@@ -52,6 +53,10 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreat
 	return
 }
 
+// BuildContinent runs the full continent creation algorithm.
+//
+// Should never be called twice.
+// Should be called right after creating a new instance of ContinentCreationStrategy.
 func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
 
 	strategy.fillGridWithRegions()
