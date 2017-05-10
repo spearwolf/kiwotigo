@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 
 package kiwotigo
 
-type Vertex struct {
+// Vec2 represents a 2-dimensional point in a cartesian coordinate system.
+type Vec2 struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`
 }

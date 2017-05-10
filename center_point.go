@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+   Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 
 package kiwotigo
 
+// CenterPoint represents a point together with an inner and outer radius.
 type CenterPoint struct {
-	Vertex
+	Vec2
 	InnerRadius float64 `json:"iR"`
 	OuterRadius float64 `json:"oR"`
 }

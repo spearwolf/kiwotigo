@@ -24,12 +24,11 @@ import (
 const startAtAngle float64 = 90
 
 // The Hexagon represents a hexagon.
-//
 type Hexagon struct {
 	Row, Col    uint
 	Left, Top   float64
-	coords      []Vertex
-	CenterPoint Vertex
+	vertices    []Vec2
+	CenterPoint Vec2
 
 	Region *Region
 
@@ -74,7 +73,6 @@ func (hex *Hexagon) Neighbor(index int) *Hexagon {
 
 // NeighborsWithRegionCount returns the number of neighbor hexagons
 // which are assigned to a region.
-//
 func (hex *Hexagon) NeighborsWithRegionCount() uint {
 	var count uint
 	if hex.NeighborNorthEast != nil && hex.NeighborNorthEast.Region != nil {
@@ -98,35 +96,33 @@ func (hex *Hexagon) NeighborsWithRegionCount() uint {
 	return count
 }
 
-func (hex *Hexagon) makeCoords(width, height uint) {
-	hex.coords = make([]Vertex, 6)
+func (hex *Hexagon) makePoints(width, height uint) {
+	hex.vertices = make([]Vec2, 6)
 
 	mx, my := float64(width)/2, float64(height)/2
 	lx, ly := mx-1, my-1
 
-	for i := range hex.coords {
+	for i := range hex.vertices {
 		r := (float64(i)*(360/6) + startAtAngle) * (math.Pi / 180)
-		hex.coords[i] = Vertex{math.Floor(0.5 + (math.Sin(r)*lx + mx + hex.Left)), math.Floor(0.5 + (math.Cos(r)*ly + my + hex.Top))}
+		hex.vertices[i] = Vec2{math.Floor(0.5 + (math.Sin(r)*lx + mx + hex.Left)), math.Floor(0.5 + (math.Cos(r)*ly + my + hex.Top))}
 	}
 
-	hex.CenterPoint = Vertex{mx + hex.Left, my + hex.Top}
+	hex.CenterPoint = Vec2{mx + hex.Left, my + hex.Top}
 }
 
-// VertexCoord returns the Vertex by index.
-//
-func (hex *Hexagon) VertexCoord(i int) *Vertex {
-	return &hex.coords[i]
+// Vertex returns the Vec2 by index.
+func (hex *Hexagon) Vertex(i int) *Vec2 {
+	return &hex.vertices[i]
 }
 
 // NewHexagon creates a new Hexagon.
 //
 // Normally this is done by the HexagonGrid
 // and you do not need to create hexagons by yourself.
-//
 func NewHexagon(col, row, width, height uint, left, top float64) (hex *Hexagon) {
 	hex = new(Hexagon)
 	hex.Col, hex.Row = col, row
 	hex.Left, hex.Top = left, top
-	hex.makeCoords(width, height)
+	hex.makePoints(width, height)
 	return
 }

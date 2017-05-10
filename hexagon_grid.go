@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -45,8 +45,6 @@ func (grid *HexagonGrid) Hexagon(x, y uint) *Hexagon {
 func (grid *HexagonGrid) setHexagon(x, y uint, hex *Hexagon) *Hexagon {
 	if x < grid.Width && y < grid.Height {
 		grid.hexagons[y*grid.Width+x] = hex
-	} else {
-		panic("HexagonGrid position is out of range!")
 	}
 	return hex
 }
@@ -58,9 +56,9 @@ func NewHexagonGrid(width, height, hexWidth, hexHeight, paddingX, paddingY uint)
 	grid.hexagons = make([]*Hexagon, width*height)
 
 	baseHex := NewHexagon(0, 0, hexWidth, hexHeight, 0, 0)
-	stepX := baseHex.VertexCoord(5).X - baseHex.VertexCoord(3).X
-	stepY := baseHex.VertexCoord(5).Y - baseHex.VertexCoord(1).Y
-	stepY1 := baseHex.VertexCoord(0).Y - baseHex.VertexCoord(1).Y
+	stepX := baseHex.Vertex(5).X - baseHex.Vertex(3).X
+	stepY := baseHex.Vertex(5).Y - baseHex.Vertex(1).Y
+	stepY1 := baseHex.Vertex(0).Y - baseHex.Vertex(1).Y
 
 	grid.canvasWidth = uint(float64(width-1)*stepX) + (width-1)*paddingX + hexWidth
 	grid.canvasHeight = uint(float64(height-1)*stepY) + (height-1)*paddingY + hexHeight + uint(stepY1)

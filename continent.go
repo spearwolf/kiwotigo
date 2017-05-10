@@ -25,12 +25,12 @@ import (
 var shapeEdgeOrder []int = []int{3, 2, 1, 0, 5, 4}
 
 type Continent struct {
-	Width        uint                    `json:"width"`
-	Height       uint                    `json:"height"`
-	Shapes       []map[string]*[]*Vertex `json:"regions"`
-	CenterPoints []CenterPoint           `json:"centerPoints"`
-	RegionSizes  []float64               `json:"regionSizes"`
-	Neighbors    []*[]int                `json:"neighbors"`
+	Width        uint                  `json:"width"`
+	Height       uint                  `json:"height"`
+	Shapes       []map[string]*[]*Vec2 `json:"regions"`
+	CenterPoints []CenterPoint         `json:"centerPoints"`
+	RegionSizes  []float64             `json:"regionSizes"`
+	Neighbors    []*[]int              `json:"neighbors"`
 	grid         *HexagonGrid
 	regions      []*Region
 }
@@ -50,9 +50,9 @@ func (continent *Continent) Json() string {
 
 func (continent *Continent) CreateShapes(shapeName string) {
 	if continent.Shapes == nil {
-		continent.Shapes = make([]map[string]*[]*Vertex, len(continent.regions))
+		continent.Shapes = make([]map[string]*[]*Vec2, len(continent.regions))
 		for i := range continent.regions {
-			continent.Shapes[i] = make(map[string]*[]*Vertex)
+			continent.Shapes[i] = make(map[string]*[]*Vec2)
 		}
 	}
 	for i, region := range continent.regions {

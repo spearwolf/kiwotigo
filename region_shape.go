@@ -17,21 +17,21 @@
 
 package kiwotigo
 
-type RegionShape struct {
+type regionShape struct {
 	region         *Region
 	visitedEdges   map[*Hexagon]*[6]bool
-	shapePath      []*Vertex
+	shapePath      []*Vec2
 	startEdgeOrder []int
 }
 
 var nextEdgeMap [6]int = [...]int{4, 5, 0, 1, 2, 3}
 var defaultEdgeOrder []int = []int{0, 1, 2, 3, 4, 5}
 
-func NewRegionShape(region *Region, shapeEdgeOrder *[]int) (shape *RegionShape) {
-	shape = new(RegionShape)
+func NewRegionShape(region *Region, shapeEdgeOrder *[]int) (shape *regionShape) {
+	shape = new(regionShape)
 	shape.region = region
 	shape.visitedEdges = make(map[*Hexagon]*[6]bool)
-	shape.shapePath = make([]*Vertex, 0)
+	shape.shapePath = make([]*Vec2, 0)
 
 	edgeOrder := shapeEdgeOrder
 	if shapeEdgeOrder == nil {
@@ -43,11 +43,11 @@ func NewRegionShape(region *Region, shapeEdgeOrder *[]int) (shape *RegionShape) 
 	return
 }
 
-func CreateShapePath(region *Region, shapeEdgeOrder *[]int) *[]*Vertex {
+func CreateShapePath(region *Region, shapeEdgeOrder *[]int) *[]*Vec2 {
 	return NewRegionShape(region, shapeEdgeOrder).CreatePath()
 }
 
-func (shape *RegionShape) CreatePath() *[]*Vertex {
+func (shape *regionShape) CreatePath() *[]*Vec2 {
 	var edge int
 	hexagon := shape.region.SingleRandomShapeHexagon()
 	hexagon, edge = shape.nextHexagonEdge(hexagon, -1)
@@ -57,16 +57,16 @@ func (shape *RegionShape) CreatePath() *[]*Vertex {
 	return &shape.shapePath
 }
 
-func (_ *RegionShape) isOtherRegion(a, b *Region) bool {
+func (_ *regionShape) isOtherRegion(a, b *Region) bool {
 	return a == nil || b == nil || a != b
 }
 
-func (shape *RegionShape) neighborHasOtherRegion(hexagon *Hexagon, neighborIndex int) bool {
+func (shape *regionShape) neighborHasOtherRegion(hexagon *Hexagon, neighborIndex int) bool {
 	hex := hexagon.Neighbor(neighborIndex)
 	return hex == nil || shape.isOtherRegion(hex.Region, hexagon.Region)
 }
 
-func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*Hexagon, int) {
+func (shape *regionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*Hexagon, int) {
 	//
 	//       _1_
 	//     2/   \0
@@ -120,7 +120,7 @@ func (shape *RegionShape) nextHexagonEdge(hexagon *Hexagon, startAtEdge int) (*H
 
 	// edge <= first edge with adjacent (different|none) region
 	for {
-		shape.shapePath = append(shape.shapePath, hexagon.VertexCoord(edge))
+		shape.shapePath = append(shape.shapePath, hexagon.Vertex(edge))
 		visitedEdges[edge] = true
 		edge = (edge + 1) % 6
 		if !(!visitedEdges[edge] && shape.neighborHasOtherRegion(hexagon, edge)) {
