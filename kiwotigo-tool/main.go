@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2014-2017 Wolfger Schramm <wolfger@spearwolf.de>
+	Copyright (C) 2014-2020 Wolfger Schramm <wolfger@spearwolf.de>
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -16,9 +16,12 @@
 */
 package main
 
-import "flag"
-import "fmt"
-import "github.com/spearwolf/kiwotigo"
+import (
+	"flag"
+	"fmt"
+
+	kiwotigo ".."
+)
 
 func main() {
 
