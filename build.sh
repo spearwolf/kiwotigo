@@ -11,9 +11,14 @@ fi
 
 if [ "$1" = "-wasm" ]
 then
-    CMD="go build -o kiwotigo.wasm kiwotigo-tool/main.go"
+    CMD="go build -o kiwotigo.wasm kiwotigo-js-bridge/main.go"
     echo GOOS=js GOARCH=wasm $CMD
-    GOOS=js GOARCH=wasm exec $CMD
+    GOOS=js GOARCH=wasm $CMD
+
+    if [ ! -f wasm_exec.js ]
+    then
+      cp -v $(go env GOROOT)/misc/wasm/wasm_exec.js .
+    fi
 else
     CMD="go build -o kiwotigo kiwotigo-tool/main.go"
     echo $CMD
