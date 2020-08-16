@@ -9,6 +9,13 @@ then
     exit 1
 fi
 
-CMD="go build -o kiwotigo kiwotigo-tool/main.go"
-echo $CMD
-exec $CMD
+if [ "$1" = "-wasm" ]
+then
+    CMD="go build -o kiwotigo.wasm kiwotigo-tool/main.go"
+    echo GOOS=js GOARCH=wasm $CMD
+    GOOS=js GOARCH=wasm exec $CMD
+else
+    CMD="go build -o kiwotigo kiwotigo-tool/main.go"
+    echo $CMD
+    exec $CMD
+fi
