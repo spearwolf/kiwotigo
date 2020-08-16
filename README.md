@@ -20,3 +20,19 @@ Start a http server for testing the kiwotigo.wasm module with:
 ```sh
 $ npx serve
 ```
+
+as an alternative you can use the gulp tasks:
+
+```sh
+$ npm install --global gulp-cli
+$ gulp --tasks  # show all tasks
+```
+
+or just start:
+
+```sh
+$ npm start
+```
+
+
+have fun!

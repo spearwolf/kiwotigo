@@ -2,3 +2,4 @@ kiwotigo
 go1.15.linux-amd64.tar.gz
 kiwotigo.wasm
 wasm_exec.js
+node_modules
