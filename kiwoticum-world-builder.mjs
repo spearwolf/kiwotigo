@@ -1,7 +1,26 @@
 const worker = new Worker('./kiwoticum-world-builder.worker.mjs', {type: 'module'})
 
-worker.onmessage = (e) => {
-  console.info('received message from worker, data=', e.data)
+const tmpResolvers = new Map()  // temporary id -> Promise.resolve()
+
+const createMessageId = (() => {
+  let lastId = 0
+  return () => {
+    ++lastId
+    return `kwb-${lastId.toString(36)}`
+  }
+})()
+
+worker.onmessage = ({data}) => {
+  const { id } = data
+  const resolve = tmpResolvers.get(id)
+  if (resolve) {
+    tmpResolvers.delete(id)
+    resolve(data)
+  }
 }
 
-export const create = (cfg) => worker.postMessage(cfg);
+export const build = (cfg) => new Promise(resolve => {
+  const id = createMessageId()
+  tmpResolvers.set(id, resolve)
+  worker.postMessage({ ...cfg, id })
+})
