@@ -24,42 +24,28 @@ import (
 
 func createContinent(this js.Value, inputs []js.Value) interface{} {
 
-	// var gridHeight uint
-	// var gridOuterPaddingX uint
-	// var gridOuterPaddingY uint
-	// var gridInnerPaddingX uint
-	// var gridInnerPaddingY uint
-	// var gridHexWidth uint
-	// var gridHexHeight uint
-	// var hexWidth uint
-	// var hexHeight uint
-	// var hexPaddingX uint
-	// var hexPaddingY uint
-	// var fastGrowIterations uint
-	// var minimalGrowIterations uint
-	// var maxRegionSizeFactor float64
-	// var probabilityCreateRegionAt float64
-	// var divisibilityBy uint
-	// var prettyPrint bool
+	// https://pkg.go.dev/syscall/js?tab=doc#ValueOf
+	// map[string]interface{} <> js~Object
+	args := js.ValueOf(inputs[0])
 
 	config := kiwotigo.ContinentConfig{
-		GridWidth:                 10,
-		GridHeight:                10,
-		GridOuterPaddingX:         25,
-		GridOuterPaddingY:         25,
-		GridInnerPaddingX:         6,
-		GridInnerPaddingY:         3,
-		GridHexWidth:              16,
-		GridHexHeight:             14,
-		HexWidth:                  12, //24,
-		HexHeight:                 12,
-		HexPaddingX:               0,   //5,  //3,
-		HexPaddingY:               0,   //5,  //3,
-		FastGrowIterations:        8,   //10,
-		MinimalGrowIterations:     120, //48,
-		MaxRegionSizeFactor:       3,
-		DivisibilityBy:            1,
-		ProbabilityCreateRegionAt: 0.6}
+		GridWidth:                 uint(args.Get("gridWidth").Int()),
+		GridHeight:                uint(args.Get("gridHeight").Int()),
+		GridOuterPaddingX:         uint(args.Get("gridOuterPaddingX").Int()),
+		GridOuterPaddingY:         uint(args.Get("gridOuterPaddingY").Int()),
+		GridInnerPaddingX:         uint(args.Get("gridInnerPaddingX").Int()),
+		GridInnerPaddingY:         uint(args.Get("gridInnerPaddingY").Int()),
+		GridHexWidth:              uint(args.Get("gridHexWidth").Int()),
+		GridHexHeight:             uint(args.Get("gridHexHeight").Int()),
+		HexWidth:                  uint(args.Get("hexWidth").Int()),
+		HexHeight:                 uint(args.Get("hexHeight").Int()),
+		HexPaddingX:               uint(args.Get("hexPaddingX").Int()),
+		HexPaddingY:               uint(args.Get("hexPaddingY").Int()),
+		FastGrowIterations:        uint(args.Get("fastGrowIterations").Int()),
+		MinimalGrowIterations:     uint(args.Get("minimalGrowIterations").Int()),
+		MaxRegionSizeFactor:       args.Get("maxRegionSizeFactor").Float(),
+		ProbabilityCreateRegionAt: args.Get("probabilityCreateRegionAt").Float(),
+		DivisibilityBy:            uint(args.Get("divisibilityBy").Int())}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
 	continent := strategy.BuildContinent()
@@ -70,7 +56,7 @@ func createContinent(this js.Value, inputs []js.Value) interface{} {
 	callback := inputs[len(inputs)-1]
 	callback.Invoke(json)
 
-	return 0
+	return js.Undefined()
 }
 
 func main() {
