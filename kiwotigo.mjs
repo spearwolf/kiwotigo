@@ -34,7 +34,7 @@ export function createContinent(cfg) {
       new Promise((resolve) => {
         __kiwotiGo_createContinent(
           {
-            DefaultConfig,
+            ...DefaultConfig,
             ...cfg,
           },
           (result) => resolve(JSON.parse(result))

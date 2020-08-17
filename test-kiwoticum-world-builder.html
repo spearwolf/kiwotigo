@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>test kiwoticum-world-builder</title>
+  </head>
+  <body>
+    <button id=create>create</button>
+    <script type="module">
+      import { create } from "./kiwoticum-world-builder.mjs";
+      document
+        .getElementById('create')
+        .addEventListener('click', () => create({
+          gridWidth: 7,
+          gridHeight: 5,
+        }))
+    </script>
+  </body>
+</html>
