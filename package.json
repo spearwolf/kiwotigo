@@ -4,7 +4,7 @@
   "description": "a library to create world maps",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently -r -k 'gulp watchAll' 'npx serve'"
+    "start": "concurrently -r -k serve 'gulp watchAll'"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "devDependencies": {
     "concurrently": "^5.3.0",
     "esm": "^3.2.25",
-    "gulp": "^4.0.2"
+    "gulp": "^4.0.2",
+    "serve": "^11.3.2"
   }
 }

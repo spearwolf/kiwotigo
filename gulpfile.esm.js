@@ -15,40 +15,10 @@ export const buildTool = (done) => exec('bash ./build.sh', done)
 export const buildWasm = (done) => exec('bash ./build.sh -wasm', done)
 export const buildAll = parallel(buildTool, buildWasm)
 
-export function watchTool() {
-  watch(
-    [
-      './*.go',
-      './kiwotigo-tool/*.go',
-    ],
-    {
-      ignoreInitial: false,
-    },
-    buildTool,
-  )
-}
+const watchFiles = (task, ...files) => watch(files, { ignoreInitial: false }, task)
 
-export function watchWasm() {
-  watch(
-    [
-      './*.go',
-      './kiwotigo-js-bridge/*.go',
-    ],
-    {
-      ignoreInitial: false,
-    },
-    buildWasm,
-  )
-}
-
-export function watchAll() {
-  watch(
-    './**/*.go',
-    {
-      ignoreInitial: false,
-    },
-    buildAll,
-  )
-}
+export const watchTool = () => watchFiles(buildTool, './*.go', './kiwotigo-tool/*.go')
+export const watchWasm = () => watchFiles(buildWasm, './*.go', './kiwotigo-js-bridge/*.go')
+export const watchAll = () => watchFiles(buildAll, './**/*.go')
 
 export default series(clean, buildAll)
