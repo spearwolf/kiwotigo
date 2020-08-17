@@ -5,14 +5,19 @@
   <script src="wasm_exec.js"></script>
   <script>
     const go = new Go();
-    WebAssembly.instantiateStreaming(
+    const __kiwotiGo = WebAssembly.instantiateStreaming(
       fetch("kiwotigo.wasm"),
       go.importObject
-    )
-      .then((result) => {
-        go.run(result.instance);
-      });
-    </script>
+    ).then((result) => {
+      go.run(result.instance);
+    });
+
+    function kiwotigoCreateContinent() {
+      return __kiwotiGo.then(() => new Promise((resolve) => {
+        __kiwotiGo_createContinent((result) => resolve(JSON.parse(result)));
+      }));
+    }
+  </script>
 </head>
 <body>
 </body>
