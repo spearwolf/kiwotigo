@@ -2,10 +2,20 @@
   <head>
     <meta charset="utf-8" />
     <title>test kiwotigo.mjs</title>
-    <script type="module">
-      import * as kiwotigo from "./kiwotigo.mjs";
-      console.log("kiwotigo", kiwotigo);
-    </script>
   </head>
-  <body></body>
+  <body>
+    <button id=create>create</button>
+    <script type="module">
+      import { build } from "./kiwotigo.mjs";
+
+      const onCreate = () => build({
+        gridWidth: 7,
+        gridHeight: 5,
+      }).then((data) => {
+        console.log('received new build', data)
+      })
+
+      document.getElementById('create').addEventListener('click', onCreate)
+    </script>
+  </body>
 </html>

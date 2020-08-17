@@ -1,6 +1,6 @@
-import { createContinent } from './kiwotigo.mjs'
+import { createContinent } from './kiwotigo-wasm-bridge.mjs'
 
-console.log('hej kiwoticum-world-builder.js 🦄')
+console.log('hej kiwotigo 🦄')
 
 self.onmessage = (e) => {
   const { id, ...cfg } = e.data
