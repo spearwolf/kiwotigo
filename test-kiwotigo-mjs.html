@@ -11,11 +11,13 @@
     }
 
     .createContinentConfig {
-      position: relative;
+      position: absolute;
       width: 270px;
-      height: 100vh;
       user-select: none;
       border-right: 1px solid #eee;
+      border-bottom: 1px solid #eee;
+      background-color: rgba(255, 255, 255, 0.7);
+      border-bottom-right-radius: 6px;
     }
 
     h1 {
@@ -44,7 +46,8 @@
     .kiwotigo-form-input {
       border-width: 0;
       background-color: #f8f9fa;
-      box-shadow: 0 1px 0 rgba(27,31,35,.04), inset 0 1px 0 hsla(0,0%,100%,.25);
+      box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04),
+        inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
     }
     .kiwotigo-form-input:hover {
       background-color: #f0f1f2;
@@ -86,13 +89,14 @@
       appearance: none;
       color: #24292e;
       background-color: #fafbfc;
-      border-color: rgba(27,31,35,.15);
-      box-shadow: 0 1px 0 rgba(27,31,35,.04), inset 0 1px 0 hsla(0,0%,100%,.25);
-      transition: background-color .2s cubic-bezier(.3,0,.5,1);
+      border-color: rgba(27, 31, 35, 0.15);
+      box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04),
+        inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+      transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
     }
     .kiwotigo-button:hover {
       background-color: #f3f4f6;
-      transition-duration: .1s;
+      transition-duration: 0.1s;
     }
     .kiwotigo-button:focus {
       outline: var(--focus-outline);
@@ -102,78 +106,183 @@
       font-family: monospace;
     }
 
+    main {
+      text-align: center;
+    }
   </style>
   <body>
     <section class="createContinentConfig">
       <h1>kiwotigo.mjs</h1>
-      <form id="createContinent" class="kiwotigo-form">
+      <form id="kiwotigo" class="kiwotigo-form">
         <fieldset class="kiwotigo-form-group">
           <div class="kiwotigo-input-row">
             <label class="kiwotigo-form-label" for="gridWidth">gridWidth</label>
-            <input class="kiwotigo-form-input" name="gridWidth" type="number" value="7" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="gridHeight">gridHeight</label>
-            <input class="kiwotigo-form-input" name="gridHeight" type="number" value="7" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridOuterPaddingX</label>
-            <input class="kiwotigo-form-input" type="number" value="40" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridOuterPaddingY</label>
-            <input class="kiwotigo-form-input" type="number" value="40" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridInnerPaddingX</label>
-            <input class="kiwotigo-form-input" type="number" value="8" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridInnerPaddingY</label>
-            <input class="kiwotigo-form-input" type="number" value="8" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridHexWidth</label>
-            <input class="kiwotigo-form-input" type="number" value="15" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">gridHexHeight</label>
-            <input class="kiwotigo-form-input" type="number" value="15" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">hexWidth</label>
-            <input class="kiwotigo-form-input" type="number" value="10" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">hexHeight</label>
-            <input class="kiwotigo-form-input" type="number" value="10" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">hexPaddingX</label>
-            <input class="kiwotigo-form-input" type="number" value="0" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">hexPaddingY</label>
-            <input class="kiwotigo-form-input" type="number" value="0" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">minimalGrowIterations</label>
-            <input class="kiwotigo-form-input" type="number" value="100" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">fastGrowIterations</label>
-            <input class="kiwotigo-form-input" type="number" value="4" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">maxRegionSizeFactor</label>
-            <input class="kiwotigo-form-input" type="number" value="3" />
-          </div>
-          <div class="kiwotigo-input-row">
-            <label class="kiwotigo-form-label" for="aligned-name">probabilityCreateRegionAt</label>
             <input
               class="kiwotigo-form-input"
+              name="gridWidth"
               type="number"
-              value="0.7"
+              value="8"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridHeight"
+              >gridHeight</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridHeight"
+              type="number"
+              value="5"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridOuterPaddingX"
+              >gridOuterPaddingX</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridOuterPaddingX"
+              type="number"
+              value="80"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridOuterPaddingY"
+              >gridOuterPaddingY</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridOuterPaddingY"
+              type="number"
+              value="80"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridInnerPaddingX"
+              >gridInnerPaddingX</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridInnerPaddingX"
+              type="number"
+              value="15"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridInnerPaddingY"
+              >gridInnerPaddingY</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridInnerPaddingY"
+              type="number"
+              value="10"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridHexWidth"
+              >gridHexWidth</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridHexWidth"
+              type="number"
+              value="15"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="gridHexWidth"
+              >gridHexHeight</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="gridHexHeight"
+              type="number"
+              value="15"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="hexWidth">hexWidth</label>
+            <input
+              class="kiwotigo-form-input"
+              name="hexWidth"
+              type="number"
+              value="10"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="hexHeight">hexHeight</label>
+            <input
+              class="kiwotigo-form-input"
+              name="hexHeight"
+              type="number"
+              value="10"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="hexPaddingX"
+              >hexPaddingX</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="hexPaddingX"
+              type="number"
+              value="0"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="hexPaddingY"
+              >hexPaddingY</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="hexPaddingY"
+              type="number"
+              value="0"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="minimalGrowIterations"
+              >minimalGrowIterations</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="minimalGrowIterations"
+              type="number"
+              value="20"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="fastGrowIterations"
+              >fastGrowIterations</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="fastGrowIterations"
+              type="number"
+              value="5"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="maxRegionSizeFactor"
+              >maxRegionSizeFactor</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="maxRegionSizeFactor"
+              type="number"
+              value="3"
+            />
+          </div>
+          <div class="kiwotigo-input-row">
+            <label class="kiwotigo-form-label" for="probabilityCreateRegionAt"
+              >probabilityCreateRegionAt</label
+            >
+            <input
+              class="kiwotigo-form-input"
+              name="probabilityCreateRegionAt"
+              type="number"
+              value="0.4"
               min="0.01"
               max="1"
               step="0.01"
@@ -188,23 +297,62 @@
       </form>
     </section>
 
+    <main>
+      <canvas id="kiwotigoCanvas"></canvas>
+    </main>
+
     <script type="module">
-      import { build } from './kiwotigo.mjs';
+      import { build } from "./kiwotigo.mjs";
+      import draw from "./kiwotigo-painter.mjs";
 
-      const onCreate = () =>
-        build({
-          gridWidth: 7,
-          gridHeight: 5,
-        }).then((data) => {
-          console.log('received new build', data);
+      const canvas = document.getElementById("kiwotigoCanvas");
+      const canvasCtx = canvas.getContext("2d");
+
+      const onCreate = (config) =>
+        build(config).then((data) => {
+          console.log("received new build", data);
+
+          canvas.width = data.continent.width;
+          canvas.height = data.continent.height;
+          const DPR = window.devicePixelRatio || 1;
+          if (DPR !== 1) {
+            canvas.style.width = `${Math.round(canvas.width / DPR)}px`;
+            canvas.style.height = `${Math.round(canvas.height / DPR)}px`;
+          }
+          draw(canvasCtx, data.continent);
         });
 
-      document
-        .getElementById('createContinent')
-        .addEventListener('submit', (event) => {
-          event.preventDefault();
-          onCreate();
-        });
+      document.forms.kiwotigo.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const { elements: formElements } = document.forms.kiwotigo;
+        const cfg = [
+          "gridWidth",
+          "gridHeight",
+          "gridOuterPaddingX",
+          "gridOuterPaddingY",
+          "gridInnerPaddingX",
+          "gridInnerPaddingY",
+          "gridHexWidth",
+          "gridHexHeight",
+          "hexWidth",
+          "hexHeight",
+          "hexPaddingX",
+          "hexPaddingY",
+          "minimalGrowIterations",
+          "fastGrowIterations",
+          "maxRegionSizeFactor",
+          "probabilityCreateRegionAt",
+        ].reduce(
+          (c, key) => ({ ...c, [key]: parseFloat(formElements[key].value) }),
+          {
+            disablePointsRasterizer: true,
+            disableTransformPoints: true,
+          }
+        );
+
+        onCreate(cfg);
+      });
     </script>
   </body>
 </html>
