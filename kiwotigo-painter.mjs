@@ -1,3 +1,10 @@
+const REGION_OUTLINE_STROKE = '#c5c5c5';
+const REGION_BASE_PATH_FILL = '#e7e7e7';
+const REGION_FULL_PATH_FILL = '#f5f5f5';
+const REGION_RADIUS_STROKE = '#a1a1a1';
+const REGION_OUTER_RADIUS_STROKE = '#bababa';
+const CONNECTION_STROKE = "#f5b";
+
 function clearCanvas(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
@@ -22,32 +29,32 @@ function drawPath(ctx, regions, pathName, stroke = false) {
 }
 
 function drawRegions(ctx, continent, drawBasePath) {
-  //ctx.strokeStyle = '#000000';
-  //ctx.fillStyle = '#d0f0ff';
-  ctx.strokeStyle = "#333333"; //'#246';
-  ctx.fillStyle = "#9BCB3C"; // '#88C425';
+  ctx.strokeStyle = REGION_OUTLINE_STROKE;
   ctx.lineWidth = 1;
+
+  ctx.fillStyle = REGION_FULL_PATH_FILL;
 
   drawPath(ctx, continent.regions, "fullPath", true);
 
   if (drawBasePath) {
-    //ctx.fillStyle = '#c0e0ee';
-    ctx.fillStyle = "#61A548"; //'#BEF202';
+    ctx.fillStyle = REGION_BASE_PATH_FILL;
 
     drawPath(ctx, continent.regions, "basePath");
   }
 }
 
 function drawRegionsBase(ctx, continent) {
-  ctx.fillStyle = "rgba(239, 246, 105, 0.5)";
+  // ctx.fillStyle = "rgba(255, 255, 128, 0.75)";
   ctx.lineWidth = 1;
 
   continent.centerPoints.forEach((cp) => {
+    ctx.strokeStyle = REGION_RADIUS_STROKE;
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.iR, 0, 2 * Math.PI, false);
     ctx.closePath();
-    ctx.fill();
+    ctx.stroke();
 
+    ctx.strokeStyle = REGION_OUTER_RADIUS_STROKE;
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.oR, 0, 2 * Math.PI, false);
     ctx.closePath();
@@ -56,7 +63,7 @@ function drawRegionsBase(ctx, continent) {
 }
 
 function drawRegionsConnections(ctx, continent) {
-  ctx.strokeStyle = "#CF3333"; // "rgba(255, 0, 128, 0.5)";
+  ctx.strokeStyle = CONNECTION_STROKE;
   ctx.lineWidth = 2;
 
   const { neighbors, centerPoints } = continent;
@@ -75,14 +82,14 @@ function drawRegionsConnections(ctx, continent) {
 }
 
 function drawRegionIds(ctx, continent) {
-  ctx.font = "normal 24px Verdana";
-  ctx.shadowColor = "#000";
-  ctx.shadowOffsetX = 1;
-  ctx.shadowOffsetY = 1;
-  ctx.shadowBlur = 2;
+  ctx.font = "bold 36px sans-serif";
+  ctx.shadowColor = "#fff";
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.shadowBlur = 4;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillStyle = "#fffff0";
+  ctx.fillStyle = "#666";
 
   const { centerPoints } = continent;
 
@@ -93,7 +100,7 @@ function drawRegionIds(ctx, continent) {
 
 export default function draw(ctx, continent) {
   clearCanvas(ctx);
-  drawRegions(ctx, continent, false);
+  drawRegions(ctx, continent, true);
   drawRegionsBase(ctx, continent);
   drawRegionsConnections(ctx, continent);
   drawRegionIds(ctx, continent);
