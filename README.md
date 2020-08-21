@@ -6,6 +6,8 @@ go-lang based world/territory creation utilities for [kiwoticum](https://github.
 
 the kiwotigo code is licensed under the GPLv3. see [LICENSE](./LICENSE.txt) for details.
 
+![kiwotigo example](./kiwotigo.png)
+
 ## Development
 
 Build kiwotigo library with:
