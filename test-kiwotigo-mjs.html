@@ -110,6 +110,7 @@
         text-align: center;
       }
       #kiwotigoCanvas {
+        display: inline-block;
         max-width: 100vw;
       }
     </style>
@@ -316,8 +317,8 @@
         build(config).then((data) => {
           console.log("received new build", data);
 
-          canvas.width = data.continent.width;
-          canvas.height = data.continent.height;
+          canvas.width = data.continent.canvasWidth;
+          canvas.height = data.continent.canvasHeight;
           const DPR = window.devicePixelRatio || 1;
           if (DPR !== 1) {
             canvas.style.width = `${Math.round(canvas.width / DPR)}px`;
@@ -350,8 +351,7 @@
         ].reduce(
           (c, key) => ({ ...c, [key]: parseFloat(formElements[key].value) }),
           {
-            disablePointsRasterizer: true,
-            disableTransformPoints: true,
+            // swapXY: true,
           }
         );
 

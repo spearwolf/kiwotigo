@@ -1,8 +1,8 @@
-const REGION_OUTLINE_STROKE = '#c5c5c5';
-const REGION_BASE_PATH_FILL = '#e7e7e7';
-const REGION_FULL_PATH_FILL = '#f5f5f5';
-const REGION_RADIUS_STROKE = '#a1a1a1';
-const REGION_OUTER_RADIUS_STROKE = '#bababa';
+const REGION_OUTLINE_STROKE = "#c5c5c5";
+const REGION_BASE_PATH_FILL = "#e7e7e7";
+const REGION_FULL_PATH_FILL = "#f5f5f5";
+const REGION_RADIUS_STROKE = "#a1a1a1";
+const REGION_OUTER_RADIUS_STROKE = "#bababa";
 const CONNECTION_STROKE = "#f5b";
 
 function clearCanvas(ctx) {
@@ -33,21 +33,18 @@ function drawRegions(ctx, continent, drawBasePath) {
   ctx.lineWidth = 1;
 
   ctx.fillStyle = REGION_FULL_PATH_FILL;
-
   drawPath(ctx, continent.regions, "fullPath", true);
 
   if (drawBasePath) {
     ctx.fillStyle = REGION_BASE_PATH_FILL;
-
     drawPath(ctx, continent.regions, "basePath");
   }
 }
 
 function drawRegionsBase(ctx, continent) {
-  // ctx.fillStyle = "rgba(255, 255, 128, 0.75)";
   ctx.lineWidth = 1;
 
-  continent.centerPoints.forEach((cp) => {
+  continent.regions.forEach(({ centerPoint: cp }) => {
     ctx.strokeStyle = REGION_RADIUS_STROKE;
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.iR, 0, 2 * Math.PI, false);
@@ -62,23 +59,24 @@ function drawRegionsBase(ctx, continent) {
   });
 }
 
+const getCenterPoint = (continent, regionIdx) =>
+  continent.regions[regionIdx].centerPoint;
+
 function drawRegionsConnections(ctx, continent) {
   ctx.strokeStyle = CONNECTION_STROKE;
   ctx.lineWidth = 2;
 
-  const { neighbors, centerPoints } = continent;
-
-  for (let i = 0; i < neighbors.length; i++) {
-    const p0 = centerPoints[i];
-    for (let j = 0; j < neighbors[i].length; j++) {
-      const p1 = centerPoints[neighbors[i][j]];
+  continent.regions.forEach((region) => {
+    const p0 = region.centerPoint;
+    region.neighbors.forEach((neighborIdx) => {
+      const p1 = getCenterPoint(continent, neighborIdx);
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
       ctx.lineTo(p1.x, p1.y);
       ctx.closePath();
       ctx.stroke();
-    }
-  }
+    });
+  });
 }
 
 function drawRegionIds(ctx, continent) {
@@ -91,17 +89,15 @@ function drawRegionIds(ctx, continent) {
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#666";
 
-  const { centerPoints } = continent;
-
-  for (let i = 0; i < centerPoints.length; i++) {
-    ctx.fillText(`${i}`, centerPoints[i].x, centerPoints[i].y);
-  }
+  continent.regions.forEach(({ centerPoint: { x, y } }, i) => {
+    ctx.fillText(`${i}`, x, y);
+  });
 }
 
-export default function draw(ctx, continent) {
+export default function draw(ctx, icf) {
   clearCanvas(ctx);
-  drawRegions(ctx, continent, true);
-  drawRegionsBase(ctx, continent);
-  drawRegionsConnections(ctx, continent);
-  drawRegionIds(ctx, continent);
+  drawRegions(ctx, icf, true);
+  drawRegionsBase(ctx, icf);
+  drawRegionsConnections(ctx, icf);
+  drawRegionIds(ctx, icf);
 }

@@ -1,4 +1,4 @@
-import { createContinent } from './kiwotigo-wasm-bridge.mjs';
+import { createContinent } from "./kiwotigo-wasm-bridge.mjs";
 
 const DefaultConfig = {
   // kiwotigo/continent
@@ -18,7 +18,11 @@ const DefaultConfig = {
   fastGrowIterations: 4,
   maxRegionSizeFactor: 3,
   probabilityCreateRegionAt: 0.7,
+  // NEW:
+  canvasMargin: 10,
+
   // misc
+  /*
   pointsRasterizer: {
     cols: 500,
     rows: 500,
@@ -29,9 +33,11 @@ const DefaultConfig = {
     rotateDegree: 45,
   },
   disablePointsRasterizer: true,
-  disableTransformPoints: false,
+  disableTransformPoints: true,
+  */
 };
 
+/*
 class Point {
   constructor(x, y) {
     this.x = x;
@@ -110,7 +116,7 @@ export default class TransformPoints {
     rotateDegree,
     scaleX,
     scaleY,
-    point,
+    point
   ) {
     const np = new Point(point.x, point.y)
       .rotate(centerPointX, centerPointY, rotateDegree)
@@ -130,7 +136,7 @@ export default class TransformPoints {
       this.centerPointY,
       this.rotateDegree,
       this.scaleX,
-      this.scaleY,
+      this.scaleY
     );
     return points.map(transformPoint);
   }
@@ -142,7 +148,7 @@ export default class TransformPoints {
       this.centerPointY,
       this.rotateDegree,
       this.scaleX,
-      this.scaleY,
+      this.scaleY
     );
     return points.map((cp) => {
       const ncp = transformPoint(cp);
@@ -167,7 +173,7 @@ function createPoints(kiwotigo) {
     for (let x = 0; x < kiwotigo.cols; x += 1) {
       kiwotigo.points[y * kiwotigo.cols + x] = new Point(
         Math.round(x * fx + fx * Math.random()),
-        Math.round(y * fy + fy * Math.random()),
+        Math.round(y * fy + fy * Math.random())
       );
     }
   }
@@ -268,7 +274,7 @@ export class Kiwotigo {
           ({ basePath, fullPath }) => ({
             basePath: basePath.flatMap((vec) => [vec.x, vec.y]),
             fullPath: fullPath.flatMap((vec) => [vec.x, vec.y]),
-          }),
+          })
         ),
       },
     };
@@ -326,10 +332,99 @@ export class Kiwotigo {
     return this.kiwotigoJson.config;
   }
 }
+*/
 
 // =========================================================================
 
-console.log('hej kiwotigo 🦄');
+const min = (a, b) => (a < b ? a : b);
+const max = (a, b) => (a > b ? a : b);
+
+const getBoundingBox = (regions) => {
+  const anyCenterPoint = regions[0].centerPoint;
+  let top = anyCenterPoint.y;
+  let bottom = anyCenterPoint.y;
+  let left = anyCenterPoint.x;
+  let right = anyCenterPoint.x;
+
+  regions.forEach(({ centerPoint: { x, y, oR }, fullPath }) => {
+    top = min(top, y - oR);
+    bottom = max(bottom, y + oR);
+    left = min(left, x - oR);
+    right = max(right, x + oR);
+
+    const len = fullPath.length >> 1;
+    for (let i = 0; i < len; i++) {
+      const x = fullPath[i << 1];
+      const y = fullPath[(i << 1) + 1];
+      top = min(top, y);
+      bottom = max(bottom, y);
+      left = min(left, x);
+      right = max(right, x);
+    }
+  });
+
+  return {
+    top,
+    bottom,
+    left,
+    right,
+    width: right - left,
+    height: bottom - top,
+  };
+};
+
+const transformAllCoords = (regions, transformer) => {
+  const transformPath = (path) => {
+    const len = path.length >> 1;
+    for (let i = 0; i < len; i++) {
+      const xi = i << 1;
+      path.splice(xi, 2, ...transformer(path[xi], path[xi + 1]));
+    }
+  };
+
+  regions.forEach(({ centerPoint, fullPath, basePath }) => {
+    const v = transformer(centerPoint.x, centerPoint.y);
+    centerPoint.x = v[0];
+    centerPoint.y = v[1];
+
+    transformPath(fullPath);
+    transformPath(basePath);
+  });
+};
+
+const flattenPathCoords = (path) => path.flatMap((vec) => [vec.x, vec.y]);
+
+const convertToIntermediateContinentalFormat = ({ config, continent }) => {
+  const regions = continent.regions.map((region, idx) => ({
+    basePath: flattenPathCoords(region.basePath),
+    fullPath: flattenPathCoords(region.fullPath),
+    centerPoint: continent.centerPoints[idx],
+    neighbors: continent.neighbors[idx],
+    size: continent.regionSizes[idx],
+  }));
+
+  const bBox = getBoundingBox(regions);
+  const offsetX = bBox.left - config.canvasMargin;
+  const offsetY = bBox.top - config.canvasMargin;
+
+  transformAllCoords(regions, (x, y) => [x - offsetX, y - offsetY]);
+
+  const canvasWidth = bBox.width + 2 * config.canvasMargin;
+  const canvasHeight = bBox.height + 2 * config.canvasMargin;
+
+  return {
+    config,
+    continent: {
+      regions,
+      canvasWidth,
+      canvasHeight,
+    },
+  };
+};
+
+// =========================================================================
+
+console.log("hej kiwotigo 🦄");
 
 self.onmessage = (e) => {
   const { id, ...data } = e.data;
@@ -337,6 +432,13 @@ self.onmessage = (e) => {
 
   // TODO post progress events
   createContinent(config)
-    .then((result) => ({ id, ...new Kiwotigo(config, result).build() }))
+    .then((result) => ({
+      id,
+      ...convertToIntermediateContinentalFormat({
+        config,
+        continent: result.continent,
+      }),
+      // ...new Kiwotigo(config, result).build(),
+    }))
     .then(postMessage);
 };
