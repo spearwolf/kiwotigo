@@ -127,5 +127,5 @@ self.onmessage = (e) => {
         continent: result.continent,
       }),
     }))
-    .then(postMessage);
+    .then((result) => postMessage({ ...result, type: "result" }));
 };

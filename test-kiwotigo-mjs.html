@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>test kiwotigo.mjs</title>
+    <link rel="stylesheet" type="text/css" href="./loading.css" />
     <style>
       body {
         height: 100%;
@@ -112,6 +113,38 @@
       #kiwotigoCanvas {
         display: inline-block;
         max-width: 100vw;
+      }
+
+      .loadingModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.66);
+      }
+      .loadingModal.loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .loadingModal-content {
+        padding: 10px 40px;
+        margin-top: 30vh;
+        width: 40vw;
+        min-height: 100px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        background-color: #fff;
+      }
+
+      .loadingModal-info {
+        padding-left: 20px;
+        font-size: 21px;
       }
     </style>
   </head>
@@ -294,7 +327,10 @@
             />
           </div>
           <div class="kiwotigo-form-actions">
-            <button type="submit" class="kiwotigo-button">
+            <button
+              type="submit"
+              class="kiwotigo-button kiwotigo-createContinentBtn"
+            >
               Create New Continent
             </button>
           </div>
@@ -306,6 +342,22 @@
       <canvas id="kiwotigoCanvas"></canvas>
     </main>
 
+    <section class="loadingModal">
+      <div class="loadingModal-content">
+        <div class="lds-roller">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+        <div class="loadingModal-info">loading ...</div>
+      </div>
+    </section>
+
     <script type="module">
       import { build } from "./kiwotigo.mjs";
       import draw from "./kiwotigo-painter.mjs";
@@ -313,9 +365,44 @@
       const canvas = document.getElementById("kiwotigoCanvas");
       const canvasCtx = canvas.getContext("2d");
 
-      const onCreate = (config) =>
+      const loadingMessages = [
+        "I will now create a new world just for you ...",
+        "Such a thing can take a while, though ...",
+        "... each country must be carefully considered ...",
+        "Hold on, it can't be much longer ...",
+        "I'm almost finished, there's just a few final touches ...",
+      ];
+
+      const displayLoadingInfo = (html) => {
+        document.querySelector(".loadingModal-info").innerHTML = html;
+      };
+
+      let currentLoadingMessageIdx = 0;
+      let displayNextLoadingMessageHandle = 0;
+
+      const showLoadingState = () => {
+        displayLoadingInfo(loadingMessages[0]);
+        currentLoadingMessageIdx = 1;
+        document.querySelector(".loadingModal").classList.add("loading");
+        clearInterval(displayNextLoadingMessageHandle);
+        displayNextLoadingMessageHandle = setInterval(() => {
+          displayLoadingInfo(loadingMessages[currentLoadingMessageIdx]);
+          currentLoadingMessageIdx =
+            (currentLoadingMessageIdx + 1) % loadingMessages.length;
+        }, 5000);
+      };
+
+      const hideLoadingState = () => {
+        document.querySelector(".loadingModal").classList.remove("loading");
+        clearInterval(displayNextLoadingMessageHandle);
+      };
+
+      const onCreate = (config) => {
+        showLoadingState();
+
         build(config).then((data) => {
           console.log("received new build", data);
+          hideLoadingState();
 
           canvas.width = data.continent.canvasWidth;
           canvas.height = data.continent.canvasHeight;
@@ -326,6 +413,7 @@
           }
           draw(canvasCtx, data.continent);
         });
+      };
 
       document.forms.kiwotigo.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -356,6 +444,8 @@
         );
 
         onCreate(cfg);
+
+        document.querySelector(".kiwotigo-createContinentBtn").blur();
       });
     </script>
   </body>
