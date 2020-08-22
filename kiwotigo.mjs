@@ -16,9 +16,8 @@ worker.onmessage = ({data}) => {
   if (resolve) {
     switch (type) {
       case 'progress':
-        console.log('progress', data)
         if (resolve.onProgressFn) {
-          onProgressFn(data)
+          resolve.onProgressFn(data.progress)
         }
         break
 

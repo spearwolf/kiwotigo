@@ -114,18 +114,24 @@ const convertToIntermediateContinentalFormat = ({ config, continent }) => {
 
 console.log("hej kiwotigo 🦄");
 
+const _postProgress = (id) => (progress) =>
+  postMessage({ id, progress, type: "progress" });
+
 self.onmessage = (e) => {
   const { id, ...data } = e.data;
   const config = { ...DefaultConfig, ...data };
+  const postProgress = _postProgress(id);
 
-  // TODO post progress events
-  createContinent(config)
-    .then((result) => ({
-      id,
-      ...convertToIntermediateContinentalFormat({
-        config,
-        continent: result.continent,
-      }),
-    }))
+  createContinent(config, (progress) => postProgress(progress * 0.7))
+    .then((result) => {
+      postProgress(0.7);
+      return {
+        id,
+        ...convertToIntermediateContinentalFormat({
+          config,
+          continent: result.continent,
+        }),
+      };
+    })
     .then((result) => postMessage({ ...result, type: "result" }));
 };

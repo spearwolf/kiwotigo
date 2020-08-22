@@ -132,9 +132,11 @@
       }
 
       .loadingModal-content {
-        padding: 10px 40px;
+        position: relative;
+        padding: 10px 40px 25px;
         margin-top: 30vh;
-        width: 40vw;
+        width: 550px;
+        max-width: 90vw;
         min-height: 100px;
         display: flex;
         flex-direction: row;
@@ -145,6 +147,24 @@
       .loadingModal-info {
         padding-left: 20px;
         font-size: 21px;
+      }
+
+      .loadingModal-progress,
+      .loadingModal-progress-bg {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        border-radius: 2px;
+      }
+      .loadingModal-progress-bg {
+        width: 100%;
+        background-color: #fafafa;
+      }
+      .loadingModal-progress {
+        width: 100px;
+        background-color: #7bb6ff;
+        box-shadow: 0 0 8px #7bb6ff;
       }
     </style>
   </head>
@@ -160,6 +180,7 @@
               name="gridWidth"
               type="number"
               value="8"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -171,6 +192,7 @@
               name="gridHeight"
               type="number"
               value="5"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -182,6 +204,7 @@
               name="gridOuterPaddingX"
               type="number"
               value="80"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -193,6 +216,7 @@
               name="gridOuterPaddingY"
               type="number"
               value="80"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -204,6 +228,7 @@
               name="gridInnerPaddingX"
               type="number"
               value="15"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -215,6 +240,7 @@
               name="gridInnerPaddingY"
               type="number"
               value="10"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -226,6 +252,7 @@
               name="gridHexWidth"
               type="number"
               value="15"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -237,6 +264,7 @@
               name="gridHexHeight"
               type="number"
               value="15"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -246,6 +274,7 @@
               name="hexWidth"
               type="number"
               value="10"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -255,6 +284,7 @@
               name="hexHeight"
               type="number"
               value="10"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -266,6 +296,7 @@
               name="hexPaddingX"
               type="number"
               value="0"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -277,6 +308,7 @@
               name="hexPaddingY"
               type="number"
               value="0"
+              min="0"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -288,6 +320,7 @@
               name="minimalGrowIterations"
               type="number"
               value="20"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -299,6 +332,7 @@
               name="fastGrowIterations"
               type="number"
               value="5"
+              min="1"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -310,6 +344,8 @@
               name="maxRegionSizeFactor"
               type="number"
               value="3"
+              min="1"
+              step="0.01"
             />
           </div>
           <div class="kiwotigo-input-row">
@@ -354,7 +390,9 @@
           <div></div>
           <div></div>
         </div>
-        <div class="loadingModal-info">loading ...</div>
+        <div class="loadingModal-info"></div>
+        <div class="loadingModal-progress-bg"></div>
+        <div class="loadingModal-progress"></div>
       </div>
     </section>
 
@@ -392,15 +430,26 @@
         }, 5000);
       };
 
+      const displayProgress = (progress) => {
+        const maxWidth = document
+          .querySelector(".loadingModal-content")
+          .getBoundingClientRect().width;
+        const el = document.querySelector(".loadingModal-progress");
+        el.style.width = `${Math.round(progress * maxWidth)}px`;
+      };
+
       const hideLoadingState = () => {
-        document.querySelector(".loadingModal").classList.remove("loading");
         clearInterval(displayNextLoadingMessageHandle);
+        displayProgress(1);
+        setTimeout(() => {
+          document.querySelector(".loadingModal").classList.remove("loading");
+        }, 500);
       };
 
       const onCreate = (config) => {
         showLoadingState();
 
-        build(config).then((data) => {
+        build(config, displayProgress).then((data) => {
           console.log("received new build", data);
           hideLoadingState();
 

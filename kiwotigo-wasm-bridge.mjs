@@ -28,17 +28,24 @@ export const DefaultConfig = {
   probabilityCreateRegionAt: 0.6,
 };
 
-export function createContinent(cfg) {
+export function createContinent(cfg, onProgress) {
   return __kiwotiGo.then(
-    () =>
-      new Promise((resolve) => {
+    () => {
+      onProgress(0.1)
+      return new Promise((resolve) => {
         __kiwotiGo_createContinent(
           {
             ...DefaultConfig,
             ...cfg,
           },
-          (result) => resolve(JSON.parse(result))
+          (result) => {
+            onProgress(0.8)
+            const json = JSON.parse(result)
+            onProgress(0.9)
+            resolve(json)
+          }
         );
       })
+    }
   );
 }
