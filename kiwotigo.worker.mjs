@@ -1,4 +1,5 @@
 import { createContinent } from "./kiwotigo-wasm-bridge.mjs";
+import { findAndConnectAllIslands } from "./kiwotigo-unite-islands.mjs";
 
 const DefaultConfig = {
   // kiwotigo/continent
@@ -82,13 +83,14 @@ const transformAllCoords = (regions, transformer) => {
 
 const flattenPathCoords = (path) => path.flatMap((vec) => [vec.x, vec.y]);
 
-const convertToIntermediateContinentalFormat = ({ config, continent }) => {
-  const regions = continent.regions.map((region, idx) => ({
+const convertToIntermediateContinentalFormat = (config, continent) => {
+  const regions = continent.regions.map((region, id) => ({
+    id,
     basePath: flattenPathCoords(region.basePath),
     fullPath: flattenPathCoords(region.fullPath),
-    centerPoint: continent.centerPoints[idx],
-    neighbors: continent.neighbors[idx],
-    size: continent.regionSizes[idx],
+    centerPoint: continent.centerPoints[id],
+    neighbors: continent.neighbors[id],
+    size: continent.regionSizes[id],
   }));
 
   const bBox = getBoundingBox(regions);
@@ -101,12 +103,9 @@ const convertToIntermediateContinentalFormat = ({ config, continent }) => {
   const canvasHeight = bBox.height + 2 * config.canvasMargin;
 
   return {
-    config,
-    continent: {
-      regions,
-      canvasWidth,
-      canvasHeight,
-    },
+    regions,
+    canvasWidth,
+    canvasHeight,
   };
 };
 
@@ -125,12 +124,25 @@ self.onmessage = (e) => {
   createContinent(config, (progress) => postProgress(progress * 0.7))
     .then((result) => {
       postProgress(0.7);
+
+      let continent;
+      try {
+        continent = convertToIntermediateContinentalFormat(
+          config,
+          result.continent
+        );
+
+        postProgress(0.8);
+
+        continent = findAndConnectAllIslands(continent);
+      } catch (err) {
+        console.error("kiwotigo post-processing panic!", err);
+      }
+
       return {
         id,
-        ...convertToIntermediateContinentalFormat({
-          config,
-          continent: result.continent,
-        }),
+        config,
+        continent,
       };
     })
     .then((result) => postMessage({ ...result, type: "result" }));

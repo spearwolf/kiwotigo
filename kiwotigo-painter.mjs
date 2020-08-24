@@ -59,22 +59,35 @@ function drawRegionsBase(ctx, continent) {
   });
 }
 
-const getCenterPoint = (continent, regionIdx) =>
-  continent.regions[regionIdx].centerPoint;
+// const getCenterPoint = (continent, regionIdx) =>
+//   continent.regions[regionIdx].centerPoint;
+
+const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
 
 function drawRegionsConnections(ctx, continent) {
   ctx.strokeStyle = CONNECTION_STROKE;
   ctx.lineWidth = 2;
 
+  const alreadyDrawnConnection = new Set();
+
   continent.regions.forEach((region) => {
-    const p0 = region.centerPoint;
-    region.neighbors.forEach((neighborIdx) => {
-      const p1 = getCenterPoint(continent, neighborIdx);
-      ctx.beginPath();
-      ctx.moveTo(p0.x, p0.y);
-      ctx.lineTo(p1.x, p1.y);
-      ctx.closePath();
-      ctx.stroke();
+    region.neighbors.forEach((neighborId) => {
+      const connectionId =
+        region.id < neighborId
+          ? `${region.id};${neighborId}`
+          : `${neighborId};${region.id}`;
+      if (!alreadyDrawnConnection.has(connectionId)) {
+        alreadyDrawnConnection.add(connectionId);
+        const otherRegion = getRegion(continent, neighborId);
+        const isAnotherIsland = region.islandId !== otherRegion.islandId;
+
+        ctx.setLineDash(isAnotherIsland ? [2, 10] : []);
+        ctx.beginPath();
+        ctx.moveTo(region.centerPoint.x, region.centerPoint.y);
+        ctx.lineTo(otherRegion.centerPoint.x, otherRegion.centerPoint.y);
+        ctx.closePath();
+        ctx.stroke();
+      }
     });
   });
 }
