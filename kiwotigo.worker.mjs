@@ -20,6 +20,8 @@ const DefaultConfig = {
   maxRegionSizeFactor: 3,
   probabilityCreateRegionAt: 0.7,
   // NEW:
+  enableExtendedConnections: true,
+  maxExtendedOuterRangeFactor: 4.0,
   canvasMargin: 10,
 };
 
@@ -134,7 +136,7 @@ self.onmessage = (e) => {
 
         postProgress(0.8);
 
-        continent = findAndConnectAllIslands(continent);
+        continent = findAndConnectAllIslands(continent, config);
       } catch (err) {
         console.error("kiwotigo post-processing panic!", err);
       }

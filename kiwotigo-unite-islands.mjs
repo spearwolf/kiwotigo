@@ -1,3 +1,5 @@
+const uniq = (arr) => Array.from(new Set(arr));
+
 function findIslands(continent) {
   const visitedRegions = new Set();
 
@@ -22,7 +24,7 @@ function findIslands(continent) {
   });
 
   // remove duplicates
-  islands = islands.map((regionsIds) => Array.from(new Set(regionsIds)));
+  islands = islands.map(uniq);
 
   const regions = continent.regions.map((region) => {
     let islandId;
@@ -47,12 +49,11 @@ function findIslands(continent) {
   };
 }
 
-const calcRegionDistances = (regionFrom, regionsTo) => {
-  const { x, y } = regionFrom.centerPoint;
-  return regionsTo.map(({ centerPoint }) =>
-    Math.sqrt(Math.pow(centerPoint.x - x, 2) + Math.pow(centerPoint.y - y, 2))
-  );
-};
+const calcDistance = (from, to) =>
+  Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
+
+const calcRegionDistances = ({ centerPoint: from }, regions) =>
+  regions.map(({ centerPoint: to }) => calcDistance(from, to));
 
 const findMinIndex = (arr) => {
   let min = arr[0];
@@ -68,7 +69,45 @@ const findMinIndex = (arr) => {
   return minIndex;
 };
 
-function connectIslands(continent) {
+const findRegionsWithinOuterRange = ({
+  continent,
+  exlcudeIslands,
+  includeIslands,
+  exlcudeRegions,
+  from,
+  range,
+  maxRange,
+}) =>
+  continent.regions
+    .filter(
+      (region) =>
+        !exlcudeRegions.includes(region.id) &&
+        !exlcudeIslands.includes(region.islandId) &&
+        (!includeIslands || includeIslands.includes(region.islandId))
+    )
+    .filter(({ centerPoint: to }) => {
+      const distance = calcDistance(from, to);
+      return distance <= maxRange && distance - to.oR <= range;
+    })
+    .map((region) => region.id);
+
+function makeNewConnections(regions, connections) {
+  connections.forEach(([from, to]) => {
+    regions[from].neighbors.push(to);
+    regions[to].neighbors.push(from);
+  });
+  regions.forEach((region) => {
+    region.neighbors = uniq(region.neighbors);
+  });
+}
+
+function connectIslands(continent, config) {
+  const cfg = {
+    enableExtendedConnections: true,
+    maxExtendedOuterRangeFactor: 4.0,
+    ...config,
+  };
+
   let islands = [...continent.islands];
 
   while (islands.length > 1) {
@@ -99,6 +138,7 @@ function connectIslands(continent) {
         regionTo: islandDistances[minIndex].regionId,
         distance: islandDistances[minIndex].distance,
         otherIslandsIndex: islandDistances[minIndex].otherIslandsIndex,
+        islandDistances,
       };
     });
 
@@ -107,9 +147,39 @@ function connectIslands(continent) {
     );
 
     const nearest = distancesToOtherIslands[minIndex];
+    const connections = [[nearest.regionFrom, nearest.regionTo]];
 
-    continent.regions[nearest.regionFrom].neighbors.push(nearest.regionTo);
-    continent.regions[nearest.regionTo].neighbors.push(nearest.regionFrom);
+    if (cfg.enableExtendedConnections) {
+      const extendedConnections = [
+        ...findRegionsWithinOuterRange({
+          continent,
+          exlcudeRegions: [nearest.regionFrom, nearest.regionTo],
+          exlcudeIslands: [continent.regions[nearest.regionFrom].islandId],
+          from: continent.regions[nearest.regionFrom].centerPoint,
+          range: nearest.distance,
+          maxRange:
+            continent.regions[nearest.regionFrom].centerPoint.oR *
+            cfg.maxExtendedOuterRangeFactor,
+        }).map((id) => [nearest.regionFrom, id]),
+        ...findRegionsWithinOuterRange({
+          continent,
+          exlcudeRegions: [nearest.regionFrom, nearest.regionTo],
+          exlcudeIslands: [continent.regions[nearest.regionTo].islandId],
+          // includeIslands: [continent.regions[nearest.regionFrom].islandId],
+          from: continent.regions[nearest.regionTo].centerPoint,
+          range: nearest.distance,
+          maxRange:
+            continent.regions[nearest.regionTo].centerPoint.oR *
+            cfg.maxExtendedOuterRangeFactor,
+        }).map((id) => [nearest.regionTo, id]),
+      ];
+
+      // TODO find sharp triangular relationships to filter out triangles which are too flat
+
+      connections.push(...extendedConnections);
+    }
+
+    makeNewConnections(continent.regions, connections);
 
     curIsland.push(...otherIslands[nearest.otherIslandsIndex]);
     otherIslands.splice(nearest.otherIslandsIndex, 1);
@@ -119,5 +189,5 @@ function connectIslands(continent) {
   return continent;
 }
 
-export const findAndConnectAllIslands = (continent) =>
-  connectIslands(findIslands(continent));
+export const findAndConnectAllIslands = (continent, config) =>
+  connectIslands(findIslands(continent), config);
