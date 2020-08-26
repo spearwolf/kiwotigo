@@ -119,13 +119,24 @@ const _postProgress = (id) => (progress) =>
   postMessage({ id, progress, type: "progress" });
 
 self.onmessage = (e) => {
-  const { id, ...data } = e.data;
+  const { id, originData, ...data } = e.data;
   const config = { ...DefaultConfig, ...data };
   const postProgress = _postProgress(id);
 
-  createContinent(config, (progress) => postProgress(progress * 0.7))
+  const afterCreateContinent = originData
+    ? Promise.resolve(
+        typeof originData === "string" ? JSON.parse(originData) : originData
+      )
+    : createContinent(config, (progress) => postProgress(progress * 0.7));
+
+  afterCreateContinent
     .then((result) => {
       postProgress(0.7);
+
+      const originData = JSON.stringify({
+        config,
+        continent: result.continent,
+      });
 
       let continent;
       try {
@@ -145,6 +156,7 @@ self.onmessage = (e) => {
         id,
         config,
         continent,
+        originData,
       };
     })
     .then((result) => postMessage({ ...result, type: "result" }));

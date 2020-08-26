@@ -24,6 +24,13 @@ worker.onmessage = ({data}) => {
       case 'result':
         tmpResolvers.delete(id)
         delete data.type
+        if (data.originData) {
+          localStorage.setItem('kiwotigoOriginData',
+            typeof data.originData === 'string'
+              ? data.originData
+              : JSON.stringify(data.originData)
+          )
+        }
         resolve.resolve(data)
         break
 
@@ -33,8 +40,8 @@ worker.onmessage = ({data}) => {
   }
 }
 
-export const build = (cfg, onProgressFn) => new Promise(resolve => {
+export const build = (config, onProgressFn) => new Promise(resolve => {
   const id = createMessageId()
   tmpResolvers.set(id, { resolve, onProgressFn })
-  worker.postMessage({ ...cfg, id })
+  worker.postMessage({ ...config, id })
 })

@@ -492,11 +492,9 @@
         });
       };
 
-      document.forms.kiwotigo.addEventListener("submit", (event) => {
-        event.preventDefault();
-
+      const getConfig = () => {
         const { elements: formElements } = document.forms.kiwotigo;
-        const cfg = [
+        return [
           "gridWidth",
           "gridHeight",
           "gridOuterPaddingX",
@@ -522,10 +520,21 @@
             // swapXY: true,
           }
         );
+      };
 
-        onCreate(cfg);
+      document.forms.kiwotigo.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        onCreate(getConfig());
 
         document.querySelector(".kiwotigo-createContinentBtn").blur();
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const originData = localStorage.getItem("kiwotigoOriginData");
+        if (originData) {
+          onCreate({ ...getConfig(), originData });
+        }
       });
     </script>
   </body>

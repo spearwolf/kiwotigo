@@ -174,12 +174,14 @@ function connectIslands(continent, config) {
         }).map((id) => [nearest.regionTo, id]),
       ];
 
+      connections.push(...extendedConnections);
+      makeNewConnections(continent.regions, connections);
+
       // TODO find sharp triangular relationships to filter out triangles which are too flat
 
-      connections.push(...extendedConnections);
+    } else {
+      makeNewConnections(continent.regions, connections);
     }
-
-    makeNewConnections(continent.regions, connections);
 
     curIsland.push(...otherIslands[nearest.otherIslandsIndex]);
     otherIslands.splice(nearest.otherIslandsIndex, 1);
