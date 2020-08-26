@@ -120,14 +120,22 @@ const _postProgress = (id) => (progress) =>
 
 self.onmessage = (e) => {
   const { id, originData, ...data } = e.data;
-  const config = { ...DefaultConfig, ...data };
   const postProgress = _postProgress(id);
 
-  const afterCreateContinent = originData
-    ? Promise.resolve(
-        typeof originData === "string" ? JSON.parse(originData) : originData
-      )
-    : createContinent(config, (progress) => postProgress(progress * 0.7));
+  let config;
+  let afterCreateContinent;
+
+  if (originData) {
+    const parsedOriginData =
+      typeof originData === "string" ? JSON.parse(originData) : originData;
+    config = { ...DefaultConfig, ...parsedOriginData.config };
+    afterCreateContinent = Promise.resolve(parsedOriginData);
+  } else {
+    config = { ...DefaultConfig, ...data };
+    afterCreateContinent = createContinent(config, (progress) =>
+      postProgress(progress * 0.7)
+    );
+  }
 
   afterCreateContinent
     .then((result) => {
