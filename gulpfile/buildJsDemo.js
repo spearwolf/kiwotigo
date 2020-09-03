@@ -1,26 +1,23 @@
 const gulp = require('gulp')
 const rollup = require('rollup')
-const { terser } = require('rollup-plugin-terser')
 const { babel } = require('@rollup/plugin-babel')
+const { terser } = require('rollup-plugin-terser')
 
-gulp.task('buildWorker', () =>
+gulp.task('buildJsDemo', () =>
   rollup.rollup({
-    input: './kiwotigo.worker.mjs',
+    input: './kiwotigo-demo.mjs',
     plugins: [
       babel({
         babelHelpers: 'bundled',
         presets: [
           '@babel/preset-env',
         ],
-        exclude: [
-          /wasm_exec\.js/,
-        ],
       }),
     ]
   }).then(bundle => bundle.write({
-    file: './dist/kiwotigo.worker.js',
+    file: './dist/kiwotigo-demo.js',
     format: 'iife',
-    name: 'kiwotigo',
+    name: 'kiwotigoDemo',
     sourcemap: true,
     plugins: [
       terser(),

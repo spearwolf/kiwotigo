@@ -113,8 +113,6 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
 
 // =========================================================================
 
-console.log("hej kiwotigo 🦄");
-
 const _postProgress = (id) => (progress) =>
   postMessage({ id, progress, type: "progress" });
 

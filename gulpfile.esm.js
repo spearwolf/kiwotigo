@@ -2,6 +2,7 @@ import { series, parallel, task } from 'gulp'
 import exec from './gulpfile/exec'
 import watchFiles from './gulpfile/watchFiles'
 import './gulpfile/buildWorker'
+import './gulpfile/buildJsDemo'
 
 export const clean = (done) => exec('rm -fr kiwotigo dist', done)
 
@@ -20,10 +21,17 @@ export const watchWorker = () => watchFiles(task('buildWorker'),
   'dist/kiwotigo.wasm'
 )
 
+export const watchJsDemo = () => watchFiles(task('buildJsDemo'),
+  'kiwotigo.mjs',
+  'kiwotigo-demo.mjs',
+  'kiwotigo-painter.mjs',
+)
+
 export const watchAll = () => {
   watchTool();
   watchWasm();
   watchWorker();
+  watchJsDemo();
 }
 
 export default series(clean, buildAll)

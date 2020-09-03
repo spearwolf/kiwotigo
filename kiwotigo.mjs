@@ -1,5 +1,4 @@
-// const worker = new Worker('./kiwotigo.worker.mjs', {type: 'module'})
-const worker = new Worker('./dist/kiwotigo.worker.js')
+const worker = new Worker('kiwotigo.worker.js')
 
 const tmpResolvers = new Map()  // temporary id -> resolve: Promise.resolve(), onProgressFn
 
@@ -7,7 +6,7 @@ const createMessageId = (() => {
   let lastId = 0
   return () => {
     ++lastId
-    return `kwb-${lastId.toString(36)}`
+    return `kiwotigo-${lastId.toString(36)}`
   }
 })()
 
