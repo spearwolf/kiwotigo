@@ -47,14 +47,16 @@ func createContinent(this js.Value, inputs []js.Value) interface{} {
 		ProbabilityCreateRegionAt: args.Get("probabilityCreateRegionAt").Float(),
 		DivisibilityBy:            uint(args.Get("divisibilityBy").Int())}
 
+	progressCallback := inputs[len(inputs)-2]
+	readyCallback := inputs[len(inputs)-1]
+
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
-	continent := strategy.BuildContinent()
+	continent := strategy.BuildContinent(func(progress float64) {
+		progressCallback.Invoke(progress)
+	})
 	result := kiwotigo.NewContinentDescription(continent, &config)
 
-	json := result.Json()
-
-	callback := inputs[len(inputs)-1]
-	callback.Invoke(json)
+	readyCallback.Invoke(result.Json())
 
 	return js.Undefined()
 }

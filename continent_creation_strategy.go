@@ -57,19 +57,25 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreat
 //
 // Should never be called twice.
 // Should be called right after creating a new instance of ContinentCreationStrategy.
-func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
+func (strategy *ContinentCreationStrategy) BuildContinent(onProgress func(float64)) *Continent {
 
 	strategy.fillGridWithRegions()
-	strategy.fastGrowAllRegions()
+	onProgress(0.025)
 
-	//strategy.Continent.CreateShapes("basePath")
+	strategy.fastGrowAllRegions()
+	onProgress(0.05)
 
 	strategy.growAllRegions()
+	onProgress(0.075)
 
 	strategy.closeHolesInAllRegions()
+	onProgress(0.1)
+
 	strategy.Continent.CreateShapes("basePath")
+	onProgress(0.125)
 
 	strategy.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
+	onProgress(0.15)
 
 	// TODO
 	// - [ ]  strategy
@@ -82,6 +88,7 @@ func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
 	//    - [x]  export region size (hexagon count)
 
 	strategy.Continent.UpdateCenterPoints(strategy.FastGrowIterations)
+	onProgress(0.2)
 
 	for {
 		strategy.createOrUpdateRegionGroups()
@@ -101,12 +108,19 @@ func (strategy *ContinentCreationStrategy) BuildContinent() *Continent {
 		}
 
 		strategy.closeHolesInAllRegions()
+
+		onProgress(0.2 + (0.6 * (1.0 / float64(len(strategy.groups)))))
 	}
+	onProgress(0.8)
 
 	strategy.Continent.CreateShapes("fullPath")
+	onProgress(0.85)
 
 	strategy.Continent.MakeNeighbors()
+	onProgress(0.9)
+
 	strategy.Continent.UpdateRegionSizes()
+	onProgress(0.95)
 
 	return strategy.Continent
 }

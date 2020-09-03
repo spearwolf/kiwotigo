@@ -85,7 +85,7 @@ func main() {
 		ProbabilityCreateRegionAt: probabilityCreateRegionAt}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
-	continent := strategy.BuildContinent()
+	continent := strategy.BuildContinent(func(p float64) {})
 	result := kiwotigo.NewContinentDescription(continent, &config)
 
 	if prettyPrint {

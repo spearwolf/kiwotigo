@@ -38,6 +38,9 @@ export function createContinent(cfg, onProgress) {
             ...DefaultConfig,
             ...cfg,
           },
+          (progress) => {
+            onProgress(0.1 + (progress * 0.7))
+          },
           (result) => {
             onProgress(0.8)
             const json = JSON.parse(result)
