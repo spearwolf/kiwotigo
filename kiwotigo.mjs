@@ -1,4 +1,5 @@
-const worker = new Worker('./kiwotigo.worker.mjs', {type: 'module'})
+// const worker = new Worker('./kiwotigo.worker.mjs', {type: 'module'})
+const worker = new Worker('./dist/kiwotigo.worker.js')
 
 const tmpResolvers = new Map()  // temporary id -> resolve: Promise.resolve(), onProgressFn
 

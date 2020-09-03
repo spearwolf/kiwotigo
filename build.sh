@@ -16,7 +16,7 @@ then
       cp -v $(go env GOROOT)/misc/wasm/wasm_exec.js .
     fi
 
-    CMD="go build -o kiwotigo.wasm kiwotigo-js-bridge/main.go"
+    CMD="go build -o dist/kiwotigo.wasm kiwotigo-js-bridge/main.go"
     echo GOOS=js GOARCH=wasm $CMD
     GOOS=js GOARCH=wasm exec $CMD
 else
