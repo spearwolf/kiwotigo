@@ -265,6 +265,27 @@
         display: inline-block;
         border-bottom: 1px dashed #333;
       }
+
+      .mapLegendContainer {
+        position: fixed;
+        right: 20px;
+        bottom: 40px;
+        border: 1px solid #000;
+        padding: 10px;
+        user-select: none;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .legendRow {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+      }
+      .kiwotigo-legend-label {
+        padding-left: 0.25em;
+      }
     </style>
     <style>
       /* credits for loading animation go to https://loading.io/css/ */
@@ -601,6 +622,25 @@
         <canvas id="kiwotigoCanvas"></canvas>
       </div>
     </main>
+
+    <section class="mapLegendContainer">
+      <div class="legendRow">
+        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionConnections" />
+        <label for="drawRegionConnections" class="kiwotigo-legend-label">show connections</label>
+      </div>
+      <div class="legendRow">
+        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionIds" />
+        <label for="drawRegionIds" class="kiwotigo-legend-label">show region ids</label>
+      </div>
+      <div class="legendRow">
+        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionBasePaths" />
+        <label for="drawRegionBasePaths" class="kiwotigo-legend-label">show region base areas</label>
+      </div>
+      <div class="legendRow">
+        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionsBase" />
+        <label for="drawRegionsBase" class="kiwotigo-legend-label">show region spheres</label>
+      </div>
+    </section>
 
     <section class="loadingModal">
       <div class="loadingModal-content">

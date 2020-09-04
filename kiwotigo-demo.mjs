@@ -50,6 +50,25 @@ const hideLoadingState = () => {
 const getUpdateToggleAction = () =>
   document.querySelector(".kiwotigo-form-justUpdate");
 
+const getMapLegendOptions = () => {
+  const legendOptions = {};
+  Array.from(
+    document.querySelectorAll(".mapLegendContainer input[type=checkbox]")
+  ).forEach((checkbox) => {
+    legendOptions[checkbox.name] = checkbox.checked;
+  });
+  return legendOptions;
+};
+
+const drawContinent = (() => {
+  let drawOptions;
+
+  return (options) => {
+    drawOptions = { ...drawOptions, ...options, ...getMapLegendOptions() };
+    draw(drawOptions);
+  };
+})();
+
 const onCreate = (config) => {
   showLoadingState();
 
@@ -65,7 +84,7 @@ const onCreate = (config) => {
       canvas.style.width = `${Math.round(canvas.width / DPR)}px`;
       canvas.style.height = `${Math.round(canvas.height / DPR)}px`;
     }
-    draw(canvasCtx, data.continent);
+    drawContinent({ ctx: canvasCtx, icf: data.continent });
   });
 };
 
@@ -116,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
     getUpdateToggleAction().disabled = false;
     const originConfig = JSON.parse(originData).config;
     onCreate({ ...originConfig, originData });
-    // onCreate({ ...getConfig(), originData });
     Array.from(Object.entries(originConfig)).forEach(([key, value]) => {
       const el = document.querySelector(`.kiwotigo-form input[name=${key}]`);
       if (el) {
@@ -142,4 +160,20 @@ getUpdateToggleAction().addEventListener("change", () => {
   document
     .querySelector(".kiwotigo-form")
     .classList[checked ? "add" : "remove"]("just-update");
+});
+
+document.querySelector(".mapLegendContainer").addEventListener("change", () => {
+  console.debug("legend options", getMapLegendOptions());
+  drawContinent(getMapLegendOptions());
+});
+
+document.body.addEventListener("pointerup", (event) => {
+  const el = event.target;
+  if (el.tagName === "LABEL") {
+    const labelTarget = el.getAttribute("for");
+    const targetInput = document.querySelector(`input[name=${labelTarget}]`);
+    if (targetInput && targetInput.type === "checkbox") {
+      targetInput.click();
+    }
+  }
 });

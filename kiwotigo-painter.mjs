@@ -65,6 +65,7 @@ function drawRegionsBase(ctx, continent) {
 const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
 
 function drawRegionsConnections(ctx, continent) {
+  ctx.setLineDash([]);
   ctx.strokeStyle = CONNECTION_STROKE;
   ctx.lineWidth = 2;
 
@@ -90,6 +91,8 @@ function drawRegionsConnections(ctx, continent) {
       }
     });
   });
+
+  ctx.setLineDash([]);
 }
 
 function drawRegionIds(ctx, continent) {
@@ -107,10 +110,16 @@ function drawRegionIds(ctx, continent) {
   });
 }
 
-export default function draw(ctx, icf) {
+export default function draw({ ctx, icf, ...cfg }) {
   clearCanvas(ctx);
-  drawRegions(ctx, icf, true);
-  drawRegionsBase(ctx, icf);
-  drawRegionsConnections(ctx, icf);
-  drawRegionIds(ctx, icf);
+  drawRegions(ctx, icf, cfg.drawRegionBasePaths);
+  if (cfg.drawRegionsBase) {
+    drawRegionsBase(ctx, icf);
+  }
+  if (cfg.drawRegionConnections) {
+    drawRegionsConnections(ctx, icf);
+  }
+  if (cfg.drawRegionIds) {
+    drawRegionIds(ctx, icf);
+  }
 }
