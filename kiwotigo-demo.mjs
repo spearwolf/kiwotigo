@@ -80,11 +80,11 @@ const onCreate = (config) => {
 
     canvas.width = data.continent.canvasWidth;
     canvas.height = data.continent.canvasHeight;
-    const DPR = window.devicePixelRatio || 1;
-    if (DPR !== 1) {
-      canvas.style.width = `${Math.round(canvas.width / DPR)}px`;
-      canvas.style.height = `${Math.round(canvas.height / DPR)}px`;
-    }
+    // const DPR = window.devicePixelRatio || 1;
+    // if (DPR !== 1) {
+    //   canvas.style.width = `${Math.round(canvas.width / DPR)}px`;
+    //   canvas.style.height = `${Math.round(canvas.height / DPR)}px`;
+    // }
     drawContinent({ ctx: canvasCtx, icf: data.continent });
   });
 };
