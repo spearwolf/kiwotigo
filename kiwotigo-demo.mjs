@@ -76,6 +76,7 @@ const onCreate = (config) => {
     console.log("received new build", data);
     hideLoadingState();
     getUpdateToggleAction().disabled = false;
+    document.querySelector('.mapLegendContainer').style.display = 'block';
 
     canvas.width = data.continent.canvasWidth;
     canvas.height = data.continent.canvasHeight;
@@ -143,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   } else {
     getUpdateToggleAction().disabled = true;
+    document.querySelector('.mapLegendContainer').style.display = 'none';
   }
 });
 
