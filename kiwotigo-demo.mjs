@@ -106,3 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     onCreate({ ...getConfig(), originData });
   }
 });
+
+document.querySelector(".openCloseAction").addEventListener("pointerup", () => {
+  document.querySelector(".createContinentConfig").classList.toggle("opened");
+});

@@ -14,16 +14,20 @@
       .createContinentConfig {
         position: absolute;
         width: 270px;
+        top: 0;
+        left: -265px;
         user-select: none;
-        border-right: 1px solid #eee;
-        border-bottom: 1px solid #eee;
+        border-right: 1px solid #999;
+        border-bottom: 1px solid #999;
         background-color: rgba(255, 255, 255, 0.7);
         border-bottom-right-radius: 6px;
+        transition: all 0.1s ease-in;
       }
 
-      h1 {
-        margin: 0 0 0.5em;
-        padding: 0.3em 0 0 0.3em;
+      .createContinentConfig.opened {
+        left: 0;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
       }
 
       :root {
@@ -166,6 +170,35 @@
         background-color: #7bb6ff;
         box-shadow: 0 0 8px #7bb6ff;
       }
+
+      .openCloseAction {
+        position: absolute;
+        top: 20px;
+        right: -26px;
+        width: 20px;
+        color: #aaa;
+        padding: 8px 2px 8px 4px;
+        border-top: 1px solid #999;
+        border-right: 1px solid #999;
+        border-bottom: 1px solid #999;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        background-color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+      }
+      .opened .openCloseAction {
+        border-top: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+      }
+      .openCloseAction:hover {
+        background-color: rgba(240, 240, 240, 0.8);
+        color: #666;
+      }
+      .openCloseAction > .chevron-double-left { display: none; }
+      .openCloseAction > .chevron-double-right { display: block; }
+      .opened .openCloseAction > .chevron-double-left { display: block; }
+      .opened .openCloseAction > .chevron-double-right { display: none; }
     </style>
     <style>
       /* credits for loading animation go to https://loading.io/css/ */
@@ -256,8 +289,7 @@
     </style>
   </head>
   <body>
-    <section class="createContinentConfig">
-      <h1>kiwotigo</h1>
+    <section class="createContinentConfig opened">
       <form id="kiwotigo" class="kiwotigo-form">
         <fieldset class="kiwotigo-form-group">
           <div class="kiwotigo-input-row">
@@ -487,6 +519,10 @@
           </div>
         </fieldset>
       </form>
+      <div class="openCloseAction">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-left"><path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+        <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-right"><path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+      </div>
     </section>
 
     <main>
