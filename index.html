@@ -5,14 +5,16 @@
     <title>spearwolf/kiwotigo demo</title>
     <base href="dist/">
     <style>
-      body {
+      html, body {
         height: 100%;
+      }
+      body {
         margin: 0;
         padding: 0;
       }
 
       .createContinentConfig {
-        position: absolute;
+        position: fixed;
         width: 270px;
         top: 0;
         left: -265px;
@@ -112,10 +114,21 @@
       }
 
       main {
+        width: 80vw;
+        padding-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+        justify-items: center;
+        align-items: stretch;
+      }
+
+      .canvasContainer {
         text-align: center;
       }
+
       #kiwotigoCanvas {
-        display: inline-block;
         max-width: 100%;
       }
 
@@ -520,13 +533,16 @@
         </fieldset>
       </form>
       <div class="openCloseAction">
+        <!-- icons from https://heroicons.dev/ -->
         <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-left"><path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
         <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-right"><path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
       </div>
     </section>
 
     <main>
-      <canvas id="kiwotigoCanvas"></canvas>
+      <div class="canvasContainer">
+        <canvas id="kiwotigoCanvas"></canvas>
+      </div>
     </main>
 
     <section class="loadingModal">
