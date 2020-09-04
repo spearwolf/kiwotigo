@@ -47,12 +47,16 @@ const hideLoadingState = () => {
   }, 500);
 };
 
+const getUpdateToggleAction = () =>
+  document.querySelector(".kiwotigo-form-justUpdate");
+
 const onCreate = (config) => {
   showLoadingState();
 
   build(config, displayProgress).then((data) => {
     console.log("received new build", data);
     hideLoadingState();
+    getUpdateToggleAction().disabled = false;
 
     canvas.width = data.continent.canvasWidth;
     canvas.height = data.continent.canvasHeight;
@@ -92,21 +96,50 @@ const getConfig = () => {
   });
 };
 
+const getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
+
 document.forms.kiwotigo.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  onCreate(getConfig());
+  if (getUpdateToggleAction().checked) {
+    onCreate({ ...getConfig(), originData: getKiwotigoOriginData() });
+  } else {
+    onCreate(getConfig());
+  }
 
   document.querySelector(".kiwotigo-createContinentBtn").blur();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const originData = localStorage.getItem("kiwotigoOriginData");
+  const originData = getKiwotigoOriginData();
   if (originData) {
-    onCreate({ ...getConfig(), originData });
+    getUpdateToggleAction().disabled = false;
+    const originConfig = JSON.parse(originData).config;
+    onCreate({ ...originConfig, originData });
+    // onCreate({ ...getConfig(), originData });
+    Array.from(Object.entries(originConfig)).forEach(([key, value]) => {
+      const el = document.querySelector(`.kiwotigo-form input[name=${key}]`);
+      if (el) {
+        el.value = value;
+      }
+    });
+  } else {
+    getUpdateToggleAction().disabled = true;
   }
 });
 
 document.querySelector(".openCloseAction").addEventListener("pointerup", () => {
   document.querySelector(".createContinentConfig").classList.toggle("opened");
+});
+
+getUpdateToggleAction().addEventListener("change", () => {
+  const { checked } = getUpdateToggleAction();
+  Array.from(
+    document.querySelectorAll(".kiwotigo-form .create-only input")
+  ).forEach((el) => {
+    el.disabled = checked;
+  });
+  document
+    .querySelector(".kiwotigo-form")
+    .classList[checked ? "add" : "remove"]("just-update");
 });

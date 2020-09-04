@@ -36,6 +36,18 @@
         --focus-outline: double #d06;
       }
 
+      .kiwotigo-form {
+        color: #111;
+      }
+
+      .kiwotigo-form.just-update .create-only .kiwotigo-form-label,
+      .kiwotigo-form.just-update .create-only .kiwotigo-form-input {
+        color: #ddd;
+      }
+      .kiwotigo-form.just-update .create-only .kiwotigo-form-input {
+        background-color: transparent;
+      }
+
       .kiwotigo-form fieldset.kiwotigo-form-group {
         border: 0;
       }
@@ -76,8 +88,25 @@
       }
 
       .kiwotigo-form-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-end;
         padding-top: 1em;
         text-align: right;
+      }
+
+      .updateAction {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 1em;
+      }
+
+      .updateAction .kiwotigo-form-label {
+        padding-right: 0;
+        padding-left: 0.25em;
       }
 
       .kiwotigo-button {
@@ -329,7 +358,7 @@
     <section class="createContinentConfig opened">
       <form id="kiwotigo" class="kiwotigo-form">
         <fieldset class="kiwotigo-form-group">
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridWidth">gridWidth</label>
             <input
               class="kiwotigo-form-input"
@@ -339,7 +368,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridHeight"
               >gridHeight</label
             >
@@ -351,7 +380,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridOuterPaddingX"
               >gridOuterPaddingX</label
             >
@@ -363,7 +392,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridOuterPaddingY"
               >gridOuterPaddingY</label
             >
@@ -375,7 +404,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridInnerPaddingX"
               >gridInnerPaddingX</label
             >
@@ -387,7 +416,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridInnerPaddingY"
               >gridInnerPaddingY</label
             >
@@ -399,7 +428,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridHexWidth"
               >gridHexWidth</label
             >
@@ -411,7 +440,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridHexWidth"
               >gridHexHeight</label
             >
@@ -423,7 +452,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="hexWidth">hexWidth</label>
             <input
               class="kiwotigo-form-input"
@@ -433,7 +462,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="hexHeight">hexHeight</label>
             <input
               class="kiwotigo-form-input"
@@ -443,7 +472,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="hexPaddingX"
               >hexPaddingX</label
             >
@@ -455,7 +484,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="hexPaddingY"
               >hexPaddingY</label
             >
@@ -467,7 +496,7 @@
               min="0"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="minimalGrowIterations"
               >minimalGrowIterations</label
             >
@@ -479,7 +508,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="fastGrowIterations"
               >fastGrowIterations</label
             >
@@ -491,7 +520,7 @@
               min="1"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="maxRegionSizeFactor"
               >maxRegionSizeFactor</label
             >
@@ -504,7 +533,7 @@
               step="0.01"
             />
           </div>
-          <div class="kiwotigo-input-row">
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="probabilityCreateRegionAt"
               >probabilityCreateRegionAt</label
             >
@@ -547,11 +576,15 @@
             />
           </div>
           <div class="kiwotigo-form-actions">
+            <div class="updateAction">
+              <input type="checkbox" class="kiwotigo-form-justUpdate" name="justUpdate" />
+              <label for="justUpdate" class="kiwotigo-form-label">update</label>
+            </div>
             <button
               type="submit"
               class="kiwotigo-button kiwotigo-createContinentBtn"
             >
-              Create New Continent
+              Create Map
             </button>
           </div>
         </fieldset>
@@ -590,7 +623,7 @@
     <footer class="pageFooter">
       <div class="textContent">
         <a class="externalLink" href="https://github.com/spearwolf/kiwotigo" target="_blank">kiwotigo</a>
-        &mdash; a javascript experiment by
+        &mdash; a front-end experiment by
         <a class="externalLink" href="https://www.spearwolf.de/" target="_blank">spearwolf</a>
       </div>
     </footer>

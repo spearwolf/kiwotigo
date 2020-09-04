@@ -126,7 +126,7 @@ self.onmessage = (e) => {
   if (originData) {
     const parsedOriginData =
       typeof originData === "string" ? JSON.parse(originData) : originData;
-    config = { ...DefaultConfig, ...parsedOriginData.config };
+    config = { ...DefaultConfig, ...parsedOriginData.config, ...data };
     afterCreateContinent = Promise.resolve(parsedOriginData);
   } else {
     config = { ...DefaultConfig, ...data };
