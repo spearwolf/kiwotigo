@@ -9,7 +9,7 @@ export const clean = (done) => exec('rm -fr kiwotigo dist', done)
 export const buildTool = (done) => exec('bash ./build.sh', done)
 export const buildWasm = (done) => exec('bash ./build.sh -wasm', done)
 
-export const buildAll = parallel(buildTool, buildWasm, 'buildWorker')
+export const buildAll = parallel(buildTool, buildWasm, 'buildWorker', 'buildJsDemo')
 
 export const watchTool = () => watchFiles(buildTool, './*.go', './kiwotigo-tool/*.go')
 export const watchWasm = () => watchFiles(buildWasm, './*.go', './kiwotigo-js-bridge/*.go')
