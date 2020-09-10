@@ -1,3 +1,4 @@
+// TODO lazy load!
 const worker = new Worker('kiwotigo.worker.js')
 
 let lastBuild
