@@ -1,5 +1,25 @@
 const worker = new Worker('kiwotigo.worker.js')
 
+let lastBuild
+let publishChannel
+if (typeof BroadcastChannel !== 'undefined') {
+  publishChannel = new BroadcastChannel('kiwotigo')
+  publishChannel.onmessage = ({ data }) => {
+    if (data) {
+      switch (data.type) {
+        case 'publishBuild':
+          if (lastBuild) {
+             publishChannel.postMessage(lastBuild)
+          }
+          break;
+        case 'ping':
+          publishChannel.postMessage({ type: 'pong' })
+          break;
+      }
+    }
+  }
+}
+
 const tmpResolvers = new Map()  // temporary id -> resolve: Promise.resolve(), onProgressFn
 
 const createMessageId = (() => {
@@ -32,6 +52,10 @@ worker.onmessage = ({data}) => {
           )
         }
         resolve.resolve(data)
+        if (publishChannel) {
+          lastBuild = { type: 'build', data }
+        }
+        publishChannel.postMessage(lastBuild)
         break
 
       default:
