@@ -1,4 +1,4 @@
-import { build } from "./kiwotigo.mjs";
+import { build, startBroadcasting } from "./kiwotigo.mjs";
 import draw from "./kiwotigo-painter.mjs";
 
 const canvas = document.getElementById("kiwotigoCanvas");
@@ -76,7 +76,7 @@ const onCreate = (config) => {
     console.log("received new build", data);
     hideLoadingState();
     getUpdateToggleAction().disabled = false;
-    document.querySelector('.mapLegendContainer').style.display = 'block';
+    document.querySelector(".mapLegendContainer").style.display = "block";
 
     canvas.width = data.continent.canvasWidth;
     canvas.height = data.continent.canvasHeight;
@@ -144,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   } else {
     getUpdateToggleAction().disabled = true;
-    document.querySelector('.mapLegendContainer').style.display = 'none';
+    document.querySelector(".mapLegendContainer").style.display = "none";
   }
 });
 
@@ -179,3 +179,5 @@ document.body.addEventListener("pointerup", (event) => {
     }
   }
 });
+
+startBroadcasting();

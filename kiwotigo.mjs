@@ -1,22 +1,27 @@
-// TODO lazy load!
-const worker = new Worker('kiwotigo.worker.js')
+let worker
 
 let lastBuild
 let publishChannel
-if (typeof BroadcastChannel !== 'undefined') {
-  publishChannel = new BroadcastChannel('kiwotigo')
-  publishChannel.onmessage = ({ data }) => {
-    if (data) {
-      switch (data.type) {
-        case 'publishBuild':
-          if (lastBuild) {
-             publishChannel.postMessage(lastBuild)
-          }
-          break;
-        case 'ping':
-          publishChannel.postMessage({ type: 'pong' })
-          break;
+
+export const startBroadcasting = () => {
+  if (!publishChannel && typeof BroadcastChannel !== 'undefined') {
+    publishChannel = new BroadcastChannel('kiwotigo')
+    publishChannel.onmessage = ({ data }) => {
+      if (data) {
+        switch (data.type) {
+          case 'publishBuild':
+            if (lastBuild) {
+              publishChannel.postMessage(lastBuild)
+            }
+            break;
+          case 'ping':
+            publishChannel.postMessage({ type: 'pong' })
+            break;
+        }
       }
+    }
+    if (lastBuild) {
+      publishChannel.postMessage(lastBuild)
     }
   }
 }
@@ -31,42 +36,53 @@ const createMessageId = (() => {
   }
 })()
 
-worker.onmessage = ({data}) => {
-  const { id, type } = data
-  const resolve = tmpResolvers.get(id)
-  if (resolve) {
-    switch (type) {
-      case 'progress':
-        if (resolve.onProgressFn) {
-          resolve.onProgressFn(data.progress)
-        }
-        break
+const initWorker = () => {
+  worker = new Worker('kiwotigo.worker.js')
 
-      case 'result':
-        tmpResolvers.delete(id)
-        delete data.type
-        if (data.originData) {
-          localStorage.setItem('kiwotigoOriginData',
-            typeof data.originData === 'string'
-              ? data.originData
-              : JSON.stringify(data.originData)
-          )
-        }
-        resolve.resolve(data)
-        if (publishChannel) {
-          lastBuild = { type: 'build', data }
-        }
-        publishChannel.postMessage(lastBuild)
-        break
+  worker.onmessage = ({data}) => {
+    const { id, type } = data
+    const resolve = tmpResolvers.get(id)
+    if (resolve) {
+      switch (type) {
+        case 'progress':
+          if (resolve.onProgressFn) {
+            resolve.onProgressFn(data.progress)
+          }
+          break
 
-      default:
-        console.warn('unknown message type:', type, data)
+        case 'result':
+          tmpResolvers.delete(id)
+          delete data.type
+          if (data.originData) {
+            localStorage.setItem('kiwotigoOriginData',
+              typeof data.originData === 'string'
+                ? data.originData
+                : JSON.stringify(data.originData)
+            )
+          }
+          resolve.resolve(data)
+          if (publishChannel) {
+            lastBuild = { type: 'build', data }
+            publishChannel.postMessage(lastBuild)
+          }
+          break
+
+        default:
+          console.warn('unknown message type:', type, data)
+      }
     }
   }
+}
+
+const getWorker = () => {
+  if (!worker) {
+    initWorker()
+  }
+  return worker
 }
 
 export const build = (config, onProgressFn) => new Promise(resolve => {
   const id = createMessageId()
   tmpResolvers.set(id, { resolve, onProgressFn })
-  worker.postMessage({ ...config, id })
+  getWorker().postMessage({ ...config, id })
 })
