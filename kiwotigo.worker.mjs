@@ -1,5 +1,5 @@
-import { createContinent } from "./kiwotigo-wasm-bridge.mjs";
-import { findAndConnectAllIslands } from "./kiwotigo-unite-islands.mjs";
+import { createContinent } from './kiwotigo-wasm-bridge.mjs';
+import { findAndConnectAllIslands } from './kiwotigo-unite-islands.mjs';
 
 const DefaultConfig = {
   // kiwotigo/continent
@@ -37,11 +37,11 @@ const getBoundingBox = (regions) => {
   let left = anyCenterPoint.x;
   let right = anyCenterPoint.x;
 
-  regions.forEach(({ centerPoint: { x, y, oR }, fullPath }) => {
-    top = min(top, y - oR);
-    bottom = max(bottom, y + oR);
-    left = min(left, x - oR);
-    right = max(right, x + oR);
+  regions.forEach(({ centerPoint: cP, fullPath }) => {
+    top = min(top, cP.y - cP.oR);
+    bottom = max(bottom, cP.y + cP.oR);
+    left = min(left, cP.x - cP.oR);
+    right = max(right, cP.x + cP.oR);
 
     const len = fullPath.length >> 1;
     for (let i = 0; i < len; i++) {
@@ -53,6 +53,32 @@ const getBoundingBox = (regions) => {
       right = max(right, x);
     }
   });
+
+  return {
+    top,
+    bottom,
+    left,
+    right,
+    width: right - left,
+    height: bottom - top,
+  };
+};
+
+const calcRegionBoundingBox = ({ centerPoint: cP, fullPath }) => {
+  let top = cP.y;
+  let bottom = cP.y;
+  let left = cP.x;
+  let right = cP.x;
+
+  const len = fullPath.length >> 1;
+  for (let i = 0; i < len; i++) {
+    const x = fullPath[i << 1];
+    const y = fullPath[(i << 1) + 1];
+    top = min(top, y);
+    bottom = max(bottom, y);
+    left = min(left, x);
+    right = max(right, x);
+  }
 
   return {
     top,
@@ -104,6 +130,10 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
   const canvasWidth = bBox.width + 2 * config.canvasMargin;
   const canvasHeight = bBox.height + 2 * config.canvasMargin;
 
+  regions.forEach((region) => {
+    region.bBox = calcRegionBoundingBox(region);
+  });
+
   return {
     regions,
     canvasWidth,
@@ -114,7 +144,7 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
 // =========================================================================
 
 const _postProgress = (id) => (progress) =>
-  postMessage({ id, progress, type: "progress" });
+  postMessage({ id, progress, type: 'progress' });
 
 self.onmessage = (e) => {
   const { id, originData, ...data } = e.data;
@@ -125,7 +155,7 @@ self.onmessage = (e) => {
 
   if (originData) {
     const parsedOriginData =
-      typeof originData === "string" ? JSON.parse(originData) : originData;
+      typeof originData === 'string' ? JSON.parse(originData) : originData;
     config = { ...DefaultConfig, ...parsedOriginData.config, ...data };
     afterCreateContinent = Promise.resolve(parsedOriginData);
   } else {
@@ -146,6 +176,9 @@ self.onmessage = (e) => {
 
       let continent;
       try {
+        // TODO path smoothing !!
+        //      see https://pctipps.de/gewichteter-durchschnitt/
+
         continent = convertToIntermediateContinentalFormat(
           config,
           result.continent
@@ -155,7 +188,7 @@ self.onmessage = (e) => {
 
         continent = findAndConnectAllIslands(continent, config);
       } catch (err) {
-        console.error("kiwotigo post-processing panic!", err);
+        console.error('kiwotigo post-processing panic!', err);
       }
 
       return {
@@ -165,5 +198,5 @@ self.onmessage = (e) => {
         originData,
       };
     })
-    .then((result) => postMessage({ ...result, type: "result" }));
+    .then((result) => postMessage({ ...result, type: 'result' }));
 };

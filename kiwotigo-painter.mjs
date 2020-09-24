@@ -1,9 +1,10 @@
-const REGION_OUTLINE_STROKE = "#c5c5c5";
-const REGION_BASE_PATH_FILL = "#e7e7e7";
-const REGION_FULL_PATH_FILL = "#f5f5f5";
-const REGION_RADIUS_STROKE = "#a1a1a1";
-const REGION_OUTER_RADIUS_STROKE = "#bababa";
-const CONNECTION_STROKE = "#f5b";
+const REGION_OUTLINE_STROKE = '#c5c5c5';
+const REGION_BASE_PATH_FILL = '#e7e7e7';
+const REGION_FULL_PATH_FILL = '#f5f5f5';
+const REGION_RADIUS_STROKE = '#a1a1a1';
+const REGION_BBOX_STROKE = '#e0e0e0';
+const REGION_OUTER_RADIUS_STROKE = '#bababa';
+const CONNECTION_STROKE = '#f5b';
 
 function clearCanvas(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -33,11 +34,11 @@ function drawRegions(ctx, continent, drawBasePath) {
   ctx.lineWidth = 1;
 
   ctx.fillStyle = REGION_FULL_PATH_FILL;
-  drawPath(ctx, continent.regions, "fullPath", true);
+  drawPath(ctx, continent.regions, 'fullPath', true);
 
   if (drawBasePath) {
     ctx.fillStyle = REGION_BASE_PATH_FILL;
-    drawPath(ctx, continent.regions, "basePath");
+    drawPath(ctx, continent.regions, 'basePath');
   }
 }
 
@@ -96,22 +97,34 @@ function drawRegionsConnections(ctx, continent) {
 }
 
 function drawRegionIds(ctx, continent) {
-  ctx.font = "bold 36px sans-serif";
-  ctx.shadowColor = "#fff";
+  ctx.font = 'bold 36px sans-serif';
+  ctx.shadowColor = '#fff';
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.shadowBlur = 4;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#666";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#666';
 
   continent.regions.forEach(({ centerPoint: { x, y } }, i) => {
     ctx.fillText(`${i}`, x, y);
   });
 }
 
+function drawBoundingBoxes(ctx, { regions }) {
+  ctx.strokeStyle = REGION_BBOX_STROKE;
+  regions.forEach(({ bBox }) => {
+    ctx.beginPath();
+    ctx.rect(bBox.left, bBox.top, bBox.width, bBox.height);
+    ctx.stroke();
+  });
+}
+
 export default function draw({ ctx, icf, ...cfg }) {
   clearCanvas(ctx);
+  if (cfg.drawRegionBoundingBoxes) {
+    drawBoundingBoxes(ctx, icf);
+  }
   drawRegions(ctx, icf, cfg.drawRegionBasePaths);
   if (cfg.drawRegionsBase) {
     drawRegionsBase(ctx, icf);

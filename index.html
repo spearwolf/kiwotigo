@@ -3,9 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>spearwolf/kiwotigo demo</title>
-    <base href="dist/">
+    <base href="dist/" />
     <style>
-      html, body {
+      html,
+      body {
         height: 100%;
       }
       body {
@@ -76,7 +77,7 @@
         outline: var(--focus-outline);
       }
 
-      input[type="number"].kiwotigo-form-input {
+      input[type='number'].kiwotigo-form-input {
         width: 5em;
       }
 
@@ -240,10 +241,18 @@
         background-color: rgba(240, 240, 240, 0.8);
         color: #666;
       }
-      .openCloseAction > .chevron-double-left { display: none; }
-      .openCloseAction > .chevron-double-right { display: block; }
-      .opened .openCloseAction > .chevron-double-left { display: block; }
-      .opened .openCloseAction > .chevron-double-right { display: none; }
+      .openCloseAction > .chevron-double-left {
+        display: none;
+      }
+      .openCloseAction > .chevron-double-right {
+        display: block;
+      }
+      .opened .openCloseAction > .chevron-double-left {
+        display: block;
+      }
+      .opened .openCloseAction > .chevron-double-right {
+        display: none;
+      }
 
       .pageFooter {
         position: fixed;
@@ -256,7 +265,8 @@
       }
       .pageFooter .textContent {
         color: #333;
-        font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: 14px;
         text-align: center;
       }
@@ -302,7 +312,7 @@
         transform-origin: 40px 40px;
       }
       .lds-roller div:after {
-        content: " ";
+        content: ' ';
         display: block;
         position: absolute;
         width: 7px;
@@ -600,7 +610,11 @@
           </div>
           <div class="kiwotigo-form-actions">
             <div class="updateAction">
-              <input type="checkbox" class="kiwotigo-form-justUpdate" name="justUpdate" />
+              <input
+                type="checkbox"
+                class="kiwotigo-form-justUpdate"
+                name="justUpdate"
+              />
               <label for="justUpdate" class="kiwotigo-form-label">update</label>
             </div>
             <button
@@ -614,8 +628,33 @@
       </form>
       <div class="openCloseAction">
         <!-- icons from https://heroicons.dev/ -->
-        <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-left"><path fill-rule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
-        <svg viewBox="0 0 20 20" fill="currentColor" class="chevron-double-right"><path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path><path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+        <svg
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="chevron-double-left"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <svg
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          class="chevron-double-right"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+          ></path>
+          <path
+            fill-rule="evenodd"
+            d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
       </div>
     </section>
 
@@ -627,20 +666,59 @@
 
     <section class="mapLegendContainer">
       <div class="legendRow">
-        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionConnections" />
-        <label for="drawRegionConnections" class="kiwotigo-legend-label">show connections</label>
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          checked
+          name="drawRegionConnections"
+        />
+        <label for="drawRegionConnections" class="kiwotigo-legend-label"
+          >show connections</label
+        >
       </div>
       <div class="legendRow">
-        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionIds" />
-        <label for="drawRegionIds" class="kiwotigo-legend-label">show region ids</label>
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          checked
+          name="drawRegionBoundingBoxes"
+        />
+        <label for="drawRegionBoundingBoxes" class="kiwotigo-legend-label"
+          >show region bounding boxes</label
+        >
       </div>
       <div class="legendRow">
-        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionBasePaths" />
-        <label for="drawRegionBasePaths" class="kiwotigo-legend-label">show region base areas</label>
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          checked
+          name="drawRegionIds"
+        />
+        <label for="drawRegionIds" class="kiwotigo-legend-label"
+          >show region ids</label
+        >
       </div>
       <div class="legendRow">
-        <input type="checkbox" class="kiwotigo-legend-input" checked name="drawRegionsBase" />
-        <label for="drawRegionsBase" class="kiwotigo-legend-label">show region spheres</label>
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          checked
+          name="drawRegionBasePaths"
+        />
+        <label for="drawRegionBasePaths" class="kiwotigo-legend-label"
+          >show region base areas</label
+        >
+      </div>
+      <div class="legendRow">
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          checked
+          name="drawRegionsBase"
+        />
+        <label for="drawRegionsBase" class="kiwotigo-legend-label"
+          >show region spheres</label
+        >
       </div>
     </section>
 
@@ -664,9 +742,16 @@
 
     <footer class="pageFooter">
       <div class="textContent">
-        <a class="externalLink" href="https://github.com/spearwolf/kiwotigo" target="_blank">kiwotigo</a>
+        <a
+          class="externalLink"
+          href="https://github.com/spearwolf/kiwotigo"
+          target="_blank"
+          >kiwotigo</a
+        >
         &mdash; a front-end experiment by
-        <a class="externalLink" href="https://www.spearwolf.de/" target="_blank">spearwolf</a>
+        <a class="externalLink" href="https://www.spearwolf.de/" target="_blank"
+          >spearwolf</a
+        >
       </div>
     </footer>
 
