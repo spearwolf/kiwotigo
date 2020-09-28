@@ -109,6 +109,131 @@ const transformAllCoords = (regions, transformer) => {
   });
 };
 
+// ============= path smoothing ============================================
+
+const getCoordId = (x, y) => `${y};${x}`;
+
+class PathCoordLocation {
+  constructor(regionId, pathType, pathIndex) {
+    this.regionId = regionId;
+    this.pathType = pathType;
+    this.pathIndex = pathIndex;
+  }
+}
+
+class PathCoord {
+  constructor(id) {
+    this.id = id;
+    this.locations = [];
+    this.coords = null;
+  }
+
+  addLocation(pathLocation) {
+    this.locations.push(pathLocation);
+  }
+
+  getCoordsIndices(regions, pLoc, coordsOffset = 0) {
+    const p = regions[pLoc.regionId][pLoc.pathType];
+    const pLen = p.length;
+    let xIndex = (pLoc.pathIndex + coordsOffset * 2) % pLen;
+    if (xIndex < 0) {
+      xIndex += pLen;
+    }
+    let yIndex = (pLoc.pathIndex + (coordsOffset * 2 + 1)) % p.length;
+    if (yIndex < 0) {
+      yIndex += pLen;
+    }
+    return [xIndex, yIndex];
+  }
+
+  getCoords(regions, pLoc, coordsOffset = 0) {
+    const p = regions[pLoc.regionId][pLoc.pathType];
+    const [xIndex, yIndex] = this.getCoordsIndices(regions, pLoc, coordsOffset);
+    return [p[xIndex], p[yIndex]];
+  }
+
+  copyCoords(regions, pLoc) {
+    const [xIndex, yIndex] = this.getCoordsIndices(regions, pLoc, 0);
+    const p = regions[pLoc.regionId][pLoc.pathType];
+    p[xIndex] = this.coords[0];
+    p[yIndex] = this.coords[1];
+  }
+
+  calcSmoothCoords(regions, weights) {
+    const values = [];
+    this.locations.forEach((pLoc) => {
+      weights.forEach(([offset, weight]) => {
+        const [x, y] = this.getCoords(regions, pLoc, offset);
+        values.push([x, y, weight]);
+      });
+    });
+    const xSum = values.reduce((sum, [val, , w]) => val * w + sum, 0);
+    const ySum = values.reduce((sum, [, val, w]) => val * w + sum, 0);
+    const wSum = values.reduce((sum, [, , w]) => w + sum, 0);
+    this.coords = [xSum / wSum, ySum / wSum];
+  }
+
+  writeCoordsToLocations(regions) {
+    this.locations.forEach((pLoc) => {
+      this.copyCoords(regions, pLoc);
+    });
+  }
+}
+
+const collectPathCoords = (regionId, pathType, path, coords) => {
+  const len = path.length;
+  for (let i = 0; i < len; i += 2) {
+    const coordId = getCoordId(path[i], path[i + 1]);
+    let pathCoord = coords.get(coordId);
+    if (!pathCoord) {
+      pathCoord = new PathCoord(coordId);
+      coords.set(coordId, pathCoord);
+    }
+    pathCoord.addLocation(new PathCoordLocation(regionId, pathType, i));
+  }
+};
+
+const smoothAllPaths = (regions) => {
+  const coords = new Map();
+
+  // 1. collect all full~basePath coordinates
+  regions.forEach(({ id, fullPath, basePath }) => {
+    collectPathCoords(id, 'fullPath', fullPath, coords);
+    collectPathCoords(id, 'basePath', basePath, coords);
+  });
+
+  // 2. smooth all coordinates
+  for (const pathCoord of coords.values()) {
+    pathCoord.calcSmoothCoords(regions, [
+      // [-3, 0.25],
+      // [-2, 0.5],
+      // [-1, 0.75],
+      // [0, 1.5],
+      // [1, 0.75],
+      // [2, 0.5],
+      // [3, 0.25],
+      //---------------
+      // [-2, 0.25],
+      // [-1, 0.5],
+      // [0, 1.5],
+      // [1, 0.5],
+      // [2, 0.25],
+      //---------------
+      [-1, 0.5],
+      [0, 1],
+      [1, 0.4],
+      [3, 0.2],
+    ]);
+  }
+
+  // 3. write coords back
+  for (const pathCoord of coords.values()) {
+    pathCoord.writeCoordsToLocations(regions);
+  }
+};
+
+// -------------------------------------------------------------------------
+
 const flattenPathCoords = (path) => path.flatMap((vec) => [vec.x, vec.y]);
 
 const convertToIntermediateContinentalFormat = (config, continent) => {
@@ -120,6 +245,8 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
     neighbors: continent.neighbors[id],
     size: continent.regionSizes[id],
   }));
+
+  smoothAllPaths(regions);
 
   const bBox = getBoundingBox(regions);
   const offsetX = bBox.left - config.canvasMargin;
