@@ -111,7 +111,7 @@ const transformAllCoords = (regions, transformer) => {
 
 // ============= path smoothing ============================================
 
-const getCoordId = (x, y) => `${y};${x}`;
+const getCoordId = (x, y) => `${Math.round(y)};${Math.round(x)}`;
 
 class PathCoordLocation {
   constructor(regionId, pathType, pathIndex) {
@@ -122,10 +122,11 @@ class PathCoordLocation {
 }
 
 class PathCoord {
-  constructor(id) {
+  constructor(id, isBaseline) {
     this.id = id;
     this.locations = [];
     this.coords = null;
+    this.isBaseline = isBaseline;
   }
 
   addLocation(pathLocation) {
@@ -159,10 +160,19 @@ class PathCoord {
     p[yIndex] = this.coords[1];
   }
 
+  getCoastType() {
+    if (this.isBaseline) {
+      return 'city';
+    }
+    // return 'seaside';
+    return this.locations.length === 1 ? 'seaside' : 'inland';
+  }
+
   calcSmoothCoords(regions, weights) {
     const values = [];
+    const coastType = this.getCoastType();
     this.locations.forEach((pLoc) => {
-      weights.forEach(([offset, weight]) => {
+      weights[coastType].forEach(([offset, weight]) => {
         const [x, y] = this.getCoords(regions, pLoc, offset);
         values.push([x, y, weight]);
       });
@@ -186,7 +196,7 @@ const collectPathCoords = (regionId, pathType, path, coords) => {
     const coordId = getCoordId(path[i], path[i + 1]);
     let pathCoord = coords.get(coordId);
     if (!pathCoord) {
-      pathCoord = new PathCoord(coordId);
+      pathCoord = new PathCoord(coordId, pathType === 'basePath');
       coords.set(coordId, pathCoord);
     }
     pathCoord.addLocation(new PathCoordLocation(regionId, pathType, i));
@@ -204,26 +214,33 @@ const smoothAllPaths = (regions) => {
 
   // 2. smooth all coordinates
   for (const pathCoord of coords.values()) {
-    pathCoord.calcSmoothCoords(regions, [
-      // [-3, 0.25],
-      // [-2, 0.5],
-      // [-1, 0.75],
-      // [0, 1.5],
-      // [1, 0.75],
-      // [2, 0.5],
-      // [3, 0.25],
-      //---------------
-      // [-2, 0.25],
-      // [-1, 0.5],
-      // [0, 1.5],
-      // [1, 0.5],
-      // [2, 0.25],
-      //---------------
-      [-1, 0.5],
-      [0, 1],
-      [1, 0.4],
-      [3, 0.2],
-    ]);
+    pathCoord.calcSmoothCoords(regions, {
+      city: [
+        [-8, 0.25],
+        [-5, 0.5],
+        [-2, 0.75],
+        [0, 1.5],
+        [2, 0.75],
+        [5, 0.5],
+        [8, 0.25],
+      ],
+      inland: [
+        [-3, 0.309],
+        [-2, 0.588],
+        [-1, 0.809],
+        [0, 1.0],
+        [1, 0.809],
+        [2, 0.588],
+        [3, 0.309],
+      ],
+      seaside: [
+        [-1, 0.5],
+        [0, 0.7],
+        [1, 0.3],
+        [3, 0.2],
+        [4, 0.1],
+      ],
+    });
   }
 
   // 3. write coords back
