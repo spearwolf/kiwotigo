@@ -9,6 +9,8 @@ then
     exit 1
 fi
 
+export GO111MODULE=off
+
 if [ "$1" = "-wasm" ]
 then
     if [ ! -f wasm_exec.js ]
