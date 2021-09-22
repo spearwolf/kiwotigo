@@ -20,6 +20,8 @@ _kiwotigo_ is written in javascript, whereas the core of the world map builder i
 
 ![kiwotigo example](./kiwotigo.png)
 
+&rarr; [Just try it out for yourself!](https://spearwolf.github.io/kiwotigo/)
+
 ## Why?
 
 _kiwotigo_ creates worlds, but doesn't tell you what to do with them.
