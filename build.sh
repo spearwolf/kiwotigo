@@ -13,7 +13,7 @@ export GO111MODULE=off
 
 if [ "$1" = "-wasm" ]
 then
-    if [ ! -f wasm_exec.js ]
+    if [ -f $(go env GOROOT)/misc/wasm/wasm_exec.js ]
     then
       cp -v $(go env GOROOT)/misc/wasm/wasm_exec.js .
     fi

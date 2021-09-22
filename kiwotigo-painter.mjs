@@ -1,9 +1,9 @@
-const REGION_OUTLINE_STROKE = '#c5c5c5';
+const REGION_OUTLINE_STROKE = '#a5a5a5';
 const REGION_BASE_PATH_FILL = '#e7e7e7';
 const REGION_FULL_PATH_FILL = '#f5f5f5';
-const REGION_RADIUS_STROKE = '#a1a1a1';
-const REGION_BBOX_STROKE = '#e0e0e0';
-const REGION_OUTER_RADIUS_STROKE = '#bababa';
+const REGION_RADIUS_STROKE = '#a9a9a9';
+const REGION_BBOX_STROKE = '#f0f0f0';
+const REGION_OUTER_RADIUS_STROKE = '#cacaca';
 const CONNECTION_STROKE = '#f5b';
 
 function clearCanvas(ctx) {
@@ -47,12 +47,14 @@ function drawRegionsBase(ctx, continent) {
 
   continent.regions.forEach(({ centerPoint: cp }) => {
     ctx.strokeStyle = REGION_RADIUS_STROKE;
+    ctx.setLineDash([]);
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.iR, 0, 2 * Math.PI, false);
     ctx.closePath();
     ctx.stroke();
 
     ctx.strokeStyle = REGION_OUTER_RADIUS_STROKE;
+    ctx.setLineDash([5, 15, 25]);
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.oR, 0, 2 * Math.PI, false);
     ctx.closePath();
@@ -60,15 +62,12 @@ function drawRegionsBase(ctx, continent) {
   });
 }
 
-// const getCenterPoint = (continent, regionIdx) =>
-//   continent.regions[regionIdx].centerPoint;
-
 const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
 
 function drawRegionsConnections(ctx, continent) {
   ctx.setLineDash([]);
   ctx.strokeStyle = CONNECTION_STROKE;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
 
   const alreadyDrawnConnection = new Set();
 
@@ -83,7 +82,7 @@ function drawRegionsConnections(ctx, continent) {
         const otherRegion = getRegion(continent, neighborId);
         const isAnotherIsland = region.islandId !== otherRegion.islandId;
 
-        ctx.setLineDash(isAnotherIsland ? [2, 10] : []);
+        ctx.setLineDash(isAnotherIsland ? [3, 6] : []);
         ctx.beginPath();
         ctx.moveTo(region.centerPoint.x, region.centerPoint.y);
         ctx.lineTo(otherRegion.centerPoint.x, otherRegion.centerPoint.y);

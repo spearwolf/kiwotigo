@@ -2,27 +2,24 @@ import { createContinent } from './kiwotigo-wasm-bridge.mjs';
 import { findAndConnectAllIslands } from './kiwotigo-unite-islands.mjs';
 
 const DefaultConfig = {
-  // kiwotigo/continent
   gridWidth: 7,
   gridHeight: 7,
-  gridOuterPaddingX: 40,
-  gridOuterPaddingY: 40,
-  gridInnerPaddingX: 8,
-  gridInnerPaddingY: 8,
+  gridOuterPaddingY: 80,
+  gridInnerPaddingX: 15,
+  gridInnerPaddingY: 15,
   gridHexWidth: 15,
   gridHexHeight: 15,
   hexWidth: 10,
   hexHeight: 10,
   hexPaddingX: 0,
   hexPaddingY: 0,
-  minimalGrowIterations: 100,
-  fastGrowIterations: 4,
+  minimalGrowIterations: 20,
+  fastGrowIterations: 5,
   maxRegionSizeFactor: 3,
-  probabilityCreateRegionAt: 0.7,
-  // NEW:
+  probabilityCreateRegionAt: 0.5,
   enableExtendedConnections: true,
   maxExtendedOuterRangeFactor: 4.0,
-  canvasMargin: 10,
+  canvasMargin: 100,
 };
 
 // =========================================================================
