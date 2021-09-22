@@ -27,9 +27,9 @@ _kiwotigo_ is written in javascript, whereas the core of the world map builder i
 _kiwotigo_ creates worlds, but doesn't tell you what to do with them.
 that's up to you. you're a indie-gamedev and need a tool to create 2D or maybe 3D maps? or you just want to create a nice graphics demo and need random input? go ahead, let your inspiration run wild - and don't forget to drop me a message (or a PR) if you want to show something off :wink:
 
-## Development
+## Local Development
 
-Build the _kiwotigo_ library with:
+Build the _kiwotigo_ library with: (please use a linux/bash/macos environment, windows is currently only partially supported)
 
 ```sh
 $ ./build.sh  # -> build kiwotigo executable
