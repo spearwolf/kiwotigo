@@ -9,7 +9,10 @@
     "build": "gulp buildAll",
     "dev": "gulp watchAll",
     "serve": "serve",
-    "start": "concurrently -r -k serve \"gulp watchAll\""
+    "start": "concurrently -r -k serve \"gulp watchAll\"",
+    "docker:build": "docker build -t kiwotigo:latest -f Dockerfile .",
+    "docker:start": "docker run -d -it --rm -p 8080:80 kiwotigo:latest",
+    "docker:sh": "docker run -it --rm --entrypoint /bin/sh kiwotigo:latest"
   },
   "repository": {
     "type": "git",
