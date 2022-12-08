@@ -34,7 +34,7 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.62.0",
     "rollup-plugin-terser": "^7.0.2",
-    "serve": "^13.0.2",
+    "serve": "^14.1.2",
     "zx": "^4.2.0"
   }
 }
