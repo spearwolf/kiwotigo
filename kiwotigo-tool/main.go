@@ -20,7 +20,7 @@ import (
 	"flag"
 	"fmt"
 
-	kiwotigo ".."
+	kiwotigo "github.com/spearwolf/kiwotigo"
 )
 
 func main() {

@@ -1,18 +1,15 @@
 {
-  "name": "kiwotigo",
+  "name": "@spearwolf/kiwotigo",
   "version": "1.0.0",
-  "description": "a library to create world maps",
-  "main": "index.js",
+  "description": "create procedural world maps",
+  "type": "module",
   "scripts": {
-    "gulp": "gulp",
-    "clean": "gulp clean",
-    "build": "gulp buildAll",
-    "dev": "gulp watchAll",
-    "serve": "serve",
-    "start": "concurrently -r -k serve \"gulp watchAll\"",
-    "docker:build": "docker build -t kiwotigo:latest -f Dockerfile .",
-    "docker:start": "docker run -d -it --rm -p 8080:80 kiwotigo:latest",
-    "docker:sh": "docker run -it --rm --entrypoint /bin/sh kiwotigo:latest"
+    "build:tool": "sh -x build-tool.sh",
+    "build:wasm": "sh -x build-wasm.sh",
+    "build:worker": "esbuild src/kiwotigo.worker.js --bundle --platform=browser --target=esnext --outfile=kiwotigo.worker.js",
+    "build:demo": "esbuild src/kiwotigo-demo.js --bundle --platform=browser --target=esnext --outfile=kiwotigo-demo.js",
+    "build": "concurrently --names \"tool,wasm,worker,demo\" \"pnpm build:tool\" \"pnpm build:wasm\" \"pnpm build:worker\" \"pnpm build:demo\"",
+    "dev": "serve ."
   },
   "repository": {
     "type": "git",
@@ -24,17 +21,13 @@
     "url": "https://github.com/spearwolf/kiwotigo/issues"
   },
   "homepage": "https://github.com/spearwolf/kiwotigo#readme",
+  "engines": {
+    "node": ">=22.13.1"
+  },
+  "packageManager": "pnpm@10.9.0",
   "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/preset-env": "^7.16.5",
-    "@rollup/plugin-babel": "^5.3.0",
-    "concurrently": "^6.5.1",
-    "esm": "^3.2.25",
-    "gulp": "^4.0.2",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.62.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "serve": "^14.1.2",
-    "zx": "^4.2.0"
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.25.3",
+    "serve": "^14.2.4"
   }
 }

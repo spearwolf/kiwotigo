@@ -1,10 +1,14 @@
-const REGION_OUTLINE_STROKE = '#a5a5a5';
-const REGION_BASE_PATH_FILL = '#e7e7e7';
-const REGION_FULL_PATH_FILL = '#f5f5f5';
-const REGION_RADIUS_STROKE = '#a9a9a9';
-const REGION_BBOX_STROKE = '#f0f0f0';
-const REGION_OUTER_RADIUS_STROKE = '#cacaca';
-const CONNECTION_STROKE = '#f5b';
+const DARK_THEME = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+const REGION_OUTLINE_STROKE = DARK_THEME ? '#000' : '#a5a5a5';
+const REGION_BASE_PATH_FILL = DARK_THEME ? '#888' : '#e7e7e7';
+const REGION_FULL_PATH_FILL = DARK_THEME ? '#666' : '#f5f5f5';
+const REGION_RADIUS_STROKE = DARK_THEME ? '#999' : '#a9a9a9';
+const REGION_BBOX_STROKE = DARK_THEME ? '#333' : '#f0f0f0';
+const REGION_OUTER_RADIUS_STROKE = DARK_THEME ? '#444' : '#cacaca';
+const CONNECTION_STROKE = DARK_THEME ? '#c04' : '#f5b';
+const REGION_ID_TEXT_FILL = DARK_THEME ? '#ccc' : '#666';
+const REGION_ID_SHADOW = DARK_THEME ? '#777' : '#fff';
 
 function clearCanvas(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -60,6 +64,8 @@ function drawRegionsBase(ctx, continent) {
     ctx.closePath();
     ctx.stroke();
   });
+
+  ctx.setLineDash([]);
 }
 
 const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
@@ -97,17 +103,19 @@ function drawRegionsConnections(ctx, continent) {
 
 function drawRegionIds(ctx, continent) {
   ctx.font = 'bold 36px sans-serif';
-  ctx.shadowColor = '#fff';
+  ctx.shadowColor = REGION_ID_SHADOW;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.shadowBlur = 4;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#666';
+  ctx.fillStyle = REGION_ID_TEXT_FILL;
 
   continent.regions.forEach(({ centerPoint: { x, y } }, i) => {
     ctx.fillText(`${i}`, x, y);
   });
+
+  ctx.shadowBlur = 0;
 }
 
 function drawBoundingBoxes(ctx, { regions }) {

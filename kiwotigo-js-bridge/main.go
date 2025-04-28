@@ -19,7 +19,7 @@ package main
 import (
 	"syscall/js"
 
-	kiwotigo ".."
+	kiwotigo "github.com/spearwolf/kiwotigo"
 )
 
 func createContinent(this js.Value, inputs []js.Value) interface{} {

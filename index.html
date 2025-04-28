@@ -3,8 +3,112 @@
   <head>
     <meta charset="utf-8" />
     <title>spearwolf/kiwotigo demo</title>
-    <base href="dist/" />
     <style>
+      :root {
+        --page-background-color: #fff;
+
+        --focus-outline: double #d06;
+
+        --sidebar-background-color: rgba(255, 255, 255, 0.7);
+        --sidebar-border-color: #999;
+        --sidebar-border-open-color: #ddd;
+        --sidebar-text-color: #111;
+        --sidebar-text-just-update-color: #ddd;
+
+        --sidebar-input-background-color: #f8f9fa;
+        --sidebar-input-background-hover-color: #f0f1f2;
+        --sidebar-input-background-focus-color: #fff;
+        --sidebar-input-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-button-text-color: #24292e;
+        --sidebar-button-background-color: #fafbfc;
+        --sidebar-button-background-hover-color: #f3f4f6;
+        --sidebar-button-border-color: rgba(27, 31, 35, 0.15);
+        --sidebar-button-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-toggle-color: #aaa;
+        --sidebar-toggle-hover-color: #666;
+        --sidebar-toggle-border-color: #999;
+        --sidebar-toggle-open-border-color: #ddd;
+        --sidebar-toggle-background-color: rgba(255, 255, 255, 0.7);
+        --sidebar-toggle-background-hover-color: rgba(240, 240, 240, 0.8);
+
+        --loading-backdrop-color: rgba(255, 255, 255, 0.66);
+        --loading-background-color: #fff;
+
+        --loading-progress-background-color: #fafafa;
+        --loading-progress-info-color: #111;
+        --loading-progress-color: #7bb6ff;
+        --loading-progress-box-shadow: 0 0 8px #7bb6ff;
+
+        --loading-anim-color: #f06;
+
+        --footer-border-color: #ccc;
+        --footer-background-color: #eee;
+        --footer-text-color: #333;
+
+        --footer-external-link-color: #333;
+        --footer-external-link-underline-color: #333;
+
+        --legend-background-color: rgba(255, 255, 255, 0.7);
+        --legend-border-color: #ddd;
+        --legend-text-color: #111;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page-background-color: #212121;
+
+          --focus-outline: double #d06;
+
+          --sidebar-background-color: rgba(90, 90, 90, 0.7);
+          --sidebar-border-color: #000;
+          --sidebar-border-open-color: #000;
+          --sidebar-text-color: #f0f0f0;
+          --sidebar-text-just-update-color: #888;
+
+          --sidebar-input-background-color: #999;
+          --sidebar-input-background-hover-color: #d5d5d5;
+          --sidebar-input-background-focus-color: #f0f0f0;
+          --sidebar-input-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+          --sidebar-button-text-color: #fff;
+          --sidebar-button-background-color: #111;
+          --sidebar-button-background-hover-color: #222;
+          --sidebar-button-border-color: rgba(27, 31, 35, 0.15);
+          --sidebar-button-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+          --sidebar-toggle-color: #111
+          --sidebar-toggle-hover-color: #111;
+          --sidebar-toggle-hover-dark-color: #111;
+          --sidebar-toggle-border-color: #000;
+          --sidebar-toggle-open-border-color: #222;
+          --sidebar-toggle-background-color: rgba(80, 79, 78, 0.7);
+          --sidebar-toggle-background-hover-color: rgba(110, 109, 108, 0.8);
+
+          --loading-backdrop-color: rgba(0, 0, 0, 0.66);
+          --loading-background-color: #444;
+
+          --loading-progress-background-color: #888;
+          --loading-progress-info-color: #f0f0f0;
+          --loading-progress-color: #4b96ff;
+          --loading-progress-box-shadow: 0 0 8px #4b96ff;
+
+          --loading-anim-color: #d05;
+
+          --footer-border-color: #000;
+          --footer-background-color: #444;
+          --footer-text-color: #eee;
+
+          --footer-external-link-color: #fff;
+          --footer-external-link-underline-color: #eee;
+
+          --legend-background-color: var(--sidebar-background-color);
+          --legend-border-color: var(--sidebar-border-color);
+          --legend-text-color: var(--sidebar-text-color);
+        }
+      }
+
       html,
       body {
         height: 100%;
@@ -12,39 +116,37 @@
       body {
         margin: 0;
         padding: 0;
+        background-color: var(--page-background-color);
       }
 
       .createContinentConfig {
         position: fixed;
-        width: 270px;
+        width: 20em;
+        left: calc(-20em + 5px);
         top: 0;
-        left: -265px;
         user-select: none;
-        border-right: 1px solid #999;
-        border-bottom: 1px solid #999;
-        background-color: rgba(255, 255, 255, 0.7);
+        border-right: 1px solid var(--sidebar-border-color);
+        border-bottom: 1px solid var(--sidebar-border-color);
+        background-color: var(--sidebar-background-color);
         border-bottom-right-radius: 6px;
         transition: all 0.1s ease-in;
       }
 
       .createContinentConfig.opened {
         left: 0;
-        border-right: 1px solid #ddd;
-        border-bottom: 1px solid #ddd;
-      }
-
-      :root {
-        --focus-outline: double #d06;
+        border-right: 1px solid var(--sidebar-border-open-color);
+        border-bottom: 1px solid var(--sidebar-border-open-color);
       }
 
       .kiwotigo-form {
-        color: #111;
+        color: var(--sidebar-text-color);
       }
 
       .kiwotigo-form.just-update .create-only .kiwotigo-form-label,
       .kiwotigo-form.just-update .create-only .kiwotigo-form-input {
-        color: #ddd;
+        color: var(--sidebar-text-just-update-color);
       }
+
       .kiwotigo-form.just-update .create-only .kiwotigo-form-input {
         background-color: transparent;
       }
@@ -65,15 +167,14 @@
 
       .kiwotigo-form-input {
         border-width: 0;
-        background-color: #f8f9fa;
-        box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04),
-          inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+        background-color: var(--sidebar-input-background-color);
+        box-shadow: var(--sidebar-input-box-shadow);
       }
       .kiwotigo-form-input:hover {
-        background-color: #f0f1f2;
+        background-color: var(--sidebar-input-background-hover-color);
       }
       .kiwotigo-form-input:focus {
-        background-color: #ffffff;
+        background-color: var(--sidebar-input-background-focus-color);
         outline: var(--focus-outline);
       }
 
@@ -115,7 +216,7 @@
         display: inline-block;
         padding: 5px 16px;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         line-height: 20px;
         white-space: nowrap;
         vertical-align: middle;
@@ -124,15 +225,14 @@
         border: 1px solid;
         border-radius: 6px;
         appearance: none;
-        color: #24292e;
-        background-color: #fafbfc;
-        border-color: rgba(27, 31, 35, 0.15);
-        box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04),
-          inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+        color: var(--sidebar-button-text-color);
+        background-color: var(--sidebar-button-background-color);
+        border-color: var(--sidebar-button-border-color);
+        box-shadow: var(--sidebar-button-box-shadow);
         transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
       }
       .kiwotigo-button:hover {
-        background-color: #f3f4f6;
+        background-color: var(--sidebar-button-background-hover-color);
         transition-duration: 0.1s;
       }
       .kiwotigo-button:focus {
@@ -173,7 +273,7 @@
         height: 100vh;
         display: none;
         overflow: hidden;
-        background-color: rgba(255, 255, 255, 0.66);
+        background-color: var(--loading-backdrop-color);
       }
       .loadingModal.loading {
         display: flex;
@@ -191,12 +291,13 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        background-color: #fff;
+        background-color: var(--loading-background-color);
       }
 
       .loadingModal-info {
         padding-left: 20px;
         font-size: 21px;
+        color: var(--loading-progress-info-color);
       }
 
       .loadingModal-progress,
@@ -209,12 +310,12 @@
       }
       .loadingModal-progress-bg {
         width: 100%;
-        background-color: #fafafa;
+        background-color: var(--loading-progress-background-color);
       }
       .loadingModal-progress {
         width: 100px;
-        background-color: #7bb6ff;
-        box-shadow: 0 0 8px #7bb6ff;
+        background-color: var(--loading-progress-color);
+        box-shadow: var(--loading-progress-box-shadow);
       }
 
       .openCloseAction {
@@ -222,25 +323,32 @@
         top: 20px;
         right: -26px;
         width: 20px;
-        color: #aaa;
+        color: var(--sidebar-toggle-color);
         padding: 8px 2px 8px 4px;
-        border-top: 1px solid #999;
-        border-right: 1px solid #999;
-        border-bottom: 1px solid #999;
+        border-top: 1px solid var(--sidebar-border-color);
+        border-right: 1px solid var(--sidebar-border-color);
+        border-bottom: 1px solid var(--sidebar-border-color);
         border-top-right-radius: 4px;
         border-bottom-right-radius: 4px;
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: var(--sidebar-toggle-background-color);
         cursor: pointer;
       }
       .opened .openCloseAction {
-        border-top: 1px solid #ddd;
-        border-right: 1px solid #ddd;
-        border-bottom: 1px solid #ddd;
+        border-top: 1px solid var(--sidebar-toggle-open-border-color);
+        border-right: 1px solid var(--sidebar-toggle-open-border-color);
+        border-bottom: 1px solid var(--sidebar-toggle-open-border-color);
       }
       .openCloseAction:hover {
-        background-color: rgba(240, 240, 240, 0.8);
-        color: #666;
+        background-color: var(--sidebar-toggle-background-hover-color);
+        color: var(--sidebar-toggle-hover-color);
       }
+      @media (prefers-color-scheme: dark) {
+        .openCloseAction:hover svg {
+          /* somehow the hover color is not applied to the svg so we need an extra var here */
+          color: var(--sidebar-toggle-hover-dark-color);
+        }
+      }
+
       .openCloseAction > .chevron-double-left {
         display: none;
       }
@@ -259,24 +367,24 @@
         bottom: 0;
         left: 0;
         right: 0;
-        border-top: 1px solid #ccc;
-        background-color: #eee;
+        border-top: 1px solid var(--footer-border-color);
+        background-color: var(--footer-background-color);
         padding: 2px 0 4px;
       }
       .pageFooter .textContent {
-        color: #333;
+        color: var(--footer-text-color);
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
           Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: 14px;
         text-align: center;
       }
       .pageFooter .textContent .externalLink {
-        color: #333;
+        color: var(--footer-external-link-color);
         font-weight: bold;
         text-decoration: none;
         cursor: pointer;
         display: inline-block;
-        border-bottom: 1px dashed #333;
+        border-bottom: 1px dashed var(--footer-external-link-underline-color);
       }
 
       .mapLegendContainer {
@@ -285,9 +393,9 @@
         bottom: 40px;
         padding: 10px;
         user-select: none;
-        border: 1px solid #ddd;
+        border: 1px solid var(--legend-border-color);
         border-radius: 6px;
-        background-color: rgba(255, 255, 255, 0.7);
+        background-color: var(--legend-background-color);
       }
       .legendRow {
         display: flex;
@@ -297,6 +405,7 @@
       }
       .kiwotigo-legend-label {
         padding-left: 0.25em;
+        color: var(--legend-text-color);
       }
     </style>
     <style>
@@ -318,7 +427,7 @@
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #f06;
+        background: var(--loading-anim-color);
         margin: -4px 0 0 -4px;
       }
       .lds-roller div:nth-child(1) {
@@ -395,6 +504,7 @@
             <label class="kiwotigo-form-label" for="gridWidth">gridWidth</label>
             <input
               class="kiwotigo-form-input"
+              id="gridWidth"
               name="gridWidth"
               type="number"
               value="8"
@@ -407,6 +517,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridHeight"
               name="gridHeight"
               type="number"
               value="5"
@@ -419,6 +530,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridOuterPaddingX"
               name="gridOuterPaddingX"
               type="number"
               value="80"
@@ -431,6 +543,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridOuterPaddingY"
               name="gridOuterPaddingY"
               type="number"
               value="80"
@@ -443,6 +556,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridInnerPaddingX"
               name="gridInnerPaddingX"
               type="number"
               value="15"
@@ -455,6 +569,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridInnerPaddingY"
               name="gridInnerPaddingY"
               type="number"
               value="10"
@@ -467,6 +582,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridHexWidth"
               name="gridHexWidth"
               type="number"
               value="15"
@@ -479,6 +595,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="gridHexHeight"
               name="gridHexHeight"
               type="number"
               value="15"
@@ -489,6 +606,7 @@
             <label class="kiwotigo-form-label" for="hexWidth">hexWidth</label>
             <input
               class="kiwotigo-form-input"
+              id="hexWidth"
               name="hexWidth"
               type="number"
               value="10"
@@ -499,6 +617,7 @@
             <label class="kiwotigo-form-label" for="hexHeight">hexHeight</label>
             <input
               class="kiwotigo-form-input"
+              id="hexHeight"
               name="hexHeight"
               type="number"
               value="10"
@@ -511,6 +630,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="hexPaddingX"
               name="hexPaddingX"
               type="number"
               value="0"
@@ -523,6 +643,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="hexPaddingY"
               name="hexPaddingY"
               type="number"
               value="0"
@@ -535,6 +656,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="minimalGrowIterations"
               name="minimalGrowIterations"
               type="number"
               value="20"
@@ -547,6 +669,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="fastGrowIterations"
               name="fastGrowIterations"
               type="number"
               value="5"
@@ -559,6 +682,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="maxRegionSizeFactor"
               name="maxRegionSizeFactor"
               type="number"
               value="3"
@@ -572,6 +696,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="probabilityCreateRegionAt"
               name="probabilityCreateRegionAt"
               type="number"
               value="0.32"
@@ -586,6 +711,7 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="maxExtendedOuterRangeFactor"
               name="maxExtendedOuterRangeFactor"
               type="number"
               value="4.0"
@@ -600,11 +726,12 @@
             >
             <input
               class="kiwotigo-form-input"
+              id="canvasMargin"
               name="canvasMargin"
               type="number"
-              value="10"
+              value="100"
               min="0"
-              max="100"
+              max="200"
               step="1"
             />
           </div>
@@ -614,6 +741,7 @@
                 type="checkbox"
                 class="kiwotigo-form-justUpdate"
                 name="justUpdate"
+                id="justUpdate"
               />
               <label for="justUpdate" class="kiwotigo-form-label">update</label>
             </div>
@@ -671,6 +799,7 @@
           class="kiwotigo-legend-input"
           checked
           name="drawRegionConnections"
+          id="drawRegionConnections"
         />
         <label for="drawRegionConnections" class="kiwotigo-legend-label"
           >show connections</label
@@ -682,6 +811,7 @@
           class="kiwotigo-legend-input"
           checked
           name="drawRegionBoundingBoxes"
+          id="drawRegionBoundingBoxes"
         />
         <label for="drawRegionBoundingBoxes" class="kiwotigo-legend-label"
           >show region bounding boxes</label
@@ -693,6 +823,7 @@
           class="kiwotigo-legend-input"
           checked
           name="drawRegionIds"
+          id="drawRegionIds"
         />
         <label for="drawRegionIds" class="kiwotigo-legend-label"
           >show region ids</label
@@ -704,6 +835,7 @@
           class="kiwotigo-legend-input"
           checked
           name="drawRegionBasePaths"
+          id="drawRegionBasePaths"
         />
         <label for="drawRegionBasePaths" class="kiwotigo-legend-label"
           >show region base areas</label
@@ -715,6 +847,7 @@
           class="kiwotigo-legend-input"
           checked
           name="drawRegionsBase"
+          id="drawRegionsBase"
         />
         <label for="drawRegionsBase" class="kiwotigo-legend-label"
           >show region spheres</label
@@ -755,6 +888,6 @@
       </div>
     </footer>
 
-    <script src="kiwotigo-demo.js"></script>
+    <script src="kiwotigo-demo.js" type="module"></script>
   </body>
 </html>

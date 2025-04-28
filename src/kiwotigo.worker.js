@@ -1,5 +1,5 @@
-import { createContinent } from './kiwotigo-wasm-bridge.mjs';
-import { findAndConnectAllIslands } from './kiwotigo-unite-islands.mjs';
+import { createContinent } from './kiwotigo-wasm-bridge.js';
+import { findAndConnectAllIslands } from './kiwotigo-unite-islands.js';
 
 const DefaultConfig = {
   gridWidth: 7,

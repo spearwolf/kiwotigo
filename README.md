@@ -29,30 +29,18 @@ that's up to you. you're a indie-gamedev and need a tool to create 2D or maybe 3
 
 ## Local Development
 
-As a precondition a current nodejs v16+ and a go-lang (1.17+) sdk has to be installed.
+As a precondition a current nodejs v22.13+ with pnpm v10.9 and a go-lang (1.24+) sdk has to be installed.
 
 Build the _kiwotigo_ library with:
 
 ```sh
-$ npm run build  # -> npx gulp buildAll
+$ pnpm build
 ```
 
 Start a http server for testing the kiwotigo.wasm module with:
 
 ```sh
-$ npx serve
-```
-
-as an alternative you can use the gulp tasks:
-
-```sh
-$ npx gulp --tasks  # show all tasks
-```
-
-or just start developing with:
-
-```sh
-$ npm start
+$ pnpm dev
 ```
 
 have fun!

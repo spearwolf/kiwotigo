@@ -1,5 +1,5 @@
-import { build, startBroadcasting } from "./kiwotigo.mjs";
-import draw from "./kiwotigo-painter.mjs";
+import { build, startBroadcasting } from "./kiwotigo.js";
+import draw from "./kiwotigo-painter.js";
 
 const canvas = document.getElementById("kiwotigoCanvas");
 const canvasCtx = canvas.getContext("2d");
@@ -164,20 +164,9 @@ getUpdateToggleAction().addEventListener("change", () => {
     .classList[checked ? "add" : "remove"]("just-update");
 });
 
-document.querySelector(".mapLegendContainer").addEventListener("change", () => {
+document.querySelector(".mapLegendContainer").addEventListener("change", (e) => {
   console.debug("legend options", getMapLegendOptions());
   drawContinent(getMapLegendOptions());
-});
-
-document.body.addEventListener("pointerup", (event) => {
-  const el = event.target;
-  if (el.tagName === "LABEL") {
-    const labelTarget = el.getAttribute("for");
-    const targetInput = document.querySelector(`input[name=${labelTarget}]`);
-    if (targetInput && targetInput.type === "checkbox") {
-      targetInput.click();
-    }
-  }
 });
 
 startBroadcasting();
