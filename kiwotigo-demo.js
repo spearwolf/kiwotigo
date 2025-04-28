@@ -3,9 +3,15 @@
   var worker;
   var lastBuild;
   var publishChannel;
+  var config = {
+    idPrefix: "kiwotigo-",
+    broadcastChannelName: "kiwotigo",
+    kiwotigoWorkerUrl: "kiwotigo.worker.js",
+    kiwotigoWasmUrl: "kiwotigo.wasm"
+  };
   var startBroadcasting = () => {
     if (!publishChannel && typeof BroadcastChannel !== "undefined") {
-      publishChannel = new BroadcastChannel("kiwotigo");
+      publishChannel = new BroadcastChannel(config.broadcastChannelName);
       publishChannel.onmessage = ({ data }) => {
         if (data) {
           switch (data.type) {
@@ -30,11 +36,12 @@
     let lastId = 0;
     return () => {
       ++lastId;
-      return `kiwotigo-${lastId.toString(36)}`;
+      return `${config.idPrefix}${lastId.toString(36)}`;
     };
   })();
   var initWorker = () => {
-    worker = new Worker("kiwotigo.worker.js");
+    worker = new Worker(config.kiwotigoWorkerUrl);
+    worker.postMessage({ kiwotigoWasmUrl: config.kiwotigoWasmUrl });
     worker.onmessage = ({ data }) => {
       const { id, type } = data;
       const resolve = tmpResolvers.get(id);
@@ -72,10 +79,10 @@
     }
     return worker;
   };
-  var build = (config, onProgressFn) => new Promise((resolve) => {
+  var build = (config2, onProgressFn) => new Promise((resolve) => {
     const id = createMessageId();
     tmpResolvers.set(id, { resolve, onProgressFn });
-    getWorker().postMessage({ ...config, id });
+    getWorker().postMessage({ ...config2, id });
   });
 
   // src/kiwotigo-painter.js
@@ -253,9 +260,9 @@
       draw(drawOptions);
     };
   })();
-  var onCreate = (config) => {
+  var onCreate = (config2) => {
     showLoadingState();
-    build(config, displayProgress).then((data) => {
+    build(config2, displayProgress).then((data) => {
       console.log("received new build", data);
       hideLoadingState();
       getUpdateToggleAction().disabled = false;

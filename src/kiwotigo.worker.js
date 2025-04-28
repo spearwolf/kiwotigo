@@ -1,9 +1,10 @@
-import { createContinent } from './kiwotigo-wasm-bridge.js';
-import { findAndConnectAllIslands } from './kiwotigo-unite-islands.js';
+import {init, createContinent} from './kiwotigo-wasm-bridge.js';
+import {findAndConnectAllIslands} from './kiwotigo-unite-islands.js';
 
 const DefaultConfig = {
   gridWidth: 7,
   gridHeight: 7,
+  gridOuterPaddingX: 80,
   gridOuterPaddingY: 80,
   gridInnerPaddingX: 15,
   gridInnerPaddingY: 15,
@@ -34,7 +35,7 @@ const getBoundingBox = (regions) => {
   let left = anyCenterPoint.x;
   let right = anyCenterPoint.x;
 
-  regions.forEach(({ centerPoint: cP, fullPath }) => {
+  regions.forEach(({centerPoint: cP, fullPath}) => {
     top = min(top, cP.y - cP.oR);
     bottom = max(bottom, cP.y + cP.oR);
     left = min(left, cP.x - cP.oR);
@@ -61,7 +62,7 @@ const getBoundingBox = (regions) => {
   };
 };
 
-const calcRegionBoundingBox = ({ centerPoint: cP, fullPath }) => {
+const calcRegionBoundingBox = ({centerPoint: cP, fullPath}) => {
   let top = cP.y;
   let bottom = cP.y;
   let left = cP.x;
@@ -96,7 +97,7 @@ const transformAllCoords = (regions, transformer) => {
     }
   };
 
-  regions.forEach(({ centerPoint, fullPath, basePath }) => {
+  regions.forEach(({centerPoint, fullPath, basePath}) => {
     const v = transformer(centerPoint.x, centerPoint.y);
     centerPoint.x = v[0];
     centerPoint.y = v[1];
@@ -207,7 +208,7 @@ const smoothAllPaths = (regions) => {
 
   // 1. collect all full~basePath coordinates
   // ===========================================================
-  regions.forEach(({ id, fullPath, basePath }) => {
+  regions.forEach(({id, fullPath, basePath}) => {
     collectPathCoords(id, 'fullPath', fullPath, coords);
     collectPathCoords(id, 'basePath', basePath, coords);
   });
@@ -243,14 +244,14 @@ const smoothAllPaths = (regions) => {
       // [1, 0.809],
       // [2, 0.588],
       // [3, 0.309],
-      [-1, .1],
+      [-1, 0.1],
       [1, 1.0],
-      [2, .2],
+      [2, 0.2],
     ],
     seaside: [
-      [-1, .3],
+      [-1, 0.3],
       [1, 1.0],
-      [2, .3],
+      [2, 0.3],
       // [-1, 0.5],
       // [0, 0.7],
       // [1, 0.3],
@@ -317,26 +318,27 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
 
 // =========================================================================
 
-const _postProgress = (id) => (progress) =>
-  postMessage({ id, progress, type: 'progress' });
+const _postProgress = (id) => (progress) => postMessage({id, progress, type: 'progress'});
 
 self.onmessage = (e) => {
-  const { id, originData, ...data } = e.data;
+  if (e.data?.kiwotigoWasmUrl) {
+    init(e.data.kiwotigoWasmUrl);
+    return;
+  }
+
+  const {id, originData, ...data} = e.data;
   const postProgress = _postProgress(id);
 
   let config;
   let afterCreateContinent;
 
   if (originData) {
-    const parsedOriginData =
-      typeof originData === 'string' ? JSON.parse(originData) : originData;
-    config = { ...DefaultConfig, ...parsedOriginData.config, ...data };
+    const parsedOriginData = typeof originData === 'string' ? JSON.parse(originData) : originData;
+    config = {...DefaultConfig, ...parsedOriginData.config, ...data};
     afterCreateContinent = Promise.resolve(parsedOriginData);
   } else {
-    config = { ...DefaultConfig, ...data };
-    afterCreateContinent = createContinent(config, (progress) =>
-      postProgress(progress * 0.7)
-    );
+    config = {...DefaultConfig, ...data};
+    afterCreateContinent = createContinent(config, (progress) => postProgress(progress * 0.7));
   }
 
   afterCreateContinent
@@ -350,10 +352,7 @@ self.onmessage = (e) => {
 
       let continent;
       try {
-        continent = convertToIntermediateContinentalFormat(
-          config,
-          result.continent
-        );
+        continent = convertToIntermediateContinentalFormat(config, result.continent);
 
         postProgress(0.8);
 
@@ -369,5 +368,5 @@ self.onmessage = (e) => {
         originData,
       };
     })
-    .then((result) => postMessage({ ...result, type: 'result' }));
+    .then((result) => postMessage({...result, type: 'result'}));
 };

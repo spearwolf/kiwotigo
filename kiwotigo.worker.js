@@ -560,11 +560,11 @@
         }
       }
       _makeFuncWrapper(id) {
-        const go2 = this;
+        const go = this;
         return function() {
           const event = { id, this: this, args: arguments };
-          go2._pendingEvent = event;
-          go2._resume();
+          go._pendingEvent = event;
+          go._resume();
           return event.result;
         };
       }
@@ -572,13 +572,21 @@
   })();
 
   // src/kiwotigo-wasm-bridge.js
-  var go = new Go();
-  var __kiwotiGo = WebAssembly.instantiateStreaming(
-    fetch("kiwotigo.wasm"),
-    go.importObject
-  ).then((result) => {
-    go.run(result.instance);
-  });
+  var kiwotigoWasmUrl = "kiwotigo.wasm";
+  var __kiwotiGo;
+  function init(wasmUrl) {
+    if (__kiwotiGo) {
+      return __kiwotiGo;
+    }
+    if (wasmUrl) {
+      kiwotigoWasmUrl = wasmUrl;
+    }
+    const go = new Go();
+    __kiwotiGo = WebAssembly.instantiateStreaming(fetch(kiwotigoWasmUrl), go.importObject).then((result) => {
+      go.run(result.instance);
+    });
+    return __kiwotiGo;
+  }
   var DefaultConfig = {
     gridWidth: 5,
     //10,
@@ -614,28 +622,26 @@
     //0.6,
   };
   function createContinent(cfg, onProgress) {
-    return __kiwotiGo.then(
-      () => {
-        onProgress(0.1);
-        return new Promise((resolve) => {
-          __kiwotiGo_createContinent(
-            {
-              ...DefaultConfig,
-              ...cfg
-            },
-            (progress) => {
-              onProgress(0.1 + progress * 0.7);
-            },
-            (result) => {
-              onProgress(0.8);
-              const json = JSON.parse(result);
-              onProgress(0.9);
-              resolve(json);
-            }
-          );
-        });
-      }
-    );
+    return init().then(() => {
+      onProgress(0.1);
+      return new Promise((resolve) => {
+        __kiwotiGo_createContinent(
+          {
+            ...DefaultConfig,
+            ...cfg
+          },
+          (progress) => {
+            onProgress(0.1 + progress * 0.7);
+          },
+          (result) => {
+            onProgress(0.8);
+            const json = JSON.parse(result);
+            onProgress(0.9);
+            resolve(json);
+          }
+        );
+      });
+    });
   }
 
   // src/kiwotigo-unite-islands.js
@@ -791,6 +797,7 @@
   var DefaultConfig2 = {
     gridWidth: 7,
     gridHeight: 7,
+    gridOuterPaddingX: 80,
     gridOuterPaddingY: 80,
     gridInnerPaddingX: 15,
     gridInnerPaddingY: 15,
@@ -1053,6 +1060,10 @@
   };
   var _postProgress = (id) => (progress) => postMessage({ id, progress, type: "progress" });
   self.onmessage = (e) => {
+    if (e.data?.kiwotigoWasmUrl) {
+      init(e.data.kiwotigoWasmUrl);
+      return;
+    }
     const { id, originData, ...data } = e.data;
     const postProgress = _postProgress(id);
     let config;
@@ -1063,10 +1074,7 @@
       afterCreateContinent = Promise.resolve(parsedOriginData);
     } else {
       config = { ...DefaultConfig2, ...data };
-      afterCreateContinent = createContinent(
-        config,
-        (progress) => postProgress(progress * 0.7)
-      );
+      afterCreateContinent = createContinent(config, (progress) => postProgress(progress * 0.7));
     }
     afterCreateContinent.then((result) => {
       postProgress(0.7);
@@ -1076,10 +1084,7 @@
       });
       let continent;
       try {
-        continent = convertToIntermediateContinentalFormat(
-          config,
-          result.continent
-        );
+        continent = convertToIntermediateContinentalFormat(config, result.continent);
         postProgress(0.8);
         continent = findAndConnectAllIslands(continent, config);
       } catch (err) {

@@ -1,12 +1,22 @@
-import "./wasm_exec.js";
+import './wasm_exec.js';
 
-const go = new Go();
-const __kiwotiGo = WebAssembly.instantiateStreaming(
-  fetch("kiwotigo.wasm"),
-  go.importObject
-).then((result) => {
-  go.run(result.instance);
-});
+let kiwotigoWasmUrl = 'kiwotigo.wasm';
+
+let __kiwotiGo;
+
+export function init(wasmUrl) {
+  if (__kiwotiGo) {
+    return __kiwotiGo;
+  }
+  if (wasmUrl) {
+    kiwotigoWasmUrl = wasmUrl;
+  }
+  const go = new Go();
+  __kiwotiGo = WebAssembly.instantiateStreaming(fetch(kiwotigoWasmUrl), go.importObject).then((result) => {
+    go.run(result.instance);
+  });
+  return __kiwotiGo;
+}
 
 export const DefaultConfig = {
   gridWidth: 5, //10,
@@ -29,26 +39,24 @@ export const DefaultConfig = {
 };
 
 export function createContinent(cfg, onProgress) {
-  return __kiwotiGo.then(
-    () => {
-      onProgress(0.1)
-      return new Promise((resolve) => {
-        __kiwotiGo_createContinent(
-          {
-            ...DefaultConfig,
-            ...cfg,
-          },
-          (progress) => {
-            onProgress(0.1 + (progress * 0.7))
-          },
-          (result) => {
-            onProgress(0.8)
-            const json = JSON.parse(result)
-            onProgress(0.9)
-            resolve(json)
-          }
-        );
-      })
-    }
-  );
+  return init().then(() => {
+    onProgress(0.1);
+    return new Promise((resolve) => {
+      __kiwotiGo_createContinent(
+        {
+          ...DefaultConfig,
+          ...cfg,
+        },
+        (progress) => {
+          onProgress(0.1 + progress * 0.7);
+        },
+        (result) => {
+          onProgress(0.8);
+          const json = JSON.parse(result);
+          onProgress(0.9);
+          resolve(json);
+        },
+      );
+    });
+  });
 }

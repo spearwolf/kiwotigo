@@ -3,12 +3,22 @@
   "version": "1.0.0",
   "description": "create procedural world maps",
   "type": "module",
+  "main": "kiwotigo.js",
+  "module": "kiwotigo.js",
+  "types": "kiwotigo.d.ts",
+  "files": [
+    "kiwotigo.js",
+    "kiwotigo.d.ts",
+    "kiwotigo.worker.js",
+    "kiwotigo.wasm"
+  ],
   "scripts": {
     "build:tool": "sh -x build-tool.sh",
     "build:wasm": "sh -x build-wasm.sh",
     "build:worker": "esbuild src/kiwotigo.worker.js --bundle --platform=browser --target=esnext --outfile=kiwotigo.worker.js",
     "build:demo": "esbuild src/kiwotigo-demo.js --bundle --platform=browser --target=esnext --outfile=kiwotigo-demo.js",
-    "build": "concurrently --names \"tool,wasm,worker,demo\" \"pnpm build:tool\" \"pnpm build:wasm\" \"pnpm build:worker\" \"pnpm build:demo\"",
+    "build:kiwotigo": "esbuild src/kiwotigo.js --platform=browser --target=esnext --outfile=kiwotigo.js",
+    "build": "concurrently --names \"tool,wasm,worker,demo,kiwotigo\" \"pnpm build:tool\" \"pnpm build:wasm\" \"pnpm build:worker\" \"pnpm build:demo\" \"pnpm build:kiwotigo\"",
     "dev": "serve ."
   },
   "repository": {
