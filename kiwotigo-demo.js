@@ -291,6 +291,7 @@
       "fastGrowIterations",
       "maxRegionSizeFactor",
       "probabilityCreateRegionAt",
+      "divisibilityBy",
       // "enableExtendedConnections",
       "maxExtendedOuterRangeFactor",
       "canvasMargin"

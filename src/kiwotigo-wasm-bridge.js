@@ -34,8 +34,8 @@ export const DefaultConfig = {
   fastGrowIterations: 5, //8, //10,
   minimalGrowIterations: 20, //120, //48,
   maxRegionSizeFactor: 3,
-  divisibilityBy: 1,
   probabilityCreateRegionAt: 0.5, //0.6,
+  divisibilityBy: 1,
 };
 
 export function createContinent(cfg, onProgress) {

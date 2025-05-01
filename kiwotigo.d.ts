@@ -24,6 +24,7 @@ export interface KiwotigoConfig {
   maxRegionSizeFactor: number;
   minimalGrowIterations: number;
   probabilityCreateRegionAt: number;
+  divisibilityBy: number;
 }
 
 export interface KiwotigoRegion {

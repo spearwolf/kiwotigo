@@ -811,6 +811,7 @@
     fastGrowIterations: 5,
     maxRegionSizeFactor: 3,
     probabilityCreateRegionAt: 0.5,
+    divisibilityBy: 1,
     enableExtendedConnections: true,
     maxExtendedOuterRangeFactor: 4,
     canvasMargin: 100
