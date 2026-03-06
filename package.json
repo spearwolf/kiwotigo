@@ -37,8 +37,8 @@
   },
   "packageManager": "pnpm@10.9.0",
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "esbuild": "^0.25.3",
-    "serve": "^14.2.4"
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.25.12",
+    "serve": "^14.2.6"
   }
 }
