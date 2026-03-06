@@ -47,6 +47,16 @@ func createContinent(this js.Value, inputs []js.Value) interface{} {
 		ProbabilityCreateRegionAt: args.Get("probabilityCreateRegionAt").Float(),
 		DivisibilityBy:            uint(args.Get("divisibilityBy").Int())}
 
+	regionMaskVal := args.Get("regionMask")
+	if regionMaskVal.Truthy() {
+		length := regionMaskVal.Length()
+		regionMask := make([]int, length)
+		for i := 0; i < length; i++ {
+			regionMask[i] = regionMaskVal.Index(i).Int()
+		}
+		config.RegionMask = regionMask
+	}
+
 	progressCallback := inputs[len(inputs)-2]
 	readyCallback := inputs[len(inputs)-1]
 

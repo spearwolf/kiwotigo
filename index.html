@@ -407,6 +407,64 @@
         padding-left: 0.25em;
         color: var(--legend-text-color);
       }
+
+      dialog {
+        padding: 1.5em;
+        border-radius: 8px;
+        border: 1px solid var(--sidebar-border-color);
+        background-color: var(--sidebar-background-color);
+        color: var(--sidebar-text-color);
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: auto;
+      }
+
+      dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      dialog h3 {
+        margin-top: 0;
+        color: var(--sidebar-text-color);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #regionMaskGrid {
+        display: grid;
+        grid-template-columns: repeat(var(--mask-cols, 8), 24px);
+        gap: 2px;
+        margin: 1em 0;
+      }
+
+      .mask-cell {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        border-radius: 3px;
+        background-color: #888;
+        transition: background-color 0.1s;
+      }
+
+      .mask-cell.active {
+        background-color: #4a9;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .mask-cell {
+          background-color: #555;
+        }
+        .mask-cell.active {
+          background-color: #3a8;
+        }
+      }
+
+      .mask-dialog-actions {
+        display: flex;
+        gap: 0.5em;
+        justify-content: flex-end;
+        margin-top: 0.5em;
+      }
     </style>
     <style>
       /* credits for loading animation go to https://loading.io/css/ */
@@ -750,6 +808,13 @@
               step="1"
             />
           </div>
+          <div class="kiwotigo-input-row create-only">
+            <button
+              type="button"
+              class="kiwotigo-button"
+              id="editRegionMaskBtn"
+            >Edit Region Mask</button>
+          </div>
           <div class="kiwotigo-form-actions">
             <div class="updateAction">
               <input
@@ -902,6 +967,15 @@
         >
       </div>
     </footer>
+
+    <dialog id="regionMaskDialog">
+      <h3>Region Mask</h3>
+      <div id="regionMaskGrid"></div>
+      <div class="mask-dialog-actions">
+        <button type="button" class="kiwotigo-button" id="clearMaskBtn">Clear Mask</button>
+        <button type="button" class="kiwotigo-button" id="closeMaskDialogBtn">Close</button>
+      </div>
+    </dialog>
 
     <script src="kiwotigo-demo.js" type="module"></script>
   </body>

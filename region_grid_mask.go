@@ -26,49 +26,61 @@ type RegionGridMask struct {
 	hints         []bool
 }
 
-func NewRegionGridMask(rand *rand.Rand, width, height, divisibilityBy uint, probabilityCreateRegionAt float64) *RegionGridMask {
+func NewRegionGridMask(rand *rand.Rand, width, height, divisibilityBy uint, probabilityCreateRegionAt float64, customMask []bool) *RegionGridMask {
 	grid := new(RegionGridMask)
 	grid.width = width
 	grid.height = height
 	grid.hints = make([]bool, width*height)
-	grid.generateHints(rand, divisibilityBy, probabilityCreateRegionAt)
+	grid.generateHints(rand, divisibilityBy, probabilityCreateRegionAt, customMask)
 	return grid
 }
 
-func (grid *RegionGridMask) generateHints(rand *rand.Rand, divisibilityBy uint, probabilityCreateRegionAt float64) {
-	hints := make([]bool, 0)
-	for i := len(grid.hints) - 1; i > 0; i-- {
-		if rand.Float64() < probabilityCreateRegionAt {
-			hints = append(hints, true)
-		}
-	}
-
+func (grid *RegionGridMask) generateHints(rand *rand.Rand, divisibilityBy uint, probabilityCreateRegionAt float64, customMask []bool) {
 	maxLen := uint(len(grid.hints))
-	isForward := uint(len(hints))+divisibilityBy < maxLen
-	for {
-		i := uint(len(hints))
-		if i%divisibilityBy == 0 {
-			break
+
+	// Collect eligible indices (those not blocked by customMask)
+	eligible := make([]int, 0, maxLen)
+	for i := uint(0); i < maxLen; i++ {
+		if customMask == nil || customMask[i] {
+			eligible = append(eligible, int(i))
 		}
-		if isForward {
-			if i < maxLen {
-				hints = append(hints, true)
-			}
-		} else {
-			if i < 2 {
-				hints = hints[:i-1]
+	}
+	numEligible := uint(len(eligible))
+
+	// Probabilistically determine number of true (region seed) positions
+	trueCount := uint(0)
+	for i := uint(0); i < numEligible; i++ {
+		if rand.Float64() < probabilityCreateRegionAt {
+			trueCount++
+		}
+	}
+
+	// Adjust trueCount to be divisible by divisibilityBy
+	if divisibilityBy > 1 && trueCount > 0 {
+		remainder := trueCount % divisibilityBy
+		if remainder != 0 {
+			toAdd := divisibilityBy - remainder
+			if trueCount+toAdd <= numEligible {
+				trueCount += toAdd
+			} else {
+				trueCount -= remainder
 			}
 		}
 	}
 
-	for i := uint(len(hints)); i < maxLen; i++ {
-		hints = append(hints, false)
+	// Initialize all hints to false
+	for i := range grid.hints {
+		grid.hints[i] = false
 	}
-	for i := len(hints) - 1; i > 0; i-- {
+
+	// Shuffle eligible indices (Fisher-Yates) and set first trueCount to true
+	for i := len(eligible) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)
-		hints[i], hints[j] = hints[j], hints[i]
+		eligible[i], eligible[j] = eligible[j], eligible[i]
 	}
-	grid.hints = hints
+	for i := uint(0); i < trueCount; i++ {
+		grid.hints[eligible[i]] = true
+	}
 }
 
 func (grid *RegionGridMask) hintIndex(x, y uint) uint {

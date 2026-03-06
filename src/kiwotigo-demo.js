@@ -1,6 +1,27 @@
 import { build, startBroadcasting } from "./kiwotigo.js";
 import draw from "./kiwotigo-painter.js";
 
+let regionMask = null;
+
+function initMaskDialog(w, h) {
+  const grid = document.getElementById("regionMaskGrid");
+  grid.style.setProperty("--mask-cols", w);
+  const size = w * h;
+  if (!regionMask || regionMask.length !== size) {
+    regionMask = new Array(size).fill(1);
+  }
+  grid.innerHTML = "";
+  for (let i = 0; i < size; i++) {
+    const cell = document.createElement("div");
+    cell.className = "mask-cell" + (regionMask[i] ? " active" : "");
+    cell.addEventListener("click", () => {
+      regionMask[i] = regionMask[i] ? 0 : 1;
+      cell.classList.toggle("active", regionMask[i] === 1);
+    });
+    grid.appendChild(cell);
+  }
+}
+
 const canvas = document.getElementById("kiwotigoCanvas");
 const canvasCtx = canvas.getContext("2d");
 
@@ -91,7 +112,7 @@ const onCreate = (config) => {
 
 const getConfig = () => {
   const { elements: formElements } = document.forms.kiwotigo;
-  return [
+  const config = [
     "gridWidth",
     "gridHeight",
     "gridOuterPaddingX",
@@ -115,6 +136,10 @@ const getConfig = () => {
   ].reduce((c, key) => ({ ...c, [key]: parseFloat(formElements[key].value) }), {
     // swapXY: true,
   });
+  if (regionMask !== null) {
+    config.regionMask = regionMask;
+  }
+  return config;
 };
 
 const getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
@@ -156,13 +181,45 @@ document.querySelector(".openCloseAction").addEventListener("pointerup", () => {
 getUpdateToggleAction().addEventListener("change", () => {
   const { checked } = getUpdateToggleAction();
   Array.from(
-    document.querySelectorAll(".kiwotigo-form .create-only input")
+    document.querySelectorAll(".kiwotigo-form .create-only input, .kiwotigo-form .create-only button")
   ).forEach((el) => {
     el.disabled = checked;
   });
   document
     .querySelector(".kiwotigo-form")
     .classList[checked ? "add" : "remove"]("just-update");
+});
+
+document.getElementById("editRegionMaskBtn").addEventListener("click", () => {
+  const { elements } = document.forms.kiwotigo;
+  initMaskDialog(
+    parseInt(elements.gridWidth.value),
+    parseInt(elements.gridHeight.value)
+  );
+  document.getElementById("regionMaskDialog").showModal();
+});
+
+document.getElementById("clearMaskBtn").addEventListener("click", () => {
+  regionMask = null;
+  const { elements } = document.forms.kiwotigo;
+  initMaskDialog(
+    parseInt(elements.gridWidth.value),
+    parseInt(elements.gridHeight.value)
+  );
+});
+
+document.getElementById("closeMaskDialogBtn").addEventListener("click", () => {
+  document.getElementById("regionMaskDialog").close();
+});
+
+["gridWidth", "gridHeight"].forEach((id) => {
+  document.getElementById(id).addEventListener("change", () => {
+    const { elements } = document.forms.kiwotigo;
+    initMaskDialog(
+      parseInt(elements.gridWidth.value),
+      parseInt(elements.gridHeight.value)
+    );
+  });
 });
 
 document.querySelector(".mapLegendContainer").addEventListener("change", (e) => {

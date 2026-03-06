@@ -41,7 +41,14 @@ func NewContinentCreationStrategy(cfg ContinentConfig) (strategy *ContinentCreat
 	strategy.ContinentConfig = cfg
 	strategy.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	strategy.RegionGrid = *NewRegionGrid(cfg.GridWidth, cfg.GridHeight)
-	strategy.RegionGridMask = *NewRegionGridMask(strategy.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt)
+	var customMask []bool
+	if len(cfg.RegionMask) == int(cfg.GridWidth*cfg.GridHeight) {
+		customMask = make([]bool, len(cfg.RegionMask))
+		for i, v := range cfg.RegionMask {
+			customMask[i] = v != 0
+		}
+	}
+	strategy.RegionGridMask = *NewRegionGridMask(strategy.rand, cfg.GridWidth, cfg.GridHeight, cfg.DivisibilityBy, cfg.ProbabilityCreateRegionAt, customMask)
 
 	cols := cfg.GridOuterPaddingX*2 + cfg.GridWidth*cfg.GridHexWidth + cfg.GridInnerPaddingX*(cfg.GridWidth-1)
 	rows := cfg.GridOuterPaddingY*2 + cfg.GridHeight*cfg.GridHexHeight + cfg.GridInnerPaddingY*(cfg.GridHeight-1)

@@ -35,4 +35,5 @@ type ContinentConfig struct {
 	MaxRegionSizeFactor       float64 `json:"maxRegionSizeFactor"`
 	ProbabilityCreateRegionAt float64 `json:"probabilityCreateRegionAt"`
 	DivisibilityBy            uint    `json:"divisibilityBy"`
+	RegionMask                []int   `json:"regionMask,omitempty"`
 }
