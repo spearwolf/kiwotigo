@@ -43,6 +43,24 @@ func NewContinent(cols, rows, hexWidth, hexHeight, paddingX, paddingY uint) (con
 	return
 }
 
+func (continent *Continent) applyFlipXY() {
+	continent.Width, continent.Height = continent.Height, continent.Width
+	visited := make(map[*Vec2]bool)
+	for _, shape := range continent.Shapes {
+		for _, path := range shape {
+			for _, v := range *path {
+				if !visited[v] {
+					v.X, v.Y = v.Y, v.X
+					visited[v] = true
+				}
+			}
+		}
+	}
+	for i := range continent.CenterPoints {
+		continent.CenterPoints[i].X, continent.CenterPoints[i].Y = continent.CenterPoints[i].Y, continent.CenterPoints[i].X
+	}
+}
+
 func (continent *Continent) Json() string {
 	json, _ := json.Marshal(continent)
 	return string(json)

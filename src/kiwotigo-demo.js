@@ -155,6 +155,7 @@ const getConfig = () => {
   ].reduce((c, key) => ({ ...c, [key]: parseFloat(formElements[key].value) }), {
     // swapXY: true,
   });
+  config.flipXY = formElements['flipXY'].checked;
   if (regionMask !== null) {
     config.regionMask = regionMask;
   }
@@ -184,7 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
     Array.from(Object.entries(originConfig)).forEach(([key, value]) => {
       const el = document.querySelector(`.kiwotigo-form input[name=${key}]`);
       if (el) {
-        el.value = value;
+        if (el.type === 'checkbox') {
+          el.checked = Boolean(value);
+        } else {
+          el.value = value;
+        }
       }
     });
   } else {

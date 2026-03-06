@@ -129,6 +129,10 @@ func (strategy *ContinentCreationStrategy) BuildContinent(onProgress func(float6
 	strategy.Continent.UpdateRegionSizes()
 	onProgress(0.95)
 
+	if strategy.FlipXY {
+		strategy.Continent.applyFlipXY()
+	}
+
 	return strategy.Continent
 }
 

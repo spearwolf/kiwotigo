@@ -36,4 +36,5 @@ type ContinentConfig struct {
 	ProbabilityCreateRegionAt float64 `json:"probabilityCreateRegionAt"`
 	DivisibilityBy            uint    `json:"divisibilityBy"`
 	RegionMask                []int   `json:"regionMask,omitempty"`
+	FlipXY                    bool    `json:"flipXY,omitempty"`
 }

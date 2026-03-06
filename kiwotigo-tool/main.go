@@ -47,6 +47,7 @@ func main() {
 	var divisibilityBy uint
 	var prettyPrint bool
 	var regionMaskStr string
+	var flipXY bool
 
 	flag.UintVar(&gridWidth, "gridWidth", 10, "grid with, uint, defaults to 10")
 	flag.UintVar(&gridHeight, "gridHeight", 10, "grid height, uint, defaults to 10")
@@ -67,6 +68,7 @@ func main() {
 	flag.UintVar(&divisibilityBy, "divisibilityBy", 1, "region count divisibility by number, uint, defaults to 1")
 	flag.BoolVar(&prettyPrint, "prettyPrint", false, "pretty print json output, float, defaults to false")
 	flag.StringVar(&regionMaskStr, "regionMask", "", "comma-separated list of 0/1 values (length = gridWidth*gridHeight); 0=blocked, 1=allowed")
+	flag.BoolVar(&flipXY, "flipXY", false, "flip x and y coordinates in output, bool, defaults to false")
 
 	flag.Parse()
 
@@ -102,7 +104,8 @@ func main() {
 		MaxRegionSizeFactor:       maxRegionSizeFactor,   //3}
 		DivisibilityBy:            divisibilityBy,        //1}
 		ProbabilityCreateRegionAt: probabilityCreateRegionAt,
-		RegionMask:                regionMask}
+		RegionMask:                regionMask,
+		FlipXY:                    flipXY}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
 	continent := strategy.BuildContinent(func(p float64) {})

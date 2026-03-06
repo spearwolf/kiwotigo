@@ -45,7 +45,8 @@ func createContinent(this js.Value, inputs []js.Value) interface{} {
 		MinimalGrowIterations:     uint(args.Get("minimalGrowIterations").Int()),
 		MaxRegionSizeFactor:       args.Get("maxRegionSizeFactor").Float(),
 		ProbabilityCreateRegionAt: args.Get("probabilityCreateRegionAt").Float(),
-		DivisibilityBy:            uint(args.Get("divisibilityBy").Int())}
+		DivisibilityBy:            uint(args.Get("divisibilityBy").Int()),
+		FlipXY:                    args.Get("flipXY").Bool()}
 
 	regionMaskVal := args.Get("regionMask")
 	if regionMaskVal.Truthy() {
