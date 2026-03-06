@@ -208,6 +208,14 @@
 
   // src/kiwotigo-demo.js
   var regionMask = null;
+  var isPainting = false;
+  var paintValue = 1;
+  function paintCell(index) {
+    regionMask[index] = paintValue;
+    const grid = document.getElementById("regionMaskGrid");
+    const cell = grid.children[index];
+    if (cell) cell.classList.toggle("active", paintValue === 1);
+  }
   function initMaskDialog(w, h) {
     const grid = document.getElementById("regionMaskGrid");
     grid.style.setProperty("--mask-cols", w);
@@ -219,12 +227,22 @@
     for (let i = 0; i < size; i++) {
       const cell = document.createElement("div");
       cell.className = "mask-cell" + (regionMask[i] ? " active" : "");
-      cell.addEventListener("click", () => {
-        regionMask[i] = regionMask[i] ? 0 : 1;
-        cell.classList.toggle("active", regionMask[i] === 1);
+      cell.dataset.index = i;
+      cell.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        isPainting = true;
+        paintValue = regionMask[i] ? 0 : 1;
+        paintCell(i);
       });
       grid.appendChild(cell);
     }
+    grid.addEventListener("pointermove", (e) => {
+      if (!isPainting) return;
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el && el.classList.contains("mask-cell") && el.dataset.index !== void 0) {
+        paintCell(parseInt(el.dataset.index, 10));
+      }
+    });
   }
   var canvas = document.getElementById("kiwotigoCanvas");
   var canvasCtx = canvas.getContext("2d");
@@ -388,6 +406,12 @@
         parseInt(elements.gridHeight.value)
       );
     });
+  });
+  document.addEventListener("pointerup", () => {
+    isPainting = false;
+  });
+  document.addEventListener("pointercancel", () => {
+    isPainting = false;
   });
   document.querySelector(".mapLegendContainer").addEventListener("change", (e) => {
     console.debug("legend options", getMapLegendOptions());
