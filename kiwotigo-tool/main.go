@@ -19,6 +19,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	kiwotigo "github.com/spearwolf/kiwotigo"
 )
@@ -43,6 +46,7 @@ func main() {
 	var probabilityCreateRegionAt float64
 	var divisibilityBy uint
 	var prettyPrint bool
+	var regionMaskStr string
 
 	flag.UintVar(&gridWidth, "gridWidth", 10, "grid with, uint, defaults to 10")
 	flag.UintVar(&gridHeight, "gridHeight", 10, "grid height, uint, defaults to 10")
@@ -62,8 +66,23 @@ func main() {
 	flag.Float64Var(&probabilityCreateRegionAt, "probabilityCreateRegionAt", 0.6, "probability to create a region, float, defaults to 0.6")
 	flag.UintVar(&divisibilityBy, "divisibilityBy", 1, "region count divisibility by number, uint, defaults to 1")
 	flag.BoolVar(&prettyPrint, "prettyPrint", false, "pretty print json output, float, defaults to false")
+	flag.StringVar(&regionMaskStr, "regionMask", "", "comma-separated list of 0/1 values (length = gridWidth*gridHeight); 0=blocked, 1=allowed")
 
 	flag.Parse()
+
+	var regionMask []int
+	if regionMaskStr != "" {
+		parts := strings.Split(regionMaskStr, ",")
+		regionMask = make([]int, len(parts))
+		for i, p := range parts {
+			v, err := strconv.Atoi(strings.TrimSpace(p))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "invalid regionMask value %q: %v\n", p, err)
+				os.Exit(1)
+			}
+			regionMask[i] = v
+		}
+	}
 
 	config := kiwotigo.ContinentConfig{
 		GridWidth:                 gridWidth,
@@ -82,7 +101,8 @@ func main() {
 		MinimalGrowIterations:     minimalGrowIterations, //120, //48,
 		MaxRegionSizeFactor:       maxRegionSizeFactor,   //3}
 		DivisibilityBy:            divisibilityBy,        //1}
-		ProbabilityCreateRegionAt: probabilityCreateRegionAt}
+		ProbabilityCreateRegionAt: probabilityCreateRegionAt,
+		RegionMask:                regionMask}
 
 	strategy := kiwotigo.NewContinentCreationStrategy(config)
 	continent := strategy.BuildContinent(func(p float64) {})
