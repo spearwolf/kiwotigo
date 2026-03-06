@@ -617,9 +617,9 @@
     minimalGrowIterations: 20,
     //120, //48,
     maxRegionSizeFactor: 3,
-    divisibilityBy: 1,
-    probabilityCreateRegionAt: 0.5
+    probabilityCreateRegionAt: 0.5,
     //0.6,
+    divisibilityBy: 1
   };
   function createContinent(cfg, onProgress) {
     return init().then(() => {

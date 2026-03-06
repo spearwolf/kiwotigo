@@ -19,7 +19,8 @@
     "build:demo": "esbuild src/kiwotigo-demo.js --bundle --platform=browser --target=esnext --outfile=kiwotigo-demo.js",
     "build:kiwotigo": "esbuild src/kiwotigo.js --platform=browser --target=esnext --outfile=kiwotigo.js",
     "build": "concurrently --names \"tool,wasm,worker,demo,kiwotigo\" \"pnpm build:tool\" \"pnpm build:wasm\" \"pnpm build:worker\" \"pnpm build:demo\" \"pnpm build:kiwotigo\"",
-    "dev": "serve ."
+    "dev": "serve .",
+    "test": "go test"
   },
   "repository": {
     "type": "git",
