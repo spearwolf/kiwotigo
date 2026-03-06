@@ -27,10 +27,10 @@ go test ./...
 go test -run TestHexagonGridNeighbors
 
 # Build the CLI tool (outputs ./kiwotigo binary)
-./build-tool.sh
+pnpm build:tool
 
 # Build the WASM module directly (outputs ./kiwotigo.wasm)
-./build-wasm.sh
+pnpm build:wasm
 
 # Run the CLI tool
 ./kiwotigo -gridWidth=10 -gridHeight=10 -prettyPrint=true
@@ -46,9 +46,9 @@ Run `pnpm build` to build all of them in one go (runs all sub-tasks in parallel 
 
 | Generated file | Produced by | Source |
 |----------------|-------------|--------|
-| `kiwotigo` (binary) | `build-tool.sh` | `kiwotigo-tool/main.go` |
-| `kiwotigo.wasm` | `build-wasm.sh` | `kiwotigo-js-bridge/main.go` (GOOS=js GOARCH=wasm) |
-| `src/wasm_exec.js` | `build-wasm.sh` | Copied from `$(go env GOROOT)/lib/wasm/wasm_exec.js` (Go stdlib) |
+| `kiwotigo` (binary) | `pnpm build:tool` | `kiwotigo-tool/main.go` |
+| `kiwotigo.wasm` | `pnpm build:wasm` | `kiwotigo-js-bridge/main.go` (GOOS=js GOARCH=wasm) |
+| `src/wasm_exec.js` | `pnpm build:wasm` | Copied from `$(go env GOROOT)/lib/wasm/wasm_exec.js` (Go stdlib) |
 | `kiwotigo.js` (root) | esbuild via `build:kiwotigo` | `src/kiwotigo.js` |
 | `kiwotigo.worker.js` (root) | esbuild via `build:worker` | `src/kiwotigo.worker.js` |
 | `kiwotigo-demo.js` (root) | esbuild via `build:demo` | `src/kiwotigo-demo.js` |
