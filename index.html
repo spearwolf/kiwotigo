@@ -238,6 +238,10 @@
       .kiwotigo-button:focus {
         outline: var(--focus-outline);
       }
+      .kiwotigo-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
       .kiwotigo-monospace {
         font-family: monospace;
@@ -584,6 +588,13 @@
             />
           </div>
           <div class="kiwotigo-input-row create-only">
+            <button
+              type="button"
+              class="kiwotigo-button"
+              id="editRegionMaskBtn"
+            >Edit Region Mask</button>
+          </div>
+          <div class="kiwotigo-input-row create-only">
             <label class="kiwotigo-form-label" for="gridOuterPaddingX"
               >gridOuterPaddingX</label
             >
@@ -808,13 +819,6 @@
               max="200"
               step="1"
             />
-          </div>
-          <div class="kiwotigo-input-row create-only">
-            <button
-              type="button"
-              class="kiwotigo-button"
-              id="editRegionMaskBtn"
-            >Edit Region Mask</button>
           </div>
           <div class="kiwotigo-form-actions">
             <div class="updateAction">
