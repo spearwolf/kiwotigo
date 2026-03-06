@@ -67,6 +67,10 @@
               publishChannel.postMessage(lastBuild);
             }
             break;
+          case "error":
+            tmpResolvers.delete(id);
+            resolve.reject(new Error(data.message));
+            break;
           default:
             console.warn("unknown message type:", type, data);
         }
@@ -79,9 +83,9 @@
     }
     return worker;
   };
-  var build = (config2, onProgressFn) => new Promise((resolve) => {
+  var build = (config2, onProgressFn) => new Promise((resolve, reject) => {
     const id = createMessageId();
-    tmpResolvers.set(id, { resolve, onProgressFn });
+    tmpResolvers.set(id, { resolve, reject, onProgressFn });
     getWorker().postMessage({ ...config2, id });
   });
 
@@ -307,6 +311,11 @@
       canvas.width = data.continent.canvasWidth;
       canvas.height = data.continent.canvasHeight;
       drawContinent({ ctx: canvasCtx, icf: data.continent });
+    }).catch((err) => {
+      console.error("build error", err);
+      hideLoadingState();
+      document.getElementById("errorMessage").textContent = err.message || String(err);
+      document.getElementById("errorDialog").showModal();
     });
   };
   var getConfig = () => {
@@ -402,6 +411,9 @@
   });
   document.getElementById("closeMaskDialogBtn").addEventListener("click", () => {
     document.getElementById("regionMaskDialog").close();
+  });
+  document.getElementById("closeErrorDialogBtn").addEventListener("click", () => {
+    document.getElementById("errorDialog").close();
   });
   ["gridWidth", "gridHeight"].forEach((id) => {
     document.getElementById(id).addEventListener("change", () => {

@@ -793,7 +793,7 @@
   }
   var findAndConnectAllIslands = (continent, config) => connectIslands(findIslands(continent), config);
 
-  // src/kiwotigo.worker.js
+  // src/kiwotigo.core.js
   var DefaultConfig2 = {
     gridWidth: 7,
     gridHeight: 7,
@@ -978,13 +978,6 @@
     });
     const weights = {
       city: [
-        // [-8, 0.25],
-        // [-5, 0.5],
-        // [-2, 0.75],
-        // [0, 1.5],
-        // [2, 0.75],
-        // [5, 0.5],
-        // [8, 0.25],
         [-5, 0.1],
         [-4, 0.2],
         [-3, 0.3],
@@ -998,13 +991,6 @@
         [5, 0.1]
       ],
       inland: [
-        // [-3, 0.309],
-        // [-2, 0.588],
-        // [-1, 0.809],
-        // [0, 1.0],
-        // [1, 0.809],
-        // [2, 0.588],
-        // [3, 0.309],
         [-1, 0.1],
         [1, 1],
         [2, 0.2]
@@ -1013,11 +999,6 @@
         [-1, 0.3],
         [1, 1],
         [2, 0.3]
-        // [-1, 0.5],
-        // [0, 0.7],
-        // [1, 0.3],
-        // [3, 0.2],
-        // [4, 0.1],
       ]
     };
     for (const pathCoord of coords.values()) {
@@ -1059,44 +1040,52 @@
       canvasHeight
     };
   };
+  var buildContinent = async (data, originDataInput, onProgress) => {
+    let config;
+    let result;
+    if (originDataInput) {
+      const parsedOriginData = typeof originDataInput === "string" ? JSON.parse(originDataInput) : originDataInput;
+      config = { ...DefaultConfig2, ...parsedOriginData.config, ...data };
+      result = parsedOriginData;
+    } else {
+      config = { ...DefaultConfig2, ...data };
+      result = await createContinent(config, (progress) => onProgress(progress * 0.7));
+    }
+    onProgress(0.7);
+    const originData = JSON.stringify({
+      config,
+      continent: result.continent
+    });
+    let continent = convertToIntermediateContinentalFormat(config, result.continent);
+    onProgress(0.8);
+    continent = findAndConnectAllIslands(continent, config);
+    return {
+      config,
+      continent,
+      originData
+    };
+  };
+
+  // src/kiwotigo.worker.js
   var _postProgress = (id) => (progress) => postMessage({ id, progress, type: "progress" });
-  self.onmessage = (e) => {
+  self.onmessage = async (e) => {
     if (e.data?.kiwotigoWasmUrl) {
       init(e.data.kiwotigoWasmUrl);
       return;
     }
     const { id, originData, ...data } = e.data;
     const postProgress = _postProgress(id);
-    let config;
-    let afterCreateContinent;
-    if (originData) {
-      const parsedOriginData = typeof originData === "string" ? JSON.parse(originData) : originData;
-      config = { ...DefaultConfig2, ...parsedOriginData.config, ...data };
-      afterCreateContinent = Promise.resolve(parsedOriginData);
-    } else {
-      config = { ...DefaultConfig2, ...data };
-      afterCreateContinent = createContinent(config, (progress) => postProgress(progress * 0.7));
-    }
-    afterCreateContinent.then((result) => {
-      postProgress(0.7);
-      const originData2 = JSON.stringify({
-        config,
-        continent: result.continent
-      });
-      let continent;
-      try {
-        continent = convertToIntermediateContinentalFormat(config, result.continent);
-        postProgress(0.8);
-        continent = findAndConnectAllIslands(continent, config);
-      } catch (err) {
-        console.error("kiwotigo post-processing panic!", err);
-      }
-      return {
+    try {
+      const result = await buildContinent(data, originData, postProgress);
+      postMessage({ ...result, id, type: "result" });
+    } catch (err) {
+      console.error("kiwotigo post-processing panic!", err);
+      postMessage({
         id,
-        config,
-        continent,
-        originData: originData2
-      };
-    }).then((result) => postMessage({ ...result, type: "result" }));
+        type: "error",
+        message: err.message || String(err),
+        stack: err.stack
+      });
+    }
   };
 })();

@@ -126,6 +126,11 @@ const onCreate = (config) => {
     //   canvas.style.height = `${Math.round(canvas.height / DPR)}px`;
     // }
     drawContinent({ ctx: canvasCtx, icf: data.continent });
+  }).catch((err) => {
+    console.error("build error", err);
+    hideLoadingState();
+    document.getElementById("errorMessage").textContent = err.message || String(err);
+    document.getElementById("errorDialog").showModal();
   });
 };
 
@@ -234,6 +239,10 @@ document.getElementById("clearMaskBtn").addEventListener("click", () => {
 
 document.getElementById("closeMaskDialogBtn").addEventListener("click", () => {
   document.getElementById("regionMaskDialog").close();
+});
+
+document.getElementById("closeErrorDialogBtn").addEventListener("click", () => {
+  document.getElementById("errorDialog").close();
 });
 
 ["gridWidth", "gridHeight"].forEach((id) => {

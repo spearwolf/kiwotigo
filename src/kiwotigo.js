@@ -102,6 +102,11 @@ const initWorker = () => {
           }
           break;
 
+        case 'error':
+          tmpResolvers.delete(id);
+          resolve.reject(new Error(data.message));
+          break;
+
         default:
           console.warn('unknown message type:', type, data);
       }
@@ -117,8 +122,8 @@ const getWorker = () => {
 };
 
 export const build = (config, onProgressFn) =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     const id = createMessageId();
-    tmpResolvers.set(id, {resolve, onProgressFn});
+    tmpResolvers.set(id, {resolve, reject, onProgressFn});
     getWorker().postMessage({...config, id});
   });
