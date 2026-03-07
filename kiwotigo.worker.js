@@ -888,7 +888,7 @@
     return connected;
   };
 
-  // src/kiwotigo.core.js
+  // src/kiwotigo-postprocess.js
   var DefaultConfig2 = {
     gridWidth: 7,
     gridHeight: 7,
@@ -909,7 +909,8 @@
     divisibilityBy: 1,
     enableExtendedConnections: true,
     maxExtendedOuterRangeFactor: 4,
-    canvasMargin: 100
+    canvasMargin: 100,
+    flipXY: false
   };
   var min = (a, b) => a < b ? a : b;
   var max = (a, b) => a > b ? a : b;
@@ -1137,6 +1138,8 @@
       canvasHeight
     };
   };
+
+  // src/kiwotigo.core.js
   var buildContinent = async (data, originDataInput, onProgress) => {
     let config;
     let result;
