@@ -161,6 +161,7 @@ const getConfig = () => {
     // swapXY: true,
   });
   config.flipXY = formElements['flipXY'].checked;
+  config.enableLineOfSightConnections = formElements['enableLineOfSightConnections'].checked;
   if (regionMask !== null) {
     config.regionMask = regionMask;
   }
