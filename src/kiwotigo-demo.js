@@ -157,6 +157,7 @@ const getConfig = () => {
     // "enableExtendedConnections",
     "maxExtendedOuterRangeFactor",
     "canvasMargin",
+    "lineOfSightDensity",
   ].reduce((c, key) => ({ ...c, [key]: parseFloat(formElements[key].value) }), {
     // swapXY: true,
   });

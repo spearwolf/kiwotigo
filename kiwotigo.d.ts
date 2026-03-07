@@ -25,6 +25,7 @@ export interface KiwotigoConfig {
   hexPaddingY: number;
   hexWidth: number;
   enableLineOfSightConnections: boolean;
+  lineOfSightDensity: number;
   maxExtendedOuterRangeFactor: number;
   maxRegionSizeFactor: number;
   minimalGrowIterations: number;

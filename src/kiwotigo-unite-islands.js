@@ -49,7 +49,7 @@ function findIslands(continent) {
   };
 }
 
-function densifyFlatPath(flatPath) {
+function densifyFlatPath(flatPath, minDist = 10) {
   const result = [];
   const n = flatPath.length;
   for (let i = 0; i < n; i += 2) {
@@ -59,8 +59,8 @@ function densifyFlatPath(flatPath) {
     result.push(x0, y0);
     const dx = x1 - x0, dy = y1 - y0;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist > 1.0) {
-      const steps = Math.ceil(dist);
+    if (dist > minDist) {
+      const steps = Math.ceil(dist / minDist);
       for (let s = 1; s < steps; s++) {
         const t = s / steps;
         result.push(x0 + dx * t, y0 + dy * t);
@@ -241,9 +241,10 @@ function connectIslands(continent, config) {
   return continent;
 }
 
-function connectByLineOfSight(continent) {
+function connectByLineOfSight(continent, config) {
+  const lineOfSightDensity = config?.lineOfSightDensity ?? 10;
   const { regions } = continent;
-  const densePathCache = regions.map((r) => densifyFlatPath(r.fullPath));
+  const densePathCache = regions.map((r) => densifyFlatPath(r.fullPath, lineOfSightDensity));
   const connections = [];
 
   for (const regionA of regions) {
@@ -264,7 +265,7 @@ function connectByLineOfSight(continent) {
       const stepY = dy / dist;
       let connected = false;
 
-      for (let s = 1; s < dist; s++) {
+      for (let s = lineOfSightDensity; s < dist; s += lineOfSightDensity) {
         const px = ax + stepX * s;
         const py = ay + stepY * s;
         const hit = findRegionAtPoint(px, py, regions, densePathCache);
@@ -293,7 +294,7 @@ function connectByLineOfSight(continent) {
 export const findAndConnectAllIslands = (continent, config) => {
   const connected = connectIslands(findIslands(continent), config);
   if (config?.enableLineOfSightConnections !== false) {
-    connectByLineOfSight(connected);
+    connectByLineOfSight(connected, config);
   }
   return connected;
 };
