@@ -20,6 +20,7 @@ package kiwotigo
 import (
 	"math"
 	"math/rand"
+	"sort"
 	"time"
 )
 
@@ -265,6 +266,9 @@ func (strategy *ContinentCreationStrategy) growLonelyRegionsUntilTheyAreFatOrHav
 		if len(lonely) == 0 {
 			break
 		}
+		sort.Slice(lonely, func(i, j int) bool {
+			return lonely[i].RegionSize() < lonely[j].RegionSize()
+		})
 		for _, region := range lonely {
 			strategy.growRegion(region)
 		}
