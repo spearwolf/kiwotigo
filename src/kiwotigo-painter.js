@@ -7,6 +7,7 @@ const REGION_RADIUS_STROKE = DARK_THEME ? '#999' : '#a9a9a9';
 const REGION_BBOX_STROKE = DARK_THEME ? '#333' : '#f0f0f0';
 const REGION_OUTER_RADIUS_STROKE = DARK_THEME ? '#444' : '#cacaca';
 const CONNECTION_STROKE = DARK_THEME ? '#c04' : '#f5b';
+const CONNECTION_TO_OTHER_ISLAND_STROKE = DARK_THEME ? 'rgb(204 0 68 / 75%)' : 'rgb(255 85 187 / 75%)';
 const REGION_ID_TEXT_FILL = DARK_THEME ? '#ccc' : '#666';
 const REGION_ID_SHADOW = DARK_THEME ? '#777' : '#fff';
 
@@ -72,8 +73,8 @@ const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
 
 function drawRegionsConnections(ctx, continent) {
   ctx.setLineDash([]);
-  ctx.strokeStyle = CONNECTION_STROKE;
-  ctx.lineWidth = 3;
+  // ctx.strokeStyle = CONNECTION_STROKE;
+  // ctx.lineWidth = 3;
 
   const alreadyDrawnConnection = new Set();
 
@@ -87,6 +88,14 @@ function drawRegionsConnections(ctx, continent) {
         alreadyDrawnConnection.add(connectionId);
         const otherRegion = getRegion(continent, neighborId);
         const isAnotherIsland = region.islandId !== otherRegion.islandId;
+
+        if (isAnotherIsland) {
+          ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
+          ctx.lineWidth = 1;
+        } else {
+          ctx.strokeStyle = CONNECTION_STROKE;
+          ctx.lineWidth = 3;
+        }
 
         ctx.setLineDash(isAnotherIsland ? [3, 6] : []);
         ctx.beginPath();

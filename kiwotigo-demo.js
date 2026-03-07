@@ -98,6 +98,7 @@
   var REGION_BBOX_STROKE = DARK_THEME ? "#333" : "#f0f0f0";
   var REGION_OUTER_RADIUS_STROKE = DARK_THEME ? "#444" : "#cacaca";
   var CONNECTION_STROKE = DARK_THEME ? "#c04" : "#f5b";
+  var CONNECTION_TO_OTHER_ISLAND_STROKE = DARK_THEME ? "rgb(204 0 68 / 75%)" : "rgb(255 85 187 / 75%)";
   var REGION_ID_TEXT_FILL = DARK_THEME ? "#ccc" : "#666";
   var REGION_ID_SHADOW = DARK_THEME ? "#777" : "#fff";
   function clearCanvas(ctx) {
@@ -150,8 +151,6 @@
   var getRegion = (continent, regionIdx) => continent.regions[regionIdx];
   function drawRegionsConnections(ctx, continent) {
     ctx.setLineDash([]);
-    ctx.strokeStyle = CONNECTION_STROKE;
-    ctx.lineWidth = 3;
     const alreadyDrawnConnection = /* @__PURE__ */ new Set();
     continent.regions.forEach((region) => {
       region.neighbors.forEach((neighborId) => {
@@ -160,6 +159,13 @@
           alreadyDrawnConnection.add(connectionId);
           const otherRegion = getRegion(continent, neighborId);
           const isAnotherIsland = region.islandId !== otherRegion.islandId;
+          if (isAnotherIsland) {
+            ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
+            ctx.lineWidth = 1;
+          } else {
+            ctx.strokeStyle = CONNECTION_STROKE;
+            ctx.lineWidth = 3;
+          }
           ctx.setLineDash(isAnotherIsland ? [3, 6] : []);
           ctx.beginPath();
           ctx.moveTo(region.centerPoint.x, region.centerPoint.y);
@@ -345,6 +351,7 @@
       // swapXY: true,
     });
     config2.flipXY = formElements["flipXY"].checked;
+    config2.enableLineOfSightConnections = formElements["enableLineOfSightConnections"].checked;
     if (regionMask !== null) {
       config2.regionMask = regionMask;
     }

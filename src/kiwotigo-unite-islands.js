@@ -49,6 +49,56 @@ function findIslands(continent) {
   };
 }
 
+function densifyFlatPath(flatPath) {
+  const result = [];
+  const n = flatPath.length;
+  for (let i = 0; i < n; i += 2) {
+    const x0 = flatPath[i], y0 = flatPath[i + 1];
+    const ni = (i + 2) % n;
+    const x1 = flatPath[ni], y1 = flatPath[ni + 1];
+    result.push(x0, y0);
+    const dx = x1 - x0, dy = y1 - y0;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist > 1.0) {
+      const steps = Math.ceil(dist);
+      for (let s = 1; s < steps; s++) {
+        const t = s / steps;
+        result.push(x0 + dx * t, y0 + dy * t);
+      }
+    }
+  }
+  return result;
+}
+
+function pointInPolygon(px, py, densePath) {
+  let inside = false;
+  const n = densePath.length;
+  for (let i = 0, j = n - 2; i < n; j = i, i += 2) {
+    const xi = densePath[i], yi = densePath[i + 1];
+    const xj = densePath[j], yj = densePath[j + 1];
+    if ((yi > py) !== (yj > py) &&
+        px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  if (inside) return true;
+  // proximity check: distance <= 1.0 to any vertex
+  for (let i = 0; i < n; i += 2) {
+    const dx = densePath[i] - px, dy = densePath[i + 1] - py;
+    if (dx * dx + dy * dy <= 1.0) return true;
+  }
+  return false;
+}
+
+function findRegionAtPoint(x, y, regions, densePathCache) {
+  for (let i = 0; i < regions.length; i++) {
+    if (pointInPolygon(x, y, densePathCache[i])) {
+      return regions[i].id;
+    }
+  }
+  return -1;
+}
+
 const calcDistance = (from, to) =>
   Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
 
@@ -191,5 +241,59 @@ function connectIslands(continent, config) {
   return continent;
 }
 
-export const findAndConnectAllIslands = (continent, config) =>
-  connectIslands(findIslands(continent), config);
+function connectByLineOfSight(continent) {
+  const { regions } = continent;
+  const densePathCache = regions.map((r) => densifyFlatPath(r.fullPath));
+  const connections = [];
+
+  for (const regionA of regions) {
+    const neighborsSet = new Set(regionA.neighbors);
+    neighborsSet.add(regionA.id);
+
+    for (const regionB of regions) {
+      if (neighborsSet.has(regionB.id)) continue;
+
+      const ax = regionA.centerPoint.x;
+      const ay = regionA.centerPoint.y;
+      const dx = regionB.centerPoint.x - ax;
+      const dy = regionB.centerPoint.y - ay;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist === 0) continue;
+
+      const stepX = dx / dist;
+      const stepY = dy / dist;
+      let connected = false;
+
+      for (let s = 1; s < dist; s++) {
+        const px = ax + stepX * s;
+        const py = ay + stepY * s;
+        const hit = findRegionAtPoint(px, py, regions, densePathCache);
+        if (hit === -1 || hit === regionA.id) continue;
+        if (hit === regionB.id) {
+          connected = true;
+          break;
+        }
+        // hit another region, abort
+        break;
+      }
+
+      if (connected) {
+        connections.push([regionA.id, regionB.id]);
+        // add to set so we don't test B→A again
+        neighborsSet.add(regionB.id);
+      }
+    }
+  }
+
+  if (connections.length > 0) {
+    makeNewConnections(regions, connections);
+  }
+}
+
+export const findAndConnectAllIslands = (continent, config) => {
+  const connected = connectIslands(findIslands(continent), config);
+  if (config?.enableLineOfSightConnections !== false) {
+    connectByLineOfSight(connected);
+  }
+  return connected;
+};
