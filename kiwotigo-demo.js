@@ -376,6 +376,9 @@
           }
         }
       });
+      if (Array.isArray(originConfig.regionMask)) {
+        regionMask = originConfig.regionMask;
+      }
     } else {
       getUpdateToggleAction().disabled = true;
       document.querySelector(".mapLegendContainer").style.display = "none";
