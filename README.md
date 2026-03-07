@@ -21,6 +21,15 @@ _kiwotigo_ is written in javascript, whereas the core of the world map builder i
 
 ![kiwotigo example](./kiwotigo.png)
 
+## Configuration overview
+
+The following diagram provides a visual overview of all `kiwotigo` config properties,
+including how hexagonal cells, grid masks, and growth stages relate to each other:
+
+![kiwotigo config overview](./docs/kiwotigo-config-overvirew.png)
+
+For a technical specification of the resulting data format, see [ICF.md](./ICF.md).
+
 &rarr; [Just try it out for yourself!](https://spearwolf.github.io/kiwotigo/)
 
 ## Why?
