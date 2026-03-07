@@ -15,6 +15,7 @@ A group of regions that are close together form a _continent_, there may (but ne
 Although the generation of regions is essentially based on randomness, it can be configured quite extensively.
 
 As output, the world builder provides a json structure, the _intermediate continental format_.
+See [ICF.md](./ICF.md) for a full technical specification.
 
 _kiwotigo_ is written in javascript, whereas the core of the world map builder is developed in [go](https://golang.org/) and integrated via [webassembly](https://webassembly.org/).
 
