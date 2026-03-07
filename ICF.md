@@ -1,72 +1,64 @@
 # Intermediate Continental Format (ICF)
 
-This document describes the Intermediate Continental Format (ICF) used by `kiwotigo`.
-ICF is the processed output returned by `build()` and consumed by renderers or downstream game/simulation logic.
+The Intermediate Continental Format is the data structure produced by kiwotigo's `build()` function. It describes a procedurally generated 2D world map as a graph of polygonal regions.
 
-## 1) Purpose and scope
+```js
+import { build } from "kiwotigo";
 
-`kiwotigo` has two output layers:
+const { continent } = await build(config, onProgress);
+// continent : KiwotigoContinent
+```
 
-1. **Raw Go output** (from WASM/CLI): region paths as `{x,y}` objects, plus parallel arrays.
-2. **ICF output** (JavaScript post-processing): per-region objects with flattened paths, smoothed geometry, normalized coordinates, island metadata, and connected graph.
+## Data Overview
 
-ICF is generated in `src/kiwotigo.core.js` and finalized by `src/kiwotigo-unite-islands.js`.
+| Concept | Description |
+|---------|-------------|
+| **Regions** | Polygonal areas with geometry, topology, and metadata |
+| **Islands** | Connected components in the region graph |
+| **Paths** | Flat-encoded polygon outlines (`basePath` = inner core, `fullPath` = outer boundary) |
+| **Center Points & Radii** | Center coordinate + inner/outer radius per region |
+| **Neighbor Graph** | Adjacency list with direct and cross-island connections |
+| **Bounding Boxes** | Axis-aligned bounding rectangles per region + canvas dimensions |
 
-## 2) End-to-end pipeline
+## Schema
 
-The worker (`src/kiwotigo.worker.js`) executes this pipeline:
-
-1. **WASM generation** (`src/kiwotigo-wasm-bridge.js#createContinent`)
-   - Builds a raw continent using Go code compiled to WebAssembly.
-2. **Conversion to ICF base structure** (`src/kiwotigo.core.js#convertToIntermediateContinentalFormat`)
-   - Converts raw arrays to region objects.
-   - Flattens path coordinates from `[{x,y}, ...]` to `[x, y, x, y, ...]`.
-3. **Path smoothing** (`src/kiwotigo.core.js#smoothAllPaths`)
-   - Smooths all `fullPath` and `basePath` coordinates twice with weighted neighborhood rules.
-4. **Coordinate normalization + canvas sizing** (`src/kiwotigo.core.js`)
-   - Computes global bounding box.
-   - Applies offset so coordinates start at `canvasMargin`.
-   - Computes `canvasWidth`, `canvasHeight`, and per-region `bBox`.
-5. **Island detection and connection** (`src/kiwotigo-unite-islands.js#findAndConnectAllIslands`)
-   - Finds connected components (`islands` + `region.islandId`).
-   - Adds connections between islands until one connected graph remains.
-   - Optionally runs `connectByLineOfSight()`: ray-casts from center A toward center B; a connection is added only if the ray lands directly in B without passing through any other region.
-
-## 3) ICF schema
-
-`build()` (public API in `src/kiwotigo.js`) resolves to:
+### Top-level result
 
 ```ts
-{
-  id: string;
-  config: KiwotigoConfig;
-  continent: {
-    regions: KiwotigoRegion[];
-    canvasWidth: number;
-    canvasHeight: number;
-    islands: number[][];
-  };
-  originData?: string;
+interface IntermediateContinentalFormat {
+  id: string;                    // build correlation id
+  config: KiwotigoConfig;        // effective config used for this build
+  continent: KiwotigoContinent;  // the map data (see below)
+  originData?: string;           // raw generation data for re-processing
 }
 ```
 
-### Region object (`KiwotigoRegion`)
+### Continent
 
 ```ts
-{
-  id: number;
-  basePath: number[];   // flat [x, y, x, y, ...]
-  fullPath: number[];   // flat [x, y, x, y, ...]
+interface KiwotigoContinent {
+  regions: KiwotigoRegion[];  // all regions on the map
+  canvasWidth: number;        // total width including margins
+  canvasHeight: number;       // total height including margins
+  islands: number[][];        // region ids grouped by connected component
+}
+```
+
+### Region
+
+```ts
+interface KiwotigoRegion {
+  id: number;              // unique region index (0-based, contiguous)
+
+  // --- Geometry ---
+  basePath: number[];      // inner core outline, flat [x, y, x, y, ...]
+  fullPath: number[];      // outer region boundary, flat [x, y, x, y, ...]
   centerPoint: {
-    x: number;
-    y: number;
-    iR: number;         // inner radius
-    oR: number;         // outer radius
+    x: number;             // center x
+    y: number;             // center y
+    iR: number;            // inner radius
+    oR: number;            // outer radius
   };
-  airNeighbors: number[];  // ids of neighbors added by findAndConnectAllIslands (cross-island + line-of-sight)
-  neighbors: number[];     // all connected region ids (direct hex-grid + air)
-  size: number;            // relative size (1.0 ~= average)
-  islandId: number;     // connected component id
   bBox: {
     top: number;
     left: number;
@@ -75,189 +67,111 @@ The worker (`src/kiwotigo.worker.js`) executes this pipeline:
     width: number;
     height: number;
   };
+
+  // --- Topology ---
+  neighbors: number[];     // all connected region ids (direct + air)
+  airNeighbors: number[];  // subset: only cross-island and line-of-sight connections
+  islandId: number;        // index into continent.islands
+
+  // --- Metrics ---
+  size: number;            // relative size (1.0 = average)
 }
 ```
 
-## 4) Field semantics
-
-### `id`
-
-Temporary build identifier generated by the JS wrapper (`src/kiwotigo.js`). It is used for worker message correlation.
-
-### `config`
-
-Final effective config used for this build (default values + user overrides + optional `originData` merge).
-
-### `continent.regions`
-
-Main data payload. Every region includes geometry (`basePath`, `fullPath`), topology (`neighbors`), metrics (`centerPoint`, `size`), and derived metadata (`islandId`, `bBox`).
-
-### `continent.canvasWidth` / `continent.canvasHeight`
-
-Canvas dimensions after normalization, including the configured margin.
-
-### `continent.islands`
-
-Array of connected components after graph analysis. Each item is an array of region ids.
-
-### `originData`
-
-Serialized raw input (`{ config, continent }`) before JS post-processing.
-Can be reused in later builds to skip WASM generation and rerun only JS processing.
-
-## 5) Geometry representation
+## Geometry
 
 ### Flat path encoding
 
-ICF paths are flat interleaved arrays:
+Paths store polygon vertices as flat interleaved coordinate arrays:
 
-- Example polygon vertices: `[(10,20), (30,40), (50,60)]`
-- ICF representation: `[10, 20, 30, 40, 50, 60]`
+```
+Vertices: (10, 20), (30, 40), (50, 60)
+Encoding: [10, 20, 30, 40, 50, 60]
+```
 
-All path algorithms in JS assume this format.
+To iterate vertices:
 
-### `basePath` vs `fullPath`
+```js
+for (let i = 0; i < region.fullPath.length; i += 2) {
+  const x = region.fullPath[i];
+  const y = region.fullPath[i + 1];
+}
+```
 
-- **`basePath`**: inner/core region outline.
-- **`fullPath`**: outer/final region outline.
+To render as an SVG polygon:
 
-Both are smoothed and normalized.
+```js
+const points = [];
+for (let i = 0; i < region.fullPath.length; i += 2) {
+  points.push(`${region.fullPath[i]},${region.fullPath[i + 1]}`);
+}
+const svg = `<polygon points="${points.join(" ")}" />`;
+```
+
+### basePath vs fullPath
+
+- **`basePath`** — the inner core outline of a region (smaller polygon).
+- **`fullPath`** — the outer boundary of a region (larger polygon, defines the actual territory).
+
+Both are smoothed and margin-shifted. Coordinates are render-ready — no additional transformation is needed.
 
 ### Center point and radii
 
-`centerPoint` fields are derived from Go output:
+- `centerPoint.x`, `centerPoint.y` — geometric center of the region.
+- `centerPoint.iR` — inner radius (distance to the nearest edge of the core).
+- `centerPoint.oR` — outer radius (distance to the farthest edge of the boundary).
 
-- `x`, `y`: region center.
-- `iR`: inner radius.
-- `oR`: outer radius.
-
-`oR` is used by island connection heuristics and global bounding box calculations.
-
-## 6) Path smoothing details
-
-Smoothing runs in `smoothAllPaths()`:
-
-1. Collect all unique coordinates from all region paths by a rounded coordinate key.
-2. Assign each coordinate one of three coast types:
-   - `city`: coordinate appears on `basePath`.
-   - `seaside`: coordinate appears on exactly one `fullPath`.
-   - `inland`: coordinate appears on multiple `fullPath`s.
-3. Compute weighted average using coast-specific neighbor offsets.
-4. Write results back to all path locations.
-5. Repeat one more pass.
-
-Important behavior:
-
-- Shared boundaries are smoothed consistently because shared vertices are updated through the same coordinate entry.
-- Smoothing weights are currently hard-coded.
-
-## 7) Coordinate normalization and bounding boxes
-
-After smoothing:
-
-1. Global bounding box is computed from:
-   - all `fullPath` vertices,
-   - and each `centerPoint ± oR`.
-2. Coordinates are translated by:
-   - `offsetX = left - canvasMargin`
-   - `offsetY = top - canvasMargin`
-3. Result:
-   - minimum geometry starts around `(canvasMargin, canvasMargin)`,
-   - canvas dimensions include margin on all sides.
-4. Each region gets `bBox` computed from normalized data.
-
-## 8) Topology: neighbors and islands
+## Topology
 
 ### Neighbor graph
 
-`neighbors` stores adjacency by region id.
+`region.neighbors` contains the ids of all regions connected to this region. The graph is always **symmetric**: if `A` is in `B.neighbors`, then `B` is in `A.neighbors`.
 
-During island connection, new edges are always inserted symmetrically:
+There are two kinds of neighbor connections:
 
-- if `A -> B` is added, `B -> A` is also added,
-- duplicates are removed.
+1. **Direct neighbors** — regions that share a hex-grid boundary (from the Go generation step).
+2. **Air neighbors** — connections added during post-processing: cross-island bridges and line-of-sight links.
 
-### Island detection
+To get only direct hex-grid neighbors:
 
-`findIslands()` performs DFS over the neighbor graph and assigns:
+```js
+const directNeighbors = region.neighbors.filter(
+  (id) => !region.airNeighbors.includes(id)
+);
+```
 
-- `continent.islands`: list of connected components,
-- `region.islandId`: index of the component.
+### airNeighbors
 
-### Island connection
+`airNeighbors` is a **subset** of `neighbors`. It contains every connection that was added by the island-connection and line-of-sight algorithms — these are connections that don't correspond to a shared hex-grid boundary.
 
-`connectIslands()` repeatedly connects components until only one island remains:
+Symmetry holds for air neighbors too: if `A` is in `B.airNeighbors`, then `B` is in `A.airNeighbors`.
 
-1. Select nearest region pair across islands by center-point distance.
-2. Add mandatory connection.
-3. If enabled, add extended connections in outer-radius-based range.
-4. Merge island sets and continue.
+### Islands
 
-### Air neighbors
+`continent.islands` groups region ids by connected component. Each entry is an array of region ids that form one contiguous landmass. A region's `islandId` is its index into `continent.islands`.
 
-`airNeighbors` is a subset of `neighbors` containing every connection added by `makeNewConnections()` — that is, every edge introduced by either `connectIslands()` or `connectByLineOfSight()`.
+After post-processing, all islands are connected into a single graph via air neighbors. The island structure is preserved to let consumers distinguish between "same landmass" and "connected by bridge/line-of-sight".
 
-Direct hex-grid neighbors from the raw Go output are **not** in `airNeighbors`.
+### Line-of-sight connections
 
-Symmetry holds: if `A` is in `B.airNeighbors` then `B` is in `A.airNeighbors`.
+Some air neighbors are line-of-sight connections: two regions are connected if a straight line from center A to center B does not pass through any other region. These can be intra-island or cross-island. They appear in both `neighbors` and `airNeighbors`.
 
-### Line-of-sight connection
-
-`connectByLineOfSight()` runs after `connectIslands()` and can therefore add intra-island connections as well as cross-island ones.
-
-Algorithm:
-1. Build a dense point cache for every region's `fullPath` (step size = `lineOfSightDensity` px).
-2. For each ordered pair (A, B) not yet connected, step along the line from A's center toward B's center.
-3. If the first non-A region hit is B, add the connection; otherwise skip.
-4. Connections are inserted via `makeNewConnections()` (updates both `neighbors` and `airNeighbors`).
-
-## 9) Config fields that directly affect ICF post-processing
-
-These fields are applied in JS stages after raw generation:
-
-- `canvasMargin`
-  - controls coordinate offset and final canvas size.
-- `enableExtendedConnections`
-  - toggles additional island-link edges.
-- `maxExtendedOuterRangeFactor`
-  - scales range used for extended island connections.
-- `enableLineOfSightConnections`
-  - enables `connectByLineOfSight()` (default: `true`).
-- `lineOfSightDensity`
-  - ray-cast step size in pixels (default: `10`); smaller values are more precise but slower.
-
-All other config fields primarily affect raw Go generation before conversion.
-
-## 10) `originData` reuse flow
-
-If `build()` receives `originData`:
-
-1. Parse `originData` JSON (`string` or object).
-2. Merge config as:
-   - defaults,
-   - then `originData.config`,
-   - then current build overrides.
-3. Skip WASM generation.
-4. Re-run conversion, smoothing, normalization, and island connection.
-
-Use case: iterate quickly on post-processing behavior without rerunning expensive generation.
-
-## 11) Invariants for consumers and tool authors
+## Invariants
 
 Consumers can rely on:
 
-- `fullPath` and `basePath` are flat `[x,y,...]` arrays with even length.
-- `neighbors` ids reference entries in `regions`.
-- `airNeighbors` is a subset of `neighbors`: every id in `airNeighbors` also appears in `neighbors`.
-- Neighbor symmetry extends to `airNeighbors`: if `A` is in `B.airNeighbors` then `B` is in `A.airNeighbors`.
-- `islandId` corresponds to an index in `islands`.
-- `bBox` is derived from normalized coordinates.
-- Coordinates are already margin-shifted and ready for direct rendering.
+- `fullPath` and `basePath` are flat `[x, y, ...]` arrays with **even length**
+- `region.id` values are unique and contiguous (0 to `regions.length - 1`)
+- All ids in `neighbors` and `airNeighbors` are valid region ids
+- `airNeighbors` is a subset of `neighbors`
+- Neighbor symmetry: `A ∈ B.neighbors ⟺ B ∈ A.neighbors` (same for `airNeighbors`)
+- `islandId` is a valid index into `continent.islands`
+- Coordinates are margin-shifted and ready for direct rendering
+- `bBox` is consistent with the region's path coordinates
 
-Recommended checks in downstream tooling:
+Recommended validations for downstream tooling:
 
-- validate even path lengths,
-- validate neighbor ids are in range,
-- validate neighbor symmetry if extra processing mutates graph,
-- validate region ids are unique and contiguous.
-
+- Even path lengths
+- Neighbor ids in range `[0, regions.length)`
+- Neighbor symmetry (especially after mutations)
+- Region ids unique and contiguous
