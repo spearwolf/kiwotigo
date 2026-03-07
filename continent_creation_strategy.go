@@ -84,16 +84,6 @@ func (strategy *ContinentCreationStrategy) BuildContinent(onProgress func(float6
 	strategy.growLonelyRegionsUntilTheyAreFatOrHaveNeighbors()
 	onProgress(0.15)
 
-	// TODO
-	// - [ ]  strategy
-	//    - [x]  define target region count constraint: even/odd/number/dividable-by-number...
-	//    - [x]  fast grow regions until all have a neighbor and region-groups connected
-	//    - [ ]  allow pre-defined region grid masks (or a region grid coords blacklist)
-	//    - [x]  fix Region.SingleRandomShapeHexagon()
-	// - [x]  toJson
-	//    - [x]  export config
-	//    - [x]  export region size (hexagon count)
-
 	strategy.Continent.UpdateCenterPoints(strategy.FastGrowIterations)
 	onProgress(0.2)
 
@@ -307,7 +297,17 @@ func (strategy *ContinentCreationStrategy) growRegion(region *Region) {
 	isGrowable, exists := strategy.growableRegion[region]
 	if isGrowable || !exists {
 
-		hexagons := strategy.regionLessWithNeighborWithRegionCount(region, 5)
+		hexagons := strategy.regionLessWithNeighborWithRegionCount(region, 3)
+		if len(hexagons) > 0 {
+			region.AssignHexagons(hexagons)
+		}
+
+		hexagons  = strategy.regionLessWithNeighborWithRegionCount(region, 4)
+		if len(hexagons) > 0 {
+			region.AssignHexagons(hexagons)
+		}
+
+		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 5)
 		if len(hexagons) > 0 {
 			region.AssignHexagons(hexagons)
 		}
@@ -341,15 +341,15 @@ func (strategy *ContinentCreationStrategy) growRegion(region *Region) {
 //    \__/  \__/  \__/  \__/  \__/  \
 //    /  \__/  \__/  \__/  \__/  \__/
 //    \__/  \__/  \__/  \__/  \__/  \
+//    /  \__/  \__/  \__/  \__/  \__/
+//    \__/  \__/  \__/  \__/  \__/  \
 //    /  \__/  \__/n \__/  \__/  \__/
-//    \__/  \__/nw\__/ne\__/  \__/  \
-//    /  \__/nw\__/n \__/ne\__/  \__/
 //    \__/  \__/nw\_x/ne\__/  \__/  \
-//    /  \__/sw\_x/x \_x/se\__/  \__/
+//    /  \__/  \_x/x \_x/  \__/  \__/
 //    \__/  \__/sw\__/se\__/  \__/  \
-//    /  \__/sw\_x/s \_x/se\__/  \__/
-//    \__/  \__/sw\_x/se\__/  \__/  \
-//    /  \__/  \__/s \__/  \__/  \__/
+//    /  \__/  \_x/s \_x/  \__/  \__/
+//    \__/  \__/  \_x/  \__/  \__/  \
+//    /  \__/  \__/  \__/  \__/  \__/
 //    \__/  \__/  \__/  \__/  \__/  \
 //    /  \__/  \__/  \__/  \__/  \__/
 //    \__/  \__/  \__/  \__/  \__/  \
@@ -373,18 +373,41 @@ func (strategy *ContinentCreationStrategy) initializeRegionAt(gridX, gridY uint)
 	region.AssignHexagon(hexagon.NeighborSouth)
 	region.AssignHexagon(hexagon.NeighborSouthEast)
 
-	region.AssignHexagon(hexagon.NeighborNorth.NeighborNorthWest)
-	region.AssignHexagon(hexagon.NeighborNorth.NeighborNorth)
-	region.AssignHexagon(hexagon.NeighborNorth.NeighborNorthEast)
-	region.AssignHexagon(hexagon.NeighborSouth.NeighborSouthWest)
-	region.AssignHexagon(hexagon.NeighborSouth.NeighborSouth)
-	region.AssignHexagon(hexagon.NeighborSouth.NeighborSouthEast)
-	region.AssignHexagon(hexagon.NeighborNorthWest.NeighborNorthWest)
-	region.AssignHexagon(hexagon.NeighborNorthWest.NeighborSouthWest)
-	region.AssignHexagon(hexagon.NeighborSouthWest.NeighborSouthWest)
-	region.AssignHexagon(hexagon.NeighborNorthEast.NeighborNorthEast)
-	region.AssignHexagon(hexagon.NeighborNorthEast.NeighborSouthEast)
-	region.AssignHexagon(hexagon.NeighborSouthEast.NeighborSouthEast)
+	//     __    __    __    __    __
+	//    /  \__/  \__/  \__/  \__/  \__
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//    /  \__/  \__/  \__/  \__/  \__/
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//    /  \__/  \__/  \__/  \__/  \__/
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//    /  \__/  \__/n \__/  \__/  \__/
+	//    \__/  \__/nw\__/ne\__/  \__/  \
+	//    /  \__/nw\__/n \__/ne\__/  \__/
+	//    \__/  \__/nw\_x/ne\__/  \__/  \
+	//    /  \__/sw\_x/x \_x/se\__/  \__/
+	//    \__/  \__/sw\__/se\__/  \__/  \
+	//    /  \__/sw\_x/s \_x/se\__/  \__/
+	//    \__/  \__/sw\_x/se\__/  \__/  \
+	//    /  \__/  \__/s \__/  \__/  \__/
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//    /  \__/  \__/  \__/  \__/  \__/
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//    /  \__/  \__/  \__/  \__/  \__/
+	//    \__/  \__/  \__/  \__/  \__/  \
+	//       \__/  \__/  \__/  \__/  \__/
+	//
+	// region.AssignHexagon(hexagon.NeighborNorth.NeighborNorthWest)
+	// region.AssignHexagon(hexagon.NeighborNorth.NeighborNorth)
+	// region.AssignHexagon(hexagon.NeighborNorth.NeighborNorthEast)
+	// region.AssignHexagon(hexagon.NeighborSouth.NeighborSouthWest)
+	// region.AssignHexagon(hexagon.NeighborSouth.NeighborSouth)
+	// region.AssignHexagon(hexagon.NeighborSouth.NeighborSouthEast)
+	// region.AssignHexagon(hexagon.NeighborNorthWest.NeighborNorthWest)
+	// region.AssignHexagon(hexagon.NeighborNorthWest.NeighborSouthWest)
+	// region.AssignHexagon(hexagon.NeighborSouthWest.NeighborSouthWest)
+	// region.AssignHexagon(hexagon.NeighborNorthEast.NeighborNorthEast)
+	// region.AssignHexagon(hexagon.NeighborNorthEast.NeighborSouthEast)
+	// region.AssignHexagon(hexagon.NeighborSouthEast.NeighborSouthEast)
 
 	strategy.Continent.regions = append(strategy.Continent.regions, region)
 	strategy.SetRegion(gridX, gridY, region)
