@@ -39,6 +39,7 @@ function findIslands(continent) {
     return {
       ...region,
       islandId,
+      airNeighbors: [],
     };
   });
 
@@ -145,9 +146,12 @@ function makeNewConnections(regions, connections) {
   connections.forEach(([from, to]) => {
     regions[from].neighbors.push(to);
     regions[to].neighbors.push(from);
+    regions[from].airNeighbors.push(to);
+    regions[to].airNeighbors.push(from);
   });
   regions.forEach((region) => {
     region.neighbors = uniq(region.neighbors);
+    region.airNeighbors = uniq(region.airNeighbors);
   });
 }
 

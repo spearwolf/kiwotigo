@@ -158,15 +158,15 @@
         if (!alreadyDrawnConnection.has(connectionId)) {
           alreadyDrawnConnection.add(connectionId);
           const otherRegion = getRegion(continent, neighborId);
-          const isAnotherIsland = region.islandId !== otherRegion.islandId;
-          if (isAnotherIsland) {
+          const isAirNeighbor = region.airNeighbors?.includes(neighborId) ?? false;
+          if (isAirNeighbor) {
             ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
             ctx.lineWidth = 1;
           } else {
             ctx.strokeStyle = CONNECTION_STROKE;
             ctx.lineWidth = 3;
           }
-          ctx.setLineDash(isAnotherIsland ? [3, 6] : []);
+          ctx.setLineDash(isAirNeighbor ? [3, 6] : []);
           ctx.beginPath();
           ctx.moveTo(region.centerPoint.x, region.centerPoint.y);
           ctx.lineTo(otherRegion.centerPoint.x, otherRegion.centerPoint.y);

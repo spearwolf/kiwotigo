@@ -673,7 +673,8 @@
       }
       return {
         ...region,
-        islandId
+        islandId,
+        airNeighbors: []
       };
     });
     return {
@@ -758,9 +759,12 @@
     connections.forEach(([from, to]) => {
       regions[from].neighbors.push(to);
       regions[to].neighbors.push(from);
+      regions[from].airNeighbors.push(to);
+      regions[to].airNeighbors.push(from);
     });
     regions.forEach((region) => {
       region.neighbors = uniq(region.neighbors);
+      region.airNeighbors = uniq(region.airNeighbors);
     });
   }
   function connectIslands(continent, config) {

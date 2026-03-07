@@ -30,6 +30,7 @@ The worker (`src/kiwotigo.worker.js`) executes this pipeline:
 5. **Island detection and connection** (`src/kiwotigo-unite-islands.js#findAndConnectAllIslands`)
    - Finds connected components (`islands` + `region.islandId`).
    - Adds connections between islands until one connected graph remains.
+   - Optionally runs `connectByLineOfSight()`: ray-casts from center A toward center B; a connection is added only if the ray lands directly in B without passing through any other region.
 
 ## 3) ICF schema
 
@@ -62,8 +63,9 @@ The worker (`src/kiwotigo.worker.js`) executes this pipeline:
     iR: number;         // inner radius
     oR: number;         // outer radius
   };
-  neighbors: number[];  // connected region ids
-  size: number;         // relative size (1.0 ~= average)
+  airNeighbors: number[];  // ids of neighbors added by findAndConnectAllIslands (cross-island + line-of-sight)
+  neighbors: number[];     // all connected region ids (direct hex-grid + air)
+  size: number;            // relative size (1.0 ~= average)
   islandId: number;     // connected component id
   bBox: {
     top: number;
@@ -191,6 +193,24 @@ During island connection, new edges are always inserted symmetrically:
 3. If enabled, add extended connections in outer-radius-based range.
 4. Merge island sets and continue.
 
+### Air neighbors
+
+`airNeighbors` is a subset of `neighbors` containing every connection added by `makeNewConnections()` — that is, every edge introduced by either `connectIslands()` or `connectByLineOfSight()`.
+
+Direct hex-grid neighbors from the raw Go output are **not** in `airNeighbors`.
+
+Symmetry holds: if `A` is in `B.airNeighbors` then `B` is in `A.airNeighbors`.
+
+### Line-of-sight connection
+
+`connectByLineOfSight()` runs after `connectIslands()` and can therefore add intra-island connections as well as cross-island ones.
+
+Algorithm:
+1. Build a dense point cache for every region's `fullPath` (step size = `lineOfSightDensity` px).
+2. For each ordered pair (A, B) not yet connected, step along the line from A's center toward B's center.
+3. If the first non-A region hit is B, add the connection; otherwise skip.
+4. Connections are inserted via `makeNewConnections()` (updates both `neighbors` and `airNeighbors`).
+
 ## 9) Config fields that directly affect ICF post-processing
 
 These fields are applied in JS stages after raw generation:
@@ -201,6 +221,10 @@ These fields are applied in JS stages after raw generation:
   - toggles additional island-link edges.
 - `maxExtendedOuterRangeFactor`
   - scales range used for extended island connections.
+- `enableLineOfSightConnections`
+  - enables `connectByLineOfSight()` (default: `true`).
+- `lineOfSightDensity`
+  - ray-cast step size in pixels (default: `10`); smaller values are more precise but slower.
 
 All other config fields primarily affect raw Go generation before conversion.
 
@@ -224,6 +248,8 @@ Consumers can rely on:
 
 - `fullPath` and `basePath` are flat `[x,y,...]` arrays with even length.
 - `neighbors` ids reference entries in `regions`.
+- `airNeighbors` is a subset of `neighbors`: every id in `airNeighbors` also appears in `neighbors`.
+- Neighbor symmetry extends to `airNeighbors`: if `A` is in `B.airNeighbors` then `B` is in `A.airNeighbors`.
 - `islandId` corresponds to an index in `islands`.
 - `bBox` is derived from normalized coordinates.
 - Coordinates are already margin-shifted and ready for direct rendering.

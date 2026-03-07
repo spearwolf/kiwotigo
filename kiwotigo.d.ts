@@ -42,6 +42,7 @@ export interface KiwotigoRegion {
   fullPath: number[];
   id: number;
   islandId: number;
+  airNeighbors: number[];
   neighbors: number[];
   size: number;
 }
