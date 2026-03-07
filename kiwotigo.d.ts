@@ -1,4 +1,8 @@
-export declare function configure(options: {broadcastChannelName?: string; kiwotigoWorkerUrl?: string}): void;
+export declare function configure(options: {
+  broadcastChannelName?: string;
+  kiwotigoWorkerUrl?: string;
+  kiwotigoWasmUrl?: string;
+}): void;
 
 export declare function startBroadcasting(): void;
 
@@ -25,6 +29,8 @@ export interface KiwotigoConfig {
   minimalGrowIterations: number;
   probabilityCreateRegionAt: number;
   divisibilityBy: number;
+  regionMask?: number[];
+  flipXY?: boolean;
 }
 
 export interface KiwotigoRegion {
@@ -34,7 +40,7 @@ export interface KiwotigoRegion {
   fullPath: number[];
   id: number;
   islandId: number;
-  neighbours: number[];
+  neighbors: number[];
   size: number;
 }
 
@@ -53,6 +59,6 @@ export interface IntermediateContinentalFormat {
 }
 
 export declare function build(
-  config: Partial<KiwotigoConfig>,
+  config: Partial<KiwotigoConfig> & { originData?: string },
   onProgress?: ProgressCallback,
 ): Promise<IntermediateContinentalFormat>;

@@ -76,8 +76,6 @@ The worker (`src/kiwotigo.worker.js`) executes this pipeline:
 }
 ```
 
-> Note: `kiwotigo.d.ts` currently declares `neighbours` (British spelling), while runtime objects use `neighbors`.
-
 ## 4) Field semantics
 
 ### `id`
