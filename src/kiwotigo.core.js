@@ -218,27 +218,29 @@ const smoothAllPaths = (regions) => {
   // ===========================================================
   const weights = {
     city: [
-      [-5, 0.1],
-      [-4, 0.2],
-      [-3, 0.3],
-      [-2, 0.5],
-      [-1, 0.8],
+      [-5, 0.071],
+      [-4, 0.362],
+      [-3, 0.621],
+      [-2, 0.825],
+      [-1, 0.955],
       [0, 1.0],
-      [1, 0.8],
-      [2, 0.5],
-      [3, 0.3],
-      [4, 0.2],
-      [5, 0.1],
+      [1, 0.955],
+      [2, 0.825],
+      [3, 0.621],
+      [4, 0.362],
+      [5, 0.071],
     ],
     inland: [
-      [-1, 0.1],
+      [-1, 0.5],
       [1, 1.0],
-      [2, 0.2],
+      [2, 0.5],
     ],
     seaside: [
-      [-1, 0.3],
+      [-2, 0.2],
+      [-1, 0.4],
       [1, 1.0],
-      [2, 0.3],
+      [2, 0.4],
+      [-2, 0.2],
     ],
   };
 
@@ -301,7 +303,7 @@ const convertToIntermediateContinentalFormat = (config, continent) => {
 export const buildContinent = async (data, originDataInput, onProgress) => {
   let config;
   let result;
-  
+
   if (originDataInput) {
     const parsedOriginData = typeof originDataInput === 'string' ? JSON.parse(originDataInput) : originDataInput;
     config = {...DefaultConfig, ...parsedOriginData.config, ...data};
@@ -323,7 +325,7 @@ export const buildContinent = async (data, originDataInput, onProgress) => {
   onProgress(0.8);
 
   continent = findAndConnectAllIslands(continent, config);
-  
+
   return {
     config,
     continent,
