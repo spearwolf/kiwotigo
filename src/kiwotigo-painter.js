@@ -1,15 +1,19 @@
 const DARK_THEME = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-const REGION_OUTLINE_STROKE = DARK_THEME ? '#2f2f2f' : '#a5a5a5';
-const REGION_BASE_PATH_FILL = DARK_THEME ? '#888' : '#e7e7e7';
-const REGION_FULL_PATH_FILL = DARK_THEME ? '#666' : '#f5f5f5';
-const REGION_RADIUS_STROKE = DARK_THEME ? 'rgb(200 200 200 / 75%)' : '#a9a9a9';
-const REGION_BBOX_STROKE = DARK_THEME ? '#333' : '#f0f0f0';
-const REGION_OUTER_RADIUS_STROKE = DARK_THEME ? '#444' : '#cacaca';
-const CONNECTION_STROKE = DARK_THEME ? '#c04' : '#f5b';
-const CONNECTION_TO_OTHER_ISLAND_STROKE = DARK_THEME ? 'rgb(204 0 68 / 75%)' : 'rgb(255 85 187 / 75%)';
-const REGION_ID_TEXT_FILL = DARK_THEME ? '#ccc' : '#666';
-const REGION_ID_SHADOW = DARK_THEME ? '#4b4b4b' : '#fff';
+function getColors(dark) {
+  return {
+    regionOutlineStroke:           dark ? '#2f2f2f' : '#a5a5a5',
+    regionBasePathFill:            dark ? '#888'    : '#e7e7e7',
+    regionFullPathFill:            dark ? '#666'    : '#f5f5f5',
+    regionRadiusStroke:            dark ? 'rgb(200 200 200 / 75%)' : '#a9a9a9',
+    regionBBoxStroke:              dark ? '#333'    : '#f0f0f0',
+    regionOuterRadiusStroke:       dark ? '#444'    : '#cacaca',
+    connectionStroke:              dark ? '#c04'    : '#f5b',
+    connectionToOtherIslandStroke: dark ? 'rgb(204 0 68 / 75%)' : 'rgb(255 85 187 / 75%)',
+    regionIdTextFill:              dark ? '#ccc'    : '#666',
+    regionIdShadow:                dark ? '#4b4b4b' : '#fff',
+  };
+}
 
 function clearCanvas(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -34,31 +38,31 @@ function drawPath(ctx, regions, pathName, stroke = false) {
   });
 }
 
-function drawRegions(ctx, continent, drawBasePath) {
-  ctx.strokeStyle = REGION_OUTLINE_STROKE;
+function drawRegions(ctx, continent, drawBasePath, colors) {
+  ctx.strokeStyle = colors.regionOutlineStroke;
   ctx.lineWidth = 1;
 
-  ctx.fillStyle = REGION_FULL_PATH_FILL;
+  ctx.fillStyle = colors.regionFullPathFill;
   drawPath(ctx, continent.regions, 'fullPath', true);
 
   if (drawBasePath) {
-    ctx.fillStyle = REGION_BASE_PATH_FILL;
+    ctx.fillStyle = colors.regionBasePathFill;
     drawPath(ctx, continent.regions, 'basePath');
   }
 }
 
-function drawRegionsBase(ctx, continent) {
+function drawRegionsBase(ctx, continent, colors) {
   ctx.lineWidth = 1;
 
   continent.regions.forEach(({ centerPoint: cp }) => {
-    ctx.strokeStyle = REGION_RADIUS_STROKE;
+    ctx.strokeStyle = colors.regionRadiusStroke;
     ctx.setLineDash([]);
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.iR, 0, 2 * Math.PI, false);
     ctx.closePath();
     ctx.stroke();
 
-    ctx.strokeStyle = REGION_OUTER_RADIUS_STROKE;
+    ctx.strokeStyle = colors.regionOuterRadiusStroke;
     ctx.setLineDash([5, 15, 25]);
     ctx.beginPath();
     ctx.arc(cp.x, cp.y, cp.oR, 0, 2 * Math.PI, false);
@@ -71,7 +75,7 @@ function drawRegionsBase(ctx, continent) {
 
 const getRegion = (continent, regionIdx) => continent.regions[regionIdx];
 
-function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAirConnections }) {
+function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAirConnections }, colors) {
   const alreadyDrawn = new Set();
 
   const drawLine = (a, b, air) => {
@@ -79,11 +83,11 @@ function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAir
     if (alreadyDrawn.has(id)) return;
     alreadyDrawn.add(id);
     if (air) {
-      ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
+      ctx.strokeStyle = colors.connectionToOtherIslandStroke;
       ctx.lineWidth = 1;
       ctx.setLineDash([3, 6]);
     } else {
-      ctx.strokeStyle = CONNECTION_STROKE;
+      ctx.strokeStyle = colors.connectionStroke;
       ctx.lineWidth = 3;
       ctx.setLineDash([]);
     }
@@ -110,15 +114,15 @@ function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAir
   ctx.setLineDash([]);
 }
 
-function drawRegionIds(ctx, continent) {
+function drawRegionIds(ctx, continent, colors) {
   ctx.font = 'bold 36px sans-serif';
-  ctx.shadowColor = REGION_ID_SHADOW;
+  ctx.shadowColor = colors.regionIdShadow;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.shadowBlur = 4;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = REGION_ID_TEXT_FILL;
+  ctx.fillStyle = colors.regionIdTextFill;
 
   continent.regions.forEach(({ centerPoint: { x, y } }, i) => {
     ctx.fillText(`${i}`, x, y);
@@ -127,8 +131,8 @@ function drawRegionIds(ctx, continent) {
   ctx.shadowBlur = 0;
 }
 
-function drawBoundingBoxes(ctx, { regions }) {
-  ctx.strokeStyle = REGION_BBOX_STROKE;
+function drawBoundingBoxes(ctx, { regions }, colors) {
+  ctx.strokeStyle = colors.regionBBoxStroke;
   regions.forEach(({ bBox }) => {
     ctx.beginPath();
     ctx.rect(bBox.left, bBox.top, bBox.width, bBox.height);
@@ -137,18 +141,20 @@ function drawBoundingBoxes(ctx, { regions }) {
 }
 
 export default function draw({ ctx, icf, ...cfg }) {
+  const dark = cfg.darkMode ?? DARK_THEME;
+  const colors = getColors(dark);
   clearCanvas(ctx);
   if (cfg.drawRegionBoundingBoxes) {
-    drawBoundingBoxes(ctx, icf);
+    drawBoundingBoxes(ctx, icf, colors);
   }
-  drawRegions(ctx, icf, cfg.drawRegionBasePaths);
+  drawRegions(ctx, icf, cfg.drawRegionBasePaths, colors);
   if (cfg.drawRegionsBase) {
-    drawRegionsBase(ctx, icf);
+    drawRegionsBase(ctx, icf, colors);
   }
   if (cfg.drawRegionConnections || cfg.drawAirConnections) {
-    drawRegionsConnections(ctx, icf, cfg);
+    drawRegionsConnections(ctx, icf, cfg, colors);
   }
   if (cfg.drawRegionIds) {
-    drawRegionIds(ctx, icf);
+    drawRegionIds(ctx, icf, colors);
   }
 }

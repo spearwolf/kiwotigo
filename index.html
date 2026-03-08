@@ -109,6 +109,109 @@
         }
       }
 
+      html.dark-mode {
+        --page-background-color: #212121;
+
+        --focus-outline: double #d06;
+
+        --sidebar-background-color: rgba(90, 90, 90, 0.7);
+        --sidebar-border-color: #000;
+        --sidebar-border-open-color: #000;
+        --sidebar-text-color: #f0f0f0;
+        --sidebar-text-just-update-color: #888;
+
+        --sidebar-input-background-color: #999;
+        --sidebar-input-background-hover-color: #d5d5d5;
+        --sidebar-input-background-focus-color: #f0f0f0;
+        --sidebar-input-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-button-text-color: #fff;
+        --sidebar-button-background-color: #111;
+        --sidebar-button-background-hover-color: #222;
+        --sidebar-button-border-color: rgba(27, 31, 35, 0.15);
+        --sidebar-button-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-toggle-color: #111;
+        --sidebar-toggle-hover-color: #111;
+        --sidebar-toggle-hover-dark-color: #111;
+        --sidebar-toggle-border-color: #000;
+        --sidebar-toggle-open-border-color: #222;
+        --sidebar-toggle-background-color: rgba(80, 79, 78, 0.7);
+        --sidebar-toggle-background-hover-color: rgba(110, 109, 108, 0.8);
+
+        --loading-backdrop-color: rgba(0, 0, 0, 0.66);
+        --loading-background-color: #444;
+
+        --loading-progress-background-color: #888;
+        --loading-progress-info-color: #f0f0f0;
+        --loading-progress-color: #4b96ff;
+        --loading-progress-box-shadow: 0 0 8px #4b96ff;
+
+        --loading-anim-color: #d05;
+
+        --footer-border-color: #000;
+        --footer-background-color: #444;
+        --footer-text-color: #eee;
+
+        --footer-external-link-color: #fff;
+        --footer-external-link-underline-color: #eee;
+
+        --legend-background-color: var(--sidebar-background-color);
+        --legend-border-color: var(--sidebar-border-color);
+        --legend-text-color: var(--sidebar-text-color);
+      }
+
+      html.light-mode {
+        --page-background-color: #fff;
+
+        --focus-outline: double #d06;
+
+        --sidebar-background-color: rgba(255, 255, 255, 0.7);
+        --sidebar-border-color: #999;
+        --sidebar-border-open-color: #ddd;
+        --sidebar-text-color: #111;
+        --sidebar-text-just-update-color: #ddd;
+
+        --sidebar-input-background-color: #f8f9fa;
+        --sidebar-input-background-hover-color: #f0f1f2;
+        --sidebar-input-background-focus-color: #fff;
+        --sidebar-input-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-button-text-color: #24292e;
+        --sidebar-button-background-color: #fafbfc;
+        --sidebar-button-background-hover-color: #f3f4f6;
+        --sidebar-button-border-color: rgba(27, 31, 35, 0.15);
+        --sidebar-button-box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04), inset 0 1px 0 hsla(0, 0%, 100%, 0.25);
+
+        --sidebar-toggle-color: #aaa;
+        --sidebar-toggle-hover-color: #666;
+        --sidebar-toggle-border-color: #999;
+        --sidebar-toggle-open-border-color: #ddd;
+        --sidebar-toggle-background-color: rgba(255, 255, 255, 0.7);
+        --sidebar-toggle-background-hover-color: rgba(240, 240, 240, 0.8);
+
+        --loading-backdrop-color: rgba(255, 255, 255, 0.66);
+        --loading-background-color: #fff;
+
+        --loading-progress-background-color: #fafafa;
+        --loading-progress-info-color: #111;
+        --loading-progress-color: #7bb6ff;
+        --loading-progress-box-shadow: 0 0 8px #7bb6ff;
+
+        --loading-anim-color: #f06;
+
+        --footer-border-color: #ccc;
+        --footer-background-color: #eee;
+        --footer-text-color: #333;
+
+        --footer-external-link-color: #333;
+        --footer-external-link-underline-color: #333;
+
+        --legend-background-color: rgba(255, 255, 255, 0.7);
+        --legend-border-color: #ddd;
+        --legend-text-color: #111;
+      }
+
       html,
       body {
         height: 100%;
@@ -910,6 +1013,15 @@
     </main>
 
     <section class="mapLegendContainer">
+      <div class="legendRow">
+        <input
+          type="checkbox"
+          class="kiwotigo-legend-input"
+          name="darkMode"
+          id="darkMode"
+        />
+        <label for="darkMode" class="kiwotigo-legend-label">dark mode</label>
+      </div>
       <div class="legendRow">
         <input
           type="checkbox"

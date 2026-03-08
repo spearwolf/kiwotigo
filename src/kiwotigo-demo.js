@@ -118,6 +118,12 @@ const restoreLegendOptions = () => {
   });
 };
 
+const syncDarkModeClass = () => {
+  const dark = document.getElementById('darkMode').checked;
+  document.documentElement.classList.toggle('dark-mode', dark);
+  document.documentElement.classList.toggle('light-mode', !dark);
+};
+
 const drawContinent = (() => {
   let drawOptions;
 
@@ -187,7 +193,9 @@ const getConfig = () => {
   return config;
 };
 
+document.getElementById('darkMode').checked = window.matchMedia('(prefers-color-scheme: dark)').matches;
 restoreLegendOptions();
+syncDarkModeClass();
 
 const getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
 
@@ -285,6 +293,7 @@ document.addEventListener("pointercancel", () => { isPainting = false; });
 
 document.querySelector(".mapLegendContainer").addEventListener("change", (e) => {
   console.debug("legend options", getMapLegendOptions());
+  syncDarkModeClass();
   saveLegendOptions();
   drawContinent(getMapLegendOptions());
 });
