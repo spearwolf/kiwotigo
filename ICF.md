@@ -17,7 +17,7 @@ const { continent } = await build(config, onProgress);
 | **Islands** | Connected components in the region graph |
 | **Paths** | Flat-encoded polygon outlines (`basePath` = inner core, `fullPath` = outer boundary) |
 | **Center Points & Radii** | Center coordinate + inner/outer radius per region |
-| **Neighbor Graph** | Adjacency list with direct and cross-island connections |
+| **Neighbor Graph** | Adjacency list with land connections and air connections (mutually exclusive sets) |
 | **Bounding Boxes** | Axis-aligned bounding rectangles per region + canvas dimensions |
 
 ## Schema
@@ -69,8 +69,8 @@ interface KiwotigoRegion {
   };
 
   // --- Topology ---
-  neighbors: number[];     // all connected region ids (direct + air)
-  airNeighbors: number[];  // subset: only cross-island and line-of-sight connections
+  neighbors: number[];     // region ids sharing a physical hex-grid border (from Go output; land only)
+  airNeighbors: number[];  // region ids connected via cross-island bridge or line-of-sight (exclusive)
   islandId: number;        // index into continent.islands
 
   // --- Metrics ---
@@ -127,22 +127,22 @@ Both are smoothed and margin-shifted. Coordinates are render-ready — no additi
 
 `region.neighbors` contains the ids of all regions connected to this region. The graph is always **symmetric**: if `A` is in `B.neighbors`, then `B` is in `A.neighbors`.
 
-There are two kinds of neighbor connections:
+There are two kinds of neighbor connections, stored in **mutually exclusive** arrays:
 
-1. **Direct neighbors** — regions that share a hex-grid boundary (from the Go generation step).
-2. **Air neighbors** — connections added during post-processing: cross-island bridges and line-of-sight links.
+1. **`neighbors`** — regions that share a hex-grid boundary (from the Go generation step). Never modified by JS post-processing.
+2. **`airNeighbors`** — connections added during post-processing: cross-island bridges and line-of-sight links. Never overlap with `neighbors`.
 
-To get only direct hex-grid neighbors:
+The sets are disjoint: `neighbors ∩ airNeighbors = ∅` per region.
+
+To traverse the full connectivity graph (land + air), union both arrays:
 
 ```js
-const directNeighbors = region.neighbors.filter(
-  (id) => !region.airNeighbors.includes(id)
-);
+const allConnected = [...region.neighbors, ...region.airNeighbors];
 ```
 
 ### airNeighbors
 
-`airNeighbors` is a **subset** of `neighbors`. It contains every connection that was added by the island-connection and line-of-sight algorithms — these are connections that don't correspond to a shared hex-grid boundary.
+`airNeighbors` is **mutually exclusive with `neighbors`**. It contains every connection that was added by the island-connection and line-of-sight algorithms — these are connections that don't correspond to a shared hex-grid boundary and are never present in `neighbors`.
 
 Symmetry holds for air neighbors too: if `A` is in `B.airNeighbors`, then `B` is in `A.airNeighbors`.
 
@@ -154,7 +154,7 @@ After post-processing, all islands are connected into a single graph via air nei
 
 ### Line-of-sight connections
 
-Some air neighbors are line-of-sight connections: two regions are connected if a straight line from center A to center B does not pass through any other region. These can be intra-island or cross-island. They appear in both `neighbors` and `airNeighbors`.
+Some air neighbors are line-of-sight connections: two regions are connected if a straight line from center A to center B does not pass through any other region. These can be intra-island or cross-island. They appear only in `airNeighbors`, never in `neighbors`.
 
 ## Invariants
 
@@ -163,7 +163,7 @@ Consumers can rely on:
 - `fullPath` and `basePath` are flat `[x, y, ...]` arrays with **even length**
 - `region.id` values are unique and contiguous (0 to `regions.length - 1`)
 - All ids in `neighbors` and `airNeighbors` are valid region ids
-- `airNeighbors` is a subset of `neighbors`
+- `neighbors` and `airNeighbors` are disjoint: `neighbors ∩ airNeighbors = ∅` per region
 - Neighbor symmetry: `A ∈ B.neighbors ⟺ B ∈ A.neighbors` (same for `airNeighbors`)
 - `islandId` is a valid index into `continent.islands`
 - Coordinates are margin-shifted and ready for direct rendering

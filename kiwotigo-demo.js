@@ -149,31 +149,38 @@
     ctx.setLineDash([]);
   }
   var getRegion = (continent, regionIdx) => continent.regions[regionIdx];
-  function drawRegionsConnections(ctx, continent) {
-    ctx.setLineDash([]);
-    const alreadyDrawnConnection = /* @__PURE__ */ new Set();
+  function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAirConnections }) {
+    const alreadyDrawn = /* @__PURE__ */ new Set();
+    const drawLine = (a, b, air) => {
+      const id = a.id < b.id ? `${a.id};${b.id}` : `${b.id};${a.id}`;
+      if (alreadyDrawn.has(id)) return;
+      alreadyDrawn.add(id);
+      if (air) {
+        ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 6]);
+      } else {
+        ctx.strokeStyle = CONNECTION_STROKE;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(a.centerPoint.x, a.centerPoint.y);
+      ctx.lineTo(b.centerPoint.x, b.centerPoint.y);
+      ctx.closePath();
+      ctx.stroke();
+    };
     continent.regions.forEach((region) => {
-      region.neighbors.forEach((neighborId) => {
-        const connectionId = region.id < neighborId ? `${region.id};${neighborId}` : `${neighborId};${region.id}`;
-        if (!alreadyDrawnConnection.has(connectionId)) {
-          alreadyDrawnConnection.add(connectionId);
-          const otherRegion = getRegion(continent, neighborId);
-          const isAirNeighbor = region.airNeighbors?.includes(neighborId) ?? false;
-          if (isAirNeighbor) {
-            ctx.strokeStyle = CONNECTION_TO_OTHER_ISLAND_STROKE;
-            ctx.lineWidth = 1;
-          } else {
-            ctx.strokeStyle = CONNECTION_STROKE;
-            ctx.lineWidth = 3;
-          }
-          ctx.setLineDash(isAirNeighbor ? [3, 6] : []);
-          ctx.beginPath();
-          ctx.moveTo(region.centerPoint.x, region.centerPoint.y);
-          ctx.lineTo(otherRegion.centerPoint.x, otherRegion.centerPoint.y);
-          ctx.closePath();
-          ctx.stroke();
-        }
-      });
+      if (drawRegionConnections) {
+        region.neighbors.forEach(
+          (nId) => drawLine(region, getRegion(continent, nId), false)
+        );
+      }
+      if (drawAirConnections) {
+        region.airNeighbors.forEach(
+          (nId) => drawLine(region, getRegion(continent, nId), true)
+        );
+      }
     });
     ctx.setLineDash([]);
   }
@@ -208,8 +215,8 @@
     if (cfg.drawRegionsBase) {
       drawRegionsBase(ctx, icf);
     }
-    if (cfg.drawRegionConnections) {
-      drawRegionsConnections(ctx, icf);
+    if (cfg.drawRegionConnections || cfg.drawAirConnections) {
+      drawRegionsConnections(ctx, icf, cfg);
     }
     if (cfg.drawRegionIds) {
       drawRegionIds(ctx, icf);

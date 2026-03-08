@@ -144,13 +144,10 @@ const findRegionsWithinOuterRange = ({
 
 function makeNewConnections(regions, connections) {
   connections.forEach(([from, to]) => {
-    regions[from].neighbors.push(to);
-    regions[to].neighbors.push(from);
     regions[from].airNeighbors.push(to);
     regions[to].airNeighbors.push(from);
   });
   regions.forEach((region) => {
-    region.neighbors = uniq(region.neighbors);
     region.airNeighbors = uniq(region.airNeighbors);
   });
 }
@@ -252,7 +249,7 @@ function connectByLineOfSight(continent, config) {
   const connections = [];
 
   for (const regionA of regions) {
-    const neighborsSet = new Set(regionA.neighbors);
+    const neighborsSet = new Set([...regionA.neighbors, ...regionA.airNeighbors]);
     neighborsSet.add(regionA.id);
 
     for (const regionB of regions) {

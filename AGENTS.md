@@ -110,7 +110,7 @@ Loads and instantiates `kiwotigo.wasm` (lazy, singleton). Merges caller config w
 **Stage 2 — ICF conversion** (`kiwotigo.worker.js` → `convertToIntermediateContinentalFormat`)
 Transforms the raw Go output into per-region objects, flattens `{x,y}` path arrays into interleaved flat `[x, y, x, y, ...]` arrays, and assembles the ICF region structure:
 ```js
-{ id, basePath: [x,y,...], fullPath: [x,y,...], centerPoint: {x, y, iR, oR}, neighbors: [...], size }
+{ id, basePath: [x,y,...], fullPath: [x,y,...], centerPoint: {x, y, iR, oR}, neighbors: [...], airNeighbors: [...], size }
 ```
 Note: `centerPoint` uses shorthand field names (`iR`=innerRadius, `oR`=outerRadius).
 
@@ -126,7 +126,7 @@ Each category uses different smoothing weights (spread of neighboring vertices, 
 Computes the bounding box of all region paths and center points, then translates all coordinates so the content starts at `(canvasMargin, canvasMargin)`. Also computes `canvasWidth`/`canvasHeight` and per-region `bBox`.
 
 **Stage 5 — Island detection & connection** (`kiwotigo-unite-islands.js`)
-`findIslands()` does a DFS over the neighbor graph to find connected components and assigns an `islandId` to each region. `connectIslands()` then greedily connects disconnected islands by finding the nearest region pair across islands and adding a neighbor connection. With `enableExtendedConnections: true` (default), additional connections are created to all regions within `maxExtendedOuterRangeFactor * outerRadius` of either endpoint. Repeats until all regions are in one connected component.
+`findIslands()` does a DFS over the neighbor graph to find connected components and assigns an `islandId` to each region. `connectIslands()` then greedily connects disconnected islands by finding the nearest region pair across islands and adding an air connection (into `airNeighbors` only, not `neighbors`). With `enableExtendedConnections: true` (default), additional air connections are created to all regions within `maxExtendedOuterRangeFactor * outerRadius` of either endpoint. Repeats until all regions are in one connected component.
 
 ### Intermediate Continental Format (ICF) — the target data format
 
@@ -139,7 +139,8 @@ This is the output of `build()` and the format consumed by rendering and downstr
     basePath: [x, y, x, y, ...],   // inner core outline, flat interleaved
     fullPath: [x, y, x, y, ...],   // outer region outline, flat interleaved
     centerPoint: { x, y, iR, oR }, // center, inner radius, outer radius
-    neighbors: [1, 2, ...],        // region ids (includes cross-island connections)
+    neighbors: [1, 2, ...],        // region ids sharing a physical border (land connections only; from Go output)
+    airNeighbors: [3, 4, ...],     // region ids connected via air/line-of-sight (exclusive; never in neighbors)
     size: 1.2,                     // relative size (1.0 = average)
     islandId: 0,                   // connected component id
     bBox: { top, bottom, left, right, width, height }
@@ -168,4 +169,4 @@ Canvas 2D renderer for the ICF. Draws: `fullPath` fills, `basePath` fills (optio
 - `BuildContinent` should only be called **once** per `ContinentCreationStrategy` instance.
 - Hexagon neighbor indices (used in `RegionShape`): 0=NE, 1=N, 2=NW, 3=SW, 4=S, 5=SE. The shape edge traversal order is `{3, 2, 1, 0, 5, 4}`.
 - Path smoothing writes coordinates back in-place. The flat interleaved format (`[x, y, x, y, ...]`) is only present after ICF conversion — the raw Go output uses `[{x,y}, ...]` objects.
-- `neighbors` in the ICF can contain cross-island connections added by `kiwotigo-unite-islands.js` that do not exist in the raw Go output.
+- `neighbors` and `airNeighbors` are disjoint: `neighbors ∩ airNeighbors = ∅` per region. Cross-island and line-of-sight connections added by `kiwotigo-unite-islands.js` go into `airNeighbors` only.
