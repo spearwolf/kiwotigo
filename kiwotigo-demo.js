@@ -306,6 +306,12 @@
   };
   var getUpdateToggleAction = () => document.querySelector(".kiwotigo-form-justUpdate");
   var LEGEND_STORAGE_KEY = "kiwotigoLegendOptions";
+  var SIDEBAR_STORAGE_KEY = "kiwotigoSidebarOpened";
+  var restoreSidebarState = () => {
+    const raw = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    const isOpened = raw === null ? true : raw === "true";
+    document.querySelector(".createContinentConfig").classList.toggle("opened", isOpened);
+  };
   var getMapLegendOptions = () => {
     const legendOptions = {};
     Array.from(
@@ -410,6 +416,7 @@
   };
   document.getElementById("darkMode").checked = window.matchMedia("(prefers-color-scheme: dark)").matches;
   restoreLegendOptions();
+  restoreSidebarState();
   syncDarkModeClass();
   var getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
   document.forms.kiwotigo.addEventListener("submit", (event) => {
@@ -446,7 +453,9 @@
     }
   });
   document.querySelector(".openCloseAction").addEventListener("pointerup", () => {
-    document.querySelector(".createContinentConfig").classList.toggle("opened");
+    const sidebar = document.querySelector(".createContinentConfig");
+    sidebar.classList.toggle("opened");
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebar.classList.contains("opened")));
   });
   getUpdateToggleAction().addEventListener("change", () => {
     const { checked } = getUpdateToggleAction();

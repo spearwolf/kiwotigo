@@ -92,6 +92,13 @@ const getUpdateToggleAction = () =>
   document.querySelector(".kiwotigo-form-justUpdate");
 
 const LEGEND_STORAGE_KEY = 'kiwotigoLegendOptions';
+const SIDEBAR_STORAGE_KEY = 'kiwotigoSidebarOpened';
+
+const restoreSidebarState = () => {
+  const raw = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+  const isOpened = raw === null ? true : raw === 'true';
+  document.querySelector('.createContinentConfig').classList.toggle('opened', isOpened);
+};
 
 const getMapLegendOptions = () => {
   const legendOptions = {};
@@ -209,6 +216,7 @@ const getConfig = () => {
 
 document.getElementById('darkMode').checked = window.matchMedia('(prefers-color-scheme: dark)').matches;
 restoreLegendOptions();
+restoreSidebarState();
 syncDarkModeClass();
 
 const getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
@@ -251,7 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.querySelector(".openCloseAction").addEventListener("pointerup", () => {
-  document.querySelector(".createContinentConfig").classList.toggle("opened");
+  const sidebar = document.querySelector(".createContinentConfig");
+  sidebar.classList.toggle("opened");
+  localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebar.classList.contains("opened")));
 });
 
 getUpdateToggleAction().addEventListener("change", () => {
