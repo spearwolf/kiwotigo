@@ -9,7 +9,7 @@ function getColors(dark) {
     regionBBoxStroke:              dark ? '#333'    : '#f0f0f0',
     regionOuterRadiusStroke:       dark ? '#444'    : '#cacaca',
     connectionStroke:              dark ? '#c04'    : '#f5b',
-    connectionToOtherIslandStroke: dark ? 'rgb(204 0 68 / 75%)' : 'rgb(255 85 187 / 75%)',
+    connectionToOtherIslandStroke: dark ? 'rgb(204 104 0 / 75%)' : 'rgb(255 154 0 / 75%)',
     regionIdTextFill:              dark ? '#ccc'    : '#666',
     regionIdShadow:                dark ? '#4b4b4b' : '#fff',
   };
@@ -84,8 +84,8 @@ function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAir
     alreadyDrawn.add(id);
     if (air) {
       ctx.strokeStyle = colors.connectionToOtherIslandStroke;
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 6]);
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 8]);
     } else {
       ctx.strokeStyle = colors.connectionStroke;
       ctx.lineWidth = 3;
@@ -100,14 +100,14 @@ function drawRegionsConnections(ctx, continent, { drawRegionConnections, drawAir
 
   continent.regions.forEach((region) => {
     if (drawRegionConnections) {
-      region.neighbors.forEach((nId) =>
+      region.neighbors.forEach((nId) => {
         drawLine(region, getRegion(continent, nId), false)
-      );
+      });
     }
     if (drawAirConnections) {
-      region.airNeighbors.forEach((nId) =>
+      region.airNeighbors.forEach((nId) => {
         drawLine(region, getRegion(continent, nId), true)
-      );
+      });
     }
   });
 
