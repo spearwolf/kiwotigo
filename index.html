@@ -494,10 +494,25 @@
         border-bottom: 1px dashed var(--footer-external-link-underline-color);
       }
 
-      .mapLegendContainer {
+      .mapBottomRightPanel {
         position: fixed;
         right: 20px;
         bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .mapDownloadContainer {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid var(--legend-border-color);
+        border-radius: 6px;
+        background-color: var(--legend-background-color);
+      }
+
+      .mapLegendContainer {
         padding: 10px;
         user-select: none;
         border: 1px solid var(--legend-border-color);
@@ -1012,7 +1027,17 @@
       </div>
     </main>
 
-    <section class="mapLegendContainer">
+    <div class="mapBottomRightPanel">
+      <div class="mapDownloadContainer">
+        <button
+          type="button"
+          class="kiwotigo-button"
+          id="downloadIcfBtn"
+          disabled
+        >Download ICF.json</button>
+      </div>
+
+      <section class="mapLegendContainer">
       <div class="legendRow">
         <input
           type="checkbox"
@@ -1095,6 +1120,7 @@
         >
       </div>
     </section>
+    </div>
 
     <section class="loadingModal">
       <div class="loadingModal-content">

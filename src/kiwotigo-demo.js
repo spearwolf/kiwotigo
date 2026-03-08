@@ -4,6 +4,7 @@ import draw from "./kiwotigo-painter.js";
 let regionMask = null;
 let isPainting = false;
 let paintValue = 1;
+let currentIcf = null;
 
 function paintCell(index) {
   regionMask[index] = paintValue;
@@ -124,6 +125,17 @@ const syncDarkModeClass = () => {
   document.documentElement.classList.toggle('light-mode', !dark);
 };
 
+document.getElementById('downloadIcfBtn').addEventListener('click', () => {
+  if (!currentIcf) return;
+  const blob = new Blob([JSON.stringify(currentIcf)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kiwotigo-icf.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
 const drawContinent = (() => {
   let drawOptions;
 
@@ -141,6 +153,8 @@ const onCreate = (config) => {
     hideLoadingState();
     getUpdateToggleAction().disabled = false;
     document.querySelector(".mapLegendContainer").style.display = "block";
+    currentIcf = data.continent;
+    document.getElementById('downloadIcfBtn').disabled = false;
 
     canvas.width = data.continent.canvasWidth;
     canvas.height = data.continent.canvasHeight;
