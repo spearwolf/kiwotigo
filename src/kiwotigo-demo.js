@@ -1,6 +1,11 @@
 import { build, startBroadcasting } from "./kiwotigo.js";
 import draw from "./kiwotigo-painter.js";
 
+/* global __KIWOTIGO_VERSION__ */
+const APP_VERSION = (typeof __KIWOTIGO_VERSION__ === 'string')
+  ? __KIWOTIGO_VERSION__
+  : '(development)';
+
 let regionMask = null;
 let isPainting = false;
 let paintValue = 1;
@@ -217,6 +222,8 @@ const getConfig = () => {
 document.getElementById('darkMode').checked = window.matchMedia('(prefers-color-scheme: dark)').matches;
 restoreLegendOptions();
 restoreSidebarState();
+const versionEl = document.getElementById('kiwotigoVersion');
+if (versionEl) versionEl.textContent = APP_VERSION;
 syncDarkModeClass();
 
 const getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");

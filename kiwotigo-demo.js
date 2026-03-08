@@ -230,6 +230,7 @@
   }
 
   // src/kiwotigo-demo.js
+  var APP_VERSION = true ? "master-470e8fa-20260308" : "(development)";
   var regionMask = null;
   var isPainting = false;
   var paintValue = 1;
@@ -417,6 +418,8 @@
   document.getElementById("darkMode").checked = window.matchMedia("(prefers-color-scheme: dark)").matches;
   restoreLegendOptions();
   restoreSidebarState();
+  var versionEl = document.getElementById("kiwotigoVersion");
+  if (versionEl) versionEl.textContent = APP_VERSION;
   syncDarkModeClass();
   var getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
   document.forms.kiwotigo.addEventListener("submit", (event) => {
