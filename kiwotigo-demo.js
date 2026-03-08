@@ -298,6 +298,7 @@
     }, 500);
   };
   var getUpdateToggleAction = () => document.querySelector(".kiwotigo-form-justUpdate");
+  var LEGEND_STORAGE_KEY = "kiwotigoLegendOptions";
   var getMapLegendOptions = () => {
     const legendOptions = {};
     Array.from(
@@ -306,6 +307,24 @@
       legendOptions[checkbox.name] = checkbox.checked;
     });
     return legendOptions;
+  };
+  var saveLegendOptions = () => {
+    localStorage.setItem(LEGEND_STORAGE_KEY, JSON.stringify(getMapLegendOptions()));
+  };
+  var restoreLegendOptions = () => {
+    const raw = localStorage.getItem(LEGEND_STORAGE_KEY);
+    if (!raw) return;
+    let saved;
+    try {
+      saved = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    document.querySelectorAll(".mapLegendContainer input[type=checkbox]").forEach((cb) => {
+      if (Object.prototype.hasOwnProperty.call(saved, cb.name)) {
+        cb.checked = saved[cb.name];
+      }
+    });
   };
   var drawContinent = /* @__PURE__ */ (() => {
     let drawOptions;
@@ -365,6 +384,7 @@
     }
     return config2;
   };
+  restoreLegendOptions();
   var getKiwotigoOriginData = () => localStorage.getItem("kiwotigoOriginData");
   document.forms.kiwotigo.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -450,6 +470,7 @@
   });
   document.querySelector(".mapLegendContainer").addEventListener("change", (e) => {
     console.debug("legend options", getMapLegendOptions());
+    saveLegendOptions();
     drawContinent(getMapLegendOptions());
   });
   startBroadcasting();
