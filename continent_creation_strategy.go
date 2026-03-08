@@ -301,30 +301,30 @@ func (strategy *ContinentCreationStrategy) growRegion(region *Region) {
 	isGrowable, exists := strategy.growableRegion[region]
 	if isGrowable || !exists {
 
-		hexagons := strategy.regionLessWithNeighborWithRegionCount(region, 3)
+		hexagons := strategy.regionLessWithNeighborWithRegionCount(region, 5)
 		if len(hexagons) > 0 {
 			region.AssignHexagons(hexagons)
 		}
 
-		hexagons  = strategy.regionLessWithNeighborWithRegionCount(region, 4)
-		if len(hexagons) > 0 {
-			region.AssignHexagons(hexagons)
-		}
+		// hexagons  = strategy.regionLessWithNeighborWithRegionCount(region, 4)
+		// if len(hexagons) > 0 {
+		// 	region.AssignHexagons(hexagons)
+		// }
 
-		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 5)
-		if len(hexagons) > 0 {
-			region.AssignHexagons(hexagons)
-		}
+		// hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 5)
+		// if len(hexagons) > 0 {
+		// 	region.AssignHexagons(hexagons)
+		// }
 
 		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 2)
 		if len(hexagons) > 0 {
 			region.AssignHexagon(hexagons[strategy.rand.Intn(len(hexagons))])
 		}
 
-		hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 1)
-		if len(hexagons) > 0 {
-			region.AssignHexagon(hexagons[strategy.rand.Intn(len(hexagons))])
-		}
+		// hexagons = strategy.regionLessWithNeighborWithRegionCount(region, 1)
+		// if len(hexagons) > 0 {
+		// 	region.AssignHexagon(hexagons[strategy.rand.Intn(len(hexagons))])
+		// }
 
 		growable := len(region.RegionLessNeighborHexagons()) > 0
 
