@@ -50,39 +50,24 @@ $ pnpm dev
 
 Alternatively, you can generate world maps directly from the command line using the `kiwotigo-cli.mjs` Node.js script. It runs the full pipeline (WASM continent generation, ICF conversion, path smoothing, island detection & connection) and outputs the final ICF as JSON.
 
-```sh
-# Generate a world map with default settings, output JSON to stdout
-$ node kiwotigo-cli.mjs
-
-# Pretty-print the output
-$ node kiwotigo-cli.mjs --prettyPrint
-
-# Write output to a file
-$ node kiwotigo-cli.mjs -o world.json
-
-# Use a config file
-$ node kiwotigo-cli.mjs -c config.json -o world.json
-
-# Override individual config values (these take precedence over the config file)
-$ node kiwotigo-cli.mjs --gridWidth=10 --gridHeight=10 --prettyPrint
-
-# Combine a config file with overrides and file output
-$ node kiwotigo-cli.mjs -c config.json --gridWidth=12 -o world.json
-
-# Re-use a previously generated ICF file as config input (extracts the "config" property)
-$ node kiwotigo-cli.mjs -c world.json -o new-world.json
-
-# Show all available options
-$ node kiwotigo-cli.mjs --help
-```
+| Cmmmand | Description |
+|---------------------|-------------|
+| `node kiwotigo-cli.mjs` | Generate a world map with default settings, output JSON to stdout |
+| `node kiwotigo-cli.mjs --prettyPrint` | Pretty-print the output |
+| `node kiwotigo-cli.mjs -o world.json` | Write output to a file |
+| `node kiwotigo-cli.mjs -c config.json -o world.json` | Use a config file |
+| `node kiwotigo-cli.mjs --gridWidth=10 --gridHeight=10 --prettyPrint` | Override individual config values (these take precedence over the config file) |
+| `node kiwotigo-cli.mjs -c config.json --gridWidth=12 -o world.json` | Combine a config file with overrides and file output |
+| `node kiwotigo-cli.mjs -c world.json -o new-world.json` | Re-use a previously generated ICF file as config input (extracts the "config" property) |
+| `node kiwotigo-cli.mjs --help` | Show all available options |
 
 Progress information is written to stderr, so piping works as expected:
 
-```sh
-$ node kiwotigo-cli.mjs --gridWidth=8 --gridHeight=8 > world.json
-```
+| Command | Description |
+|---------------------|-------------|
+| `node kiwotigo-cli.mjs --gridWidth=8 --gridHeight=8 > world.json` | Pipe output to a file (progress info goes to stderr) |
 
-have fun!
+_have fun!_
 
 
 ## License & Commercial Use
