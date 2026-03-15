@@ -1,6 +1,6 @@
 # kiwotigo
 
-![creative-coding](https://img.shields.io/badge/creative-coding-blue) [![Go Report Card](https://goreportcard.com/badge/github.com/spearwolf/kiwotigo)](https://goreportcard.com/report/github.com/spearwolf/kiwotigo)
+![creative-coding](https://img.shields.io/badge/creative-coding-beige) [![Go Report Card](https://goreportcard.com/badge/github.com/spearwolf/kiwotigo)](https://goreportcard.com/report/github.com/spearwolf/kiwotigo)
 
 _kiwotigo_ is world map generation tool.
 
@@ -85,6 +85,14 @@ $ node kiwotigo-cli.mjs --gridWidth=8 --gridHeight=8 > world.json
 have fun!
 
 
-## LICENSE
+## License & Commercial Use
 
-the kiwotigo code is licensed under the GPLv3. see [LICENSE](./LICENSE.txt) for details.
+This project is licensed under the **GPLv3**. See [LICENSE](./LICENSE.txt) for details.
+
+If you want to use *kiwotigo* in a commercial project (e.g., a closed-source game) and cannot or do not want to comply with the GPLv3 terms, a **commercial license** is available.
+
+Please contact [me](mailto:wolfger@spearwolf.de) for further information regarding proprietary licensing.
+
+### Contributions
+
+By contributing to this project, you agree to the terms of our [Contributor License Agreement (CLA)](./CLA.md). This allows the maintainer to include your contributions in both the GPL and commercial versions of the software.
